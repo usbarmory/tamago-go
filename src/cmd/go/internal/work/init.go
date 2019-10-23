@@ -138,7 +138,7 @@ func buildModeInit() {
 					codegenArg = "-shared"
 				}
 
-			case "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris":
+			case "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris", "tamago":
 				// Use -shared so that the result is
 				// suitable for inclusion in a PIE or
 				// shared library.
@@ -153,7 +153,7 @@ func buildModeInit() {
 			codegenArg = "-fPIC"
 		} else {
 			switch cfg.Goos {
-			case "linux", "android", "freebsd":
+			case "linux", "android", "freebsd", "tamago":
 				codegenArg = "-shared"
 			case "windows":
 				// Do not add usual .exe suffix to the .dll file.

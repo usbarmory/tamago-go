@@ -92,6 +92,7 @@ var okgoos = []string{
 	"plan9",
 	"windows",
 	"aix",
+	"tamago",
 }
 
 // find reports the first index of p in l[0:n], or else -1.
@@ -1575,6 +1576,7 @@ var cgoEnabled = map[string]bool{
 	"windows/386":     true,
 	"windows/amd64":   true,
 	"windows/arm":     false,
+	"tamago/arm":      true,
 }
 
 // List of platforms which are supported but not complete yet. These get

@@ -325,6 +325,9 @@ var aeskeysched [hashRandomBytes]byte
 // used in hash{32,64}.go to seed the hash function
 var hashkey [4]uintptr
 
+// provided by the target application when GOOS == tamago
+func initRNG()
+
 func alginit() {
 	// Install AES hash algorithms if the instructions needed are present.
 	if (GOARCH == "386" || GOARCH == "amd64") &&
@@ -337,6 +340,9 @@ func alginit() {
 	if GOARCH == "arm64" && cpu.ARM64.HasAES {
 		initAlgAES()
 		return
+	}
+	if GOOS == "tamago" {
+		initRNG()
 	}
 	getRandomData((*[len(hashkey) * sys.PtrSize]byte)(unsafe.Pointer(&hashkey))[:])
 	hashkey[0] |= 1 // make sure these numbers are odd

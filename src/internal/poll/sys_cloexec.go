@@ -5,7 +5,7 @@
 // This file implements sysSocket and accept for platforms that do not
 // provide a fast path for setting SetNonblock and CloseOnExec.
 
-// +build aix darwin js,wasm solaris,!illumos
+// +build aix darwin js,wasm solaris,!illumos tamago
 
 package poll
 

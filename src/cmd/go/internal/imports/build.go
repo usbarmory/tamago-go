@@ -222,6 +222,7 @@ var KnownOS = map[string]bool{
 	"solaris":   true,
 	"windows":   true,
 	"zos":       true,
+	"tamago":    true,
 }
 
 var KnownArch = map[string]bool{

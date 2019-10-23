@@ -7,6 +7,10 @@ package runtime
 import "unsafe"
 
 func gogetenv(key string) string {
+	if GOOS == "tamago" {
+		return ""
+	}
+
 	env := environ()
 	if env == nil {
 		throw("getenv before env init")

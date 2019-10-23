@@ -11,6 +11,7 @@
 // +build !plan9
 // +build !solaris
 // +build !windows
+// +build !tamago
 
 package runtime
 

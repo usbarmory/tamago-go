@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !aix && !darwin && !freebsd && !openbsd && !solaris && !windows && !(linux && amd64)
+//go:build !aix && !darwin && !freebsd && !openbsd && !solaris && !windows && !(linux && amd64) && !tamago
 // +build !aix
 // +build !darwin
 // +build !freebsd
@@ -10,6 +10,7 @@
 // +build !solaris
 // +build !windows
 // +build !linux !amd64
+// +build !tamago
 
 package runtime
 

@@ -166,7 +166,7 @@ func main() {
 	// Allow newproc to start new Ms.
 	mainStarted = true
 
-	if GOARCH != "wasm" { // no threads on wasm yet, so no sysmon
+	if GOARCH != "wasm" && GOOS != "tamago" { // no threads on wasm/tamago yet, so no sysmon
 		systemstack(func() {
 			newm(sysmon, nil, -1)
 		})
@@ -2260,7 +2260,8 @@ func newm1(mp *m) {
 //
 // The calling thread must itself be in a known-good state.
 func startTemplateThread() {
-	if GOARCH == "wasm" { // no threads on wasm yet
+	if GOARCH == "wasm" || // no threads on wasm yet
+	   GOOS == "tamago" {
 		return
 	}
 
@@ -3634,6 +3635,7 @@ func goexit0(gp *g) {
 	if isSystemGoroutine(gp, false) {
 		sched.ngsys.Add(-1)
 	}
+
 	gp.m = nil
 	locked := gp.lockedm != 0
 	gp.lockedm = 0
@@ -3660,7 +3662,8 @@ func goexit0(gp *g) {
 
 	dropg()
 
-	if GOARCH == "wasm" { // no threads yet on wasm
+	if GOARCH == "wasm" || // no threads yet on wasm
+	   GOOS == "tamago" {
 		gfput(pp, gp)
 		schedule() // never returns
 	}
@@ -4270,6 +4273,7 @@ func newproc1(fn *funcval, callergp *g, callerpc uintptr) *g {
 		casgstatus(newg, _Gidle, _Gdead)
 		allgadd(newg) // publishes with a g->status of Gdead so GC scanner doesn't look at uninitialized stack.
 	}
+
 	if newg.stack.hi == 0 {
 		throw("newproc1: newg missing stack")
 	}
@@ -4519,7 +4523,8 @@ func Breakpoint() {
 //
 //go:nosplit
 func dolockOSThread() {
-	if GOARCH == "wasm" {
+	if GOARCH == "wasm" ||
+	   GOOS == "tamago" {
 		return // no threads on wasm yet
 	}
 	gp := getg()
@@ -4571,7 +4576,8 @@ func lockOSThread() {
 //
 //go:nosplit
 func dounlockOSThread() {
-	if GOARCH == "wasm" {
+	if GOARCH == "wasm" ||
+	   GOOS == "tamago" {
 		return // no threads on wasm yet
 	}
 	gp := getg()

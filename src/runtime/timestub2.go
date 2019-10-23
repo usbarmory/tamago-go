@@ -8,6 +8,7 @@
 // +build !openbsd
 // +build !solaris
 // +build !windows
+// +build !tamago
 
 package runtime
 

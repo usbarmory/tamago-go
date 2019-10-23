@@ -517,8 +517,8 @@ func Elfinit(ctxt *Link) {
 	// 32-bit architectures
 	case sys.ARM, sys.MIPS:
 		if ctxt.Arch.Family == sys.ARM {
-			// we use EABI on linux/arm, freebsd/arm, netbsd/arm.
-			if ctxt.HeadType == objabi.Hlinux || ctxt.HeadType == objabi.Hfreebsd || ctxt.HeadType == objabi.Hnetbsd {
+			// we use EABI on linux/arm, freebsd/arm, netbsd/arm, tamago/arm.
+			if ctxt.HeadType == objabi.Hlinux || ctxt.HeadType == objabi.Hfreebsd || ctxt.HeadType == objabi.Hnetbsd || ctxt.HeadType == objabi.Htamago {
 				// We set a value here that makes no indication of which
 				// float ABI the object uses, because this is information
 				// used by the dynamic linker to compare executables and
@@ -1950,6 +1950,9 @@ func Asmbelf(ctxt *Link, symo int64) {
 
 			case objabi.Hsolaris:
 				interpreter = thearch.Solarisdynld
+
+			case objabi.Htamago:
+				interpreter = thearch.Linuxdynld
 			}
 		}
 
@@ -2185,7 +2188,7 @@ func Asmbelf(ctxt *Link, symo int64) {
 		}
 	}
 
-	if ctxt.HeadType == objabi.Hlinux {
+	if ctxt.HeadType == objabi.Hlinux || ctxt.HeadType == objabi.Htamago {
 		ph := newElfPhdr()
 		ph.type_ = PT_GNU_STACK
 		ph.flags = PF_W + PF_R

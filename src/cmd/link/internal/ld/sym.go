@@ -83,7 +83,8 @@ func (ctxt *Link) computeTLSOffset() {
 		objabi.Hnetbsd,
 		objabi.Hopenbsd,
 		objabi.Hdragonfly,
-		objabi.Hsolaris:
+		objabi.Hsolaris,
+		objabi.Htamago:
 		/*
 		 * ELF uses TLS offset negative from FS.
 		 * Translate 0(FS) and 8(FS) into -16(FS) and -8(FS).

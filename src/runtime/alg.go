@@ -443,6 +443,9 @@ var aeskeysched [hashRandomBytes]byte
 // used in hash{32,64}.go to seed the hash function
 var hashkey [4]uintptr
 
+// provided by the target application when GOOS == tamago
+func initRNG()
+
 func alginit() {
 	// Install AES hash algorithms if the instructions needed are present.
 	if (GOARCH == "386" || GOARCH == "amd64") &&

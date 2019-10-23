@@ -103,6 +103,7 @@ var okgoos = []string{
 	"plan9",
 	"windows",
 	"aix",
+	"tamago",
 }
 
 // xinit handles initialization of the various global state, like goroot and goarch.
@@ -1815,6 +1816,7 @@ var cgoEnabled = map[string]bool{
 	"windows/386":     true,
 	"windows/amd64":   true,
 	"windows/arm64":   true,
+	"tamago/arm":      true,
 }
 
 // List of platforms that are marked as broken ports.

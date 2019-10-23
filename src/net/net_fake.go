@@ -4,7 +4,7 @@
 
 // Fake networking for js/wasm. It is intended to allow tests of other package to pass.
 
-// +build js,wasm
+// +build js,wasm tamago
 
 package net
 

@@ -326,6 +326,7 @@ var KnownOS = map[string]bool{
 	"wasip1":    true,
 	"windows":   true,
 	"zos":       true,
+	"tamago":    true,
 }
 
 // unixOS is the set of GOOS values matched by the "unix" build tag.

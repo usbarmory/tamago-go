@@ -5,7 +5,7 @@
 // Fake network poller for wasm/js.
 // Should never be used, because wasm/js network connections do not honor "SetNonblock".
 
-//go:build js && wasm
+//go:build (js && wasm) || tamago
 
 package runtime
 

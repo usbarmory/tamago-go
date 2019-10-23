@@ -780,7 +780,8 @@ func asmb2(ctxt *ld.Link) {
 	case objabi.Hlinux,
 		objabi.Hfreebsd,
 		objabi.Hnetbsd,
-		objabi.Hopenbsd:
+		objabi.Hopenbsd,
+		objabi.Htamago:
 		ld.Asmbelf(ctxt, int64(symo))
 
 	case objabi.Hwindows:

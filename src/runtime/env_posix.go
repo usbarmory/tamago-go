@@ -2,13 +2,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build aix darwin dragonfly freebsd js,wasm linux netbsd openbsd solaris windows plan9
+// +build aix darwin dragonfly freebsd js,wasm linux netbsd openbsd solaris windows plan9 tamago
 
 package runtime
 
 import "unsafe"
 
 func gogetenv(key string) string {
+	if GOOS == "tamago" {
+		return ""
+	}
+
 	env := environ()
 	if env == nil {
 		throw("getenv before env init")

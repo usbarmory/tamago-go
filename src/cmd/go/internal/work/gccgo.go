@@ -426,7 +426,7 @@ func (tools gccgoToolchain) link(b *Builder, root *Action, out, importcfg string
 		// On systems that normally use gold or the GNU linker,
 		// use the --build-id option to write a GNU build ID note.
 		switch cfg.Goos {
-		case "android", "dragonfly", "linux", "netbsd":
+		case "android", "dragonfly", "linux", "tamago", "netbsd":
 			ldflags = append(ldflags, fmt.Sprintf("-Wl,--build-id=0x%x", root.buildID))
 		}
 	}
@@ -451,7 +451,7 @@ func (tools gccgoToolchain) link(b *Builder, root *Action, out, importcfg string
 	goLibBegin := str.StringList(wholeArchive, "-lgolibbegin", noWholeArchive)
 	switch buildmode {
 	case "exe":
-		if usesCgo && cfg.Goos == "linux" {
+		if usesCgo && (cfg.Goos == "linux" || cfg.Goos == "tamago") {
 			ldflags = append(ldflags, "-Wl,-E")
 		}
 

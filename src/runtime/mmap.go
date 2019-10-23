@@ -10,6 +10,7 @@
 // +build !js
 // +build !darwin
 // +build !aix
+// +build !tamago
 
 package runtime
 

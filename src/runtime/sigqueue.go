@@ -28,7 +28,7 @@
 // unnecessary rechecks of sig.mask, but it cannot lead to missed signals
 // nor deadlocks.
 
-//go:build !plan9
+//go:build !plan9 && !tamago
 
 package runtime
 

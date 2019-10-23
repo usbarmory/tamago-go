@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build aix || (js && wasm) || solaris
-// +build aix js,wasm solaris
+//go:build aix || (js && wasm) || solaris || tamago
+// +build aix js,wasm solaris tamago
 
 package net
 

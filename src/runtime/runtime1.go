@@ -73,6 +73,10 @@ func goargs() {
 	if GOOS == "windows" {
 		return
 	}
+	if GOOS == "tamago" {
+		argslice = []string{"tamago"}
+		return
+	}
 	argslice = make([]string, argc)
 	for i := int32(0); i < argc; i++ {
 		argslice[i] = gostringnocopy(argv_index(argv, i))

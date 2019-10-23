@@ -43,7 +43,7 @@ func (mode *BuildMode) Set(s string) error {
 		}
 	case "pie":
 		switch objabi.GOOS {
-		case "aix", "android", "linux", "windows", "darwin", "ios":
+		case "aix", "android", "linux", "windows", "darwin", "ios", "tamago":
 		case "freebsd":
 			switch objabi.GOARCH {
 			case "amd64":
@@ -56,7 +56,7 @@ func (mode *BuildMode) Set(s string) error {
 		*mode = BuildModePIE
 	case "c-archive":
 		switch objabi.GOOS {
-		case "aix", "darwin", "ios", "linux":
+		case "aix", "darwin", "ios", "linux", "tamago":
 		case "freebsd":
 			switch objabi.GOARCH {
 			case "amd64":
@@ -82,7 +82,7 @@ func (mode *BuildMode) Set(s string) error {
 		*mode = BuildModeCShared
 	case "shared":
 		switch objabi.GOOS {
-		case "linux":
+		case "linux", "tamago":
 			switch objabi.GOARCH {
 			case "386", "amd64", "arm", "arm64", "ppc64le", "s390x":
 			default:
@@ -94,7 +94,7 @@ func (mode *BuildMode) Set(s string) error {
 		*mode = BuildModeShared
 	case "plugin":
 		switch objabi.GOOS {
-		case "linux":
+		case "linux", "tamago":
 			switch objabi.GOARCH {
 			case "386", "amd64", "arm", "arm64", "s390x", "ppc64le":
 			default:

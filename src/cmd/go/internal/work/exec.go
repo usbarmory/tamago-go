@@ -945,7 +945,7 @@ OverlayLoop:
 	// This is read by readGccgoArchive in cmd/internal/buildid/buildid.go.
 	if a.buildID != "" && cfg.BuildToolchainName == "gccgo" {
 		switch cfg.Goos {
-		case "aix", "android", "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris":
+		case "aix", "android", "dragonfly", "freebsd", "illumos", "linux", "netbsd", "openbsd", "solaris", "tamago":
 			asmfile, err := b.gccgoBuildIDFile(a)
 			if err != nil {
 				return err
@@ -3096,7 +3096,7 @@ func (b *Builder) dynimport(a *Action, objdir, importGo, cgoExe string, cflags, 
 	dynobj := objdir + "_cgo_.o"
 
 	ldflags := cgoLDFLAGS
-	if (cfg.Goarch == "arm" && cfg.Goos == "linux") || cfg.Goos == "android" {
+	if (cfg.Goarch == "arm" && (cfg.Goos == "linux" || cfg.Goos == "tamago")) || cfg.Goos == "android" {
 		if !slices.Contains(ldflags, "-no-pie") {
 			// we need to use -pie for Linux/ARM to get accurate imported sym (added in https://golang.org/cl/5989058)
 			// this seems to be outdated, but we don't want to break existing builds depending on this (Issue 45940)
@@ -3389,7 +3389,7 @@ func (b *Builder) swigOne(a *Action, file, objdir string, pcCFLAGS []string, cxx
 // systems that normally use gold or the GNU linker.
 func (b *Builder) disableBuildID(ldflags []string) []string {
 	switch cfg.Goos {
-	case "android", "dragonfly", "linux", "netbsd":
+	case "android", "dragonfly", "linux", "tamago", "netbsd":
 		ldflags = append(ldflags, "-Wl,--build-id=none")
 	}
 	return ldflags

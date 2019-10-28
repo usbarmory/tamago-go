@@ -10,6 +10,8 @@ import (
 	"unsafe"
 )
 
+const tamagoDebug = true
+
 // FIXME: for mem_tamago.go copied from mem_plan9.go
 const _PAGESIZE uintptr = 0x1000
 
@@ -225,8 +227,10 @@ func vecinit() {
 	// therefore this handler needs not to throw.
 	vt.svc_addr = simpleHandlerAddr
 
-	print("vecTableStart ", hex(vecTableStart), "\n")
-	print("vecTableSize ", hex(vecTableSize), "\n")
+	if tamagoDebug {
+		print("vecTableStart ", hex(vecTableStart), "\n")
+		print("vecTableSize ", hex(vecTableSize), "\n")
+	}
 
 	set_vbar(unsafe.Pointer(vt))
 }
@@ -240,23 +244,26 @@ func excstackinit() {
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(excStackStart)), uintptr(excStackSize))
 	dmb()
 
-	print("excStackStart ", hex(excStackStart), "\n")
-	print("excStackSize ", hex(excStackSize), "\n")
-	print("stackBottom ", hex(stackBottom), "\n")
-	print("g0.stackguard0 ", hex(g0.stackguard0), "\n")
-	print("g0.stackguard1 ", hex(g0.stackguard1), "\n")
-	print("g0.stack.lo ", hex(g0.stack.lo), "\n")
-	print("g0.stack.hi ", hex(g0.stack.hi), "\n")
-	print("-- ELF image layout (firstmoduledata dump) --\n")
-	print(".text       ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
-	print(".noptrdata  ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
-	print(".data       ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
-	print(".bss        ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
-	print(".noptrbss   ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
-	print(".end        ", hex(firstmoduledata.end), "\n")
-	size := firstmoduledata.end-firstmoduledata.text
-	print("total size: ", size/1024, " kB\n")
-	print("---------------------------------------------\n")
+	if tamagoDebug {
+		size := firstmoduledata.end-firstmoduledata.text
+
+		print("excStackStart ", hex(excStackStart), "\n")
+		print("excStackSize ", hex(excStackSize), "\n")
+		print("stackBottom ", hex(stackBottom), "\n")
+		print("g0.stackguard0 ", hex(g0.stackguard0), "\n")
+		print("g0.stackguard1 ", hex(g0.stackguard1), "\n")
+		print("g0.stack.lo ", hex(g0.stack.lo), "\n")
+		print("g0.stack.hi ", hex(g0.stack.hi), "\n")
+		print("-- ELF image layout (firstmoduledata dump) --\n")
+		print(".text       ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
+		print(".noptrdata  ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
+		print(".data       ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
+		print(".bss        ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
+		print(".noptrbss   ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
+		print(".end        ", hex(firstmoduledata.end), "\n")
+		print("total size: ", size/1024, " kB\n")
+		print("---------------------------------------------\n")
+	}
 
 	set_exc_stack(unsafe.Pointer(uintptr(excStackStart + excStackSize)))
 }
@@ -275,8 +282,10 @@ func mmuinit() {
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(l1pageTableStart)), uintptr(l1pageTableSize))
 	dmb()
 
-	print("l1pageTableStart ", hex(l1pageTableStart), "\n")
-	print("l1pageTableSize ", hex(l1pageTableSize), "\n")
+	if tamagoDebug {
+		print("l1pageTableStart ", hex(l1pageTableStart), "\n")
+		print("l1pageTableSize ", hex(l1pageTableSize), "\n")
+	}
 
 	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart)))
 }
@@ -331,7 +340,9 @@ func walltime() (sec int64, nsec int32) {
 func usleep(us uint32) {
 	// TODO: Understand how much this is used and if blocking operation is
 	// an acceptable strategy.
-	print("DEBUG: usleep for ", us, "us\n")
+	if tamagoDebug {
+		print("usleep for ", us, "us\n")
+	}
 	wake := nanotime() + int64(us)*1000
 	for nanotime() < wake {
 	}

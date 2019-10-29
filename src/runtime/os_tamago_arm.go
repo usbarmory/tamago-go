@@ -76,6 +76,11 @@ var l1pageTableSize uint32 = 0x4000   // 16 kB
 var excStackOffset uint32 = 0x8000 // 32 kB
 var excStackSize uint32 = 0x4000   // 16 kB
 
+var imageSize uint32
+var stackSize uint32
+var heapSize uint32
+var unusedSize uint32
+
 // the following variables are set in sys_tamago_arm.s
 var stackBottom uint32
 
@@ -228,8 +233,8 @@ func vecinit() {
 	vt.svc_addr = simpleHandlerAddr
 
 	if tamagoDebug {
-		print("vecTableStart ", hex(vecTableStart), "\n")
-		print("vecTableSize ", hex(vecTableSize), "\n")
+		print("vecTableStart    ", hex(vecTableStart), "\n")
+		print("vecTableSize     ", hex(vecTableSize), "\n")
 	}
 
 	set_vbar(unsafe.Pointer(vt))
@@ -245,23 +250,37 @@ func excstackinit() {
 	dmb()
 
 	if tamagoDebug {
-		size := firstmoduledata.end-firstmoduledata.text
-
-		print("excStackStart ", hex(excStackStart), "\n")
-		print("excStackSize ", hex(excStackSize), "\n")
-		print("stackBottom ", hex(stackBottom), "\n")
-		print("g0.stackguard0 ", hex(g0.stackguard0), "\n")
-		print("g0.stackguard1 ", hex(g0.stackguard1), "\n")
-		print("g0.stack.lo ", hex(g0.stack.lo), "\n")
-		print("g0.stack.hi ", hex(g0.stack.hi), "\n")
+		print("excStackStart    ", hex(excStackStart), "\n")
+		print("excStackSize     ", hex(excStackSize), "\n")
+		print("stackBottom      ", hex(stackBottom), "\n")
+		print("g0.stackguard0   ", hex(g0.stackguard0), "\n")
+		print("g0.stackguard1   ", hex(g0.stackguard1), "\n")
+		print("g0.stack.lo      ", hex(g0.stack.lo), "\n")
+		print("g0.stack.hi      ", hex(g0.stack.hi), "\n")
 		print("-- ELF image layout (firstmoduledata dump) --\n")
-		print(".text       ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
-		print(".noptrdata  ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
-		print(".data       ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
-		print(".bss        ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
-		print(".noptrbss   ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
-		print(".end        ", hex(firstmoduledata.end), "\n")
-		print("total size: ", size/1024, " kB\n")
+		print(".text            ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
+		print(".noptrdata       ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
+		print(".data            ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
+		print(".bss             ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
+		print(".noptrbss        ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
+		print(".end             ", hex(firstmoduledata.end), "\n")
+
+		imageSize = uint32(firstmoduledata.end-firstmoduledata.text)
+		heapSize = uint32(g0.stack.lo - firstmoduledata.end)
+		stackSize = uint32(g0.stack.hi - g0.stack.lo)
+		unusedSize = uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
+
+		print("-- Memory section sizes ---------------------\n")
+		print("vector table:    ", vecTableSize, " (", vecTableSize/1024, " kB)\n")
+		print("L1 page table:   ", l1pageTableSize, " (", l1pageTableSize/1024, " kB)\n")
+		print("exception stack: ", excStackSize, " (", excStackSize/1024, " kB)\n")
+		print("program image:   ", imageSize, " (", imageSize/1024, " kB)\n")
+		print("heap:            ", heapSize, " (", heapSize/1024, " kB)\n")
+		print("g0 stack:        ", stackSize, " (", stackSize/1024, " kB)\n")
+		print("total unused:    ", unusedSize, " (", unusedSize/1024, " kB)\n")
+
+		totalSize := vecTableSize + l1pageTableSize + excStackSize + imageSize + heapSize + stackSize + unusedSize
+		print("total:           ", totalSize, " (", totalSize/1024, " kB)\n")
 		print("---------------------------------------------\n")
 	}
 
@@ -284,7 +303,7 @@ func mmuinit() {
 
 	if tamagoDebug {
 		print("l1pageTableStart ", hex(l1pageTableStart), "\n")
-		print("l1pageTableSize ", hex(l1pageTableSize), "\n")
+		print("l1pageTableSize  ", hex(l1pageTableSize), "\n")
 	}
 
 	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart)))

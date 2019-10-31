@@ -320,6 +320,9 @@ const (
 	minLegalPointer uintptr = 4096
 )
 
+// Defined in TamaGo's board package
+var ramSize uint32
+
 // physPageSize is the size in bytes of the OS's physical pages.
 // Mapping and unmapping operations must be done at multiples of
 // physPageSize.

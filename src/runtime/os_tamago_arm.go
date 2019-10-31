@@ -17,7 +17,9 @@ const _PAGESIZE uintptr = 0x1000
 
 // the following variables must be provided externally
 var ramStart uint32
-var ramSize uint32
+// ramSize declaration moved in malloc.go as it is required
+// during compiler compilation.
+// var ramSize uint32
 var ramStackOffset uint32
 
 // the following functions must be provided externally

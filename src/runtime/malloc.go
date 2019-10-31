@@ -347,7 +347,7 @@ const (
 	minHeapForMetadataHugePages = 1 << 30
 )
 
-// Defined in TamaGo's board package
+// Used by GOOS=tamago, initialized in external board package.
 var ramSize uint32
 
 // physPageSize is the size in bytes of the OS's physical pages.
@@ -575,17 +575,14 @@ func mallocinit() {
 		// heap reservation.
 		var heapArenaCount uintptr = (1 << arenaBits)
 
-		// In TamaGo each memory allocation directly consumes physical
+		// On TamaGo each memory allocation directly consumes physical
 		// memory. To keep heapArenas size as low as possible we
-		// allocate the exact number of them as needed to fill the
-		// board available RAM.
+		// allocate the exact number needed to fill available RAM.
 		if sys.GoosTamago == 1 {
 			heapArenaCount = uintptr(ramSize)/heapArenaBytes
 		}
+
 		arenaMetaSize := heapArenaCount * unsafe.Sizeof(heapArena{})
-		if sys.GoosTamago == 1 {
-			print("TamaGo: Allocating ", arenaMetaSize, " (", arenaMetaSize/1024, " kB) for heapArenas\n")
-		}
 		meta := uintptr(sysReserve(nil, arenaMetaSize, "heap reservation"))
 		if meta != 0 {
 			mheap_.heapArenaAlloc.init(meta, arenaMetaSize, true)

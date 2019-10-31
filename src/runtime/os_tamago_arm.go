@@ -17,10 +17,11 @@ const _PAGESIZE uintptr = 0x1000
 
 // the following variables must be provided externally
 var ramStart uint32
-// ramSize declaration moved in malloc.go as it is required
-// during compiler compilation.
-// var ramSize uint32
 var ramStackOffset uint32
+
+// the following variables must be provided externally
+// (but are already stubbed somewhere else in the runtime)
+// var ramSize uint32
 
 // the following functions must be provided externally
 func hwinit()
@@ -77,11 +78,6 @@ var l1pageTableSize uint32 = 0x4000   // 16 kB
 
 var excStackOffset uint32 = 0x8000 // 32 kB
 var excStackSize uint32 = 0x4000   // 16 kB
-
-var imageSize uint32
-var stackSize uint32
-var heapSize uint32
-var unusedSize uint32
 
 // the following variables are set in sys_tamago_arm.s
 var stackBottom uint32
@@ -267,10 +263,10 @@ func excstackinit() {
 		print(".noptrbss        ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
 		print(".end             ", hex(firstmoduledata.end), "\n")
 
-		imageSize = uint32(firstmoduledata.end-firstmoduledata.text)
-		heapSize = uint32(g0.stack.lo - firstmoduledata.end)
-		stackSize = uint32(g0.stack.hi - g0.stack.lo)
-		unusedSize = uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
+		imageSize := uint32(firstmoduledata.end-firstmoduledata.text)
+		heapSize := uint32(g0.stack.lo - firstmoduledata.end)
+		stackSize := uint32(g0.stack.hi - g0.stack.lo)
+		unusedSize := uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
 
 		print("-- Memory section sizes ---------------------\n")
 		print("vector table:    ", vecTableSize, " (", vecTableSize/1024, " kB)\n")

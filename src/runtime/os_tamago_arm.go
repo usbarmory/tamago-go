@@ -27,6 +27,7 @@ var ramStackOffset uint32
 func hwinit()
 func printk(byte)
 func getRandomData([]byte)
+func initRNG()
 
 // the following functions must be provided externally
 // (but are already stubbed somewhere else in the runtime)

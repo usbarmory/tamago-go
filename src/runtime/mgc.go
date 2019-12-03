@@ -215,9 +215,13 @@ func gcenable() {
 	// Kick off sweeping and scavenging.
 	c := make(chan int, 2)
 	go bgsweep(c)
-	go bgscavenge(c)
 	<-c
-	<-c
+	// FIXME: background scavenging currently blocks
+	// runtime.GC and runtime.Gosched in tamago
+	if GOOS != "tamago" {
+		go bgscavenge(c)
+		<-c
+	}
 	memstats.enablegc = true // now that runtime is initialized, GC is okay
 }
 

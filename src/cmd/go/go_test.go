@@ -2633,7 +2633,7 @@ func TestBadCommandLines(t *testing.T) {
 
 func TestTwoPkgConfigs(t *testing.T) {
 	testenv.MustHaveCGO(t)
-	if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
+	if runtime.GOOS == "windows" || runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
 		t.Skipf("no shell scripts on %s", runtime.GOOS)
 	}
 	tooSlow(t, "builds a package with cgo dependencies")

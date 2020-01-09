@@ -710,8 +710,7 @@ func asmb2(ctxt *ld.Link) {
 		objabi.Hnetbsd,
 		objabi.Hopenbsd,
 		objabi.Hdragonfly,
-		objabi.Hsolaris,
-		objabi.Htamago:
+		objabi.Hsolaris:
 		ld.Flag8 = true /* 64-bit addresses */
 
 	case objabi.Hwindows:

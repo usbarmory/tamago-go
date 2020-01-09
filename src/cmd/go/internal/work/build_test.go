@@ -225,6 +225,8 @@ func TestRespectSetgidDir(t *testing.T) {
 		t.Skip("can't set SetGID bit with chmod on iOS")
 	case "windows", "plan9":
 		t.Skip("chown/chmod setgid are not supported on Windows or Plan 9")
+	case "tamago":
+		t.Skip("chown/chmod setgid are not supported on TamaGo")
 	}
 
 	var b Builder

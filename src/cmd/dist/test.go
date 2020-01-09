@@ -723,7 +723,7 @@ func (t *tester) registerTests() {
 
 	// Doc tests only run on builders.
 	// They find problems approximately never.
-	if goos != "js" && goos != "android" && !t.iOS() && os.Getenv("GO_BUILDER_NAME") != "" {
+	if goos != "js" && goos != "android" && goos != "tamago" && !t.iOS() && os.Getenv("GO_BUILDER_NAME") != "" {
 		t.registerTest("doc_progs", "../doc/progs", "go", "run", "run.go")
 		t.registerTest("wiki", "../doc/articles/wiki", t.goTest(), ".")
 		t.registerTest("codewalk", "../doc/codewalk", t.goTest(), "codewalk_test.go")
@@ -760,7 +760,7 @@ func (t *tester) registerTests() {
 	// are too slow to complete in a reasonable timeframe. Every platform checks
 	// the API on every GOOS/GOARCH/CGO_ENABLED combination anyway, so we really
 	// only need to run this check once anywhere to get adequate coverage.
-	if goos != "android" && !t.iOS() && goos != "js" && goos != "plan9" {
+	if goos != "android" && !t.iOS() && goos != "js" && goos != "plan9" && goos != "tamago" {
 		t.tests = append(t.tests, distTest{
 			name:    "api",
 			heading: "API check",

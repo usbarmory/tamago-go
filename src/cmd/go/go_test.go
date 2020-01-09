@@ -56,7 +56,7 @@ func tooSlow(t *testing.T) {
 
 func init() {
 	switch runtime.GOOS {
-	case "android", "js", "nacl":
+	case "android", "js", "nacl", "tamago":
 		canRun = false
 	case "darwin":
 		switch runtime.GOARCH {
@@ -5604,7 +5604,7 @@ func TestTestCacheInputs(t *testing.T) {
 	tg.grepStdout(`\(cached\)`, "did not cache")
 
 	switch runtime.GOOS {
-	case "nacl", "plan9", "windows":
+	case "nacl", "plan9", "windows", "tamago":
 		// no shell scripts
 	default:
 		tg.run("test", "testcache", "-run=Exec")

@@ -728,8 +728,7 @@ func asmb2(ctxt *ld.Link) {
 		objabi.Hnetbsd,
 		objabi.Hopenbsd,
 		objabi.Hdragonfly,
-		objabi.Hsolaris,
-		objabi.Htamago:
+		objabi.Hsolaris:
 		ld.Flag8 = true /* 64-bit addresses */
 
 	case objabi.Hnacl,
@@ -760,8 +759,7 @@ func asmb2(ctxt *ld.Link) {
 			objabi.Hopenbsd,
 			objabi.Hdragonfly,
 			objabi.Hsolaris,
-			objabi.Hnacl,
-			objabi.Htamago:
+			objabi.Hnacl:
 			symo = int64(ld.Segdwarf.Fileoff + ld.Segdwarf.Filelen)
 			symo = ld.Rnd(symo, int64(*ld.FlagRound))
 
@@ -841,8 +839,7 @@ func asmb2(ctxt *ld.Link) {
 		objabi.Hopenbsd,
 		objabi.Hdragonfly,
 		objabi.Hsolaris,
-		objabi.Hnacl,
-		objabi.Htamago:
+		objabi.Hnacl:
 		ld.Asmbelf(ctxt, symo)
 
 	case objabi.Hwindows:

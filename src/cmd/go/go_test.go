@@ -2678,7 +2678,7 @@ func TestTwoPkgConfigs(t *testing.T) {
 	if !canCgo {
 		t.Skip("no cgo")
 	}
-	if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
+	if runtime.GOOS == "windows" || runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
 		t.Skipf("no shell scripts on %s", runtime.GOOS)
 	}
 	tooSlow(t)

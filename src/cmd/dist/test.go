@@ -707,7 +707,7 @@ func (t *tester) registerTests() {
 
 	// Doc tests only run on builders.
 	// They find problems approximately never.
-	if goos != "js" && goos != "android" && !t.iOS() && os.Getenv("GO_BUILDER_NAME") != "" {
+	if goos != "js" && goos != "android" && goos != "tamago" && !t.iOS() && os.Getenv("GO_BUILDER_NAME") != "" {
 		t.registerTest("doc_progs", "../doc/progs", "go", "run", "run.go")
 		t.registerTest("wiki", "../doc/articles/wiki", t.goTest(), ".")
 		t.registerTest("codewalk", "../doc/codewalk", t.goTest(), "codewalk_test.go")
@@ -739,7 +739,7 @@ func (t *tester) registerTests() {
 			})
 		}
 	}
-	if goos != "android" && !t.iOS() && goos != "js" {
+	if goos != "android" && !t.iOS() && goos != "js" && goos != "tamago" {
 		t.tests = append(t.tests, distTest{
 			name:    "api",
 			heading: "API check",

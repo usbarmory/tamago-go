@@ -423,8 +423,14 @@ func (f *fsysFile) preadLocked(b []byte, offset int64) (int, error) {
 		fs.atime(f.inode)
 		n := 0
 		for len(b) >= direntSize {
+			// On tamago/arm we must go through a copy of b to cast
+			// *Dirent, this is necessary as b is not guaranteed to
+			// be 32-bit aligned.
+			buf := make([]byte, len(b))
+			copy(buf, b)
+
 			src := f.inode.dir[int(offset/direntSize)]
-			dst := (*Dirent)(unsafe.Pointer(&b[0]))
+			dst := (*Dirent)(unsafe.Pointer(&buf[0]))
 			dst.Ino = int64(src.inode.Ino)
 			dst.Off = offset
 			dst.Reclen = direntSize
@@ -434,6 +440,8 @@ func (f *fsysFile) preadLocked(b []byte, offset int64) (int, error) {
 			copy(dst.Name[:], src.name)
 			n += direntSize
 			offset += direntSize
+
+			copy(b, buf)
 			b = b[direntSize:]
 		}
 		return n, nil

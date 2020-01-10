@@ -102,19 +102,13 @@ func notetsleepg(n *note, ns int64) bool {
 			delay = 1<<31 - 1 // cap to max int32
 		}
 
-		// id := scheduleTimeoutEvent(delay)
 		mp := acquirem()
 		notes[n] = gp
 		notesWithTimeout[n] = noteWithTimeout{gp: gp, deadline: deadline}
 		releasem(mp)
 
-		// gopark(nil, nil, waitReasonSleep, traceEvNone, 1)
+		gopark(nil, nil, waitReasonSleep, traceEvNone, 1)
 
-		// FIXME: we remove the timer logic as we do not have it yet,
-		// sleep timeout is honored but currently blocks other
-		// goroutines while sleeping.
-
-		// clearTimeoutEvent(id) // note might have woken early, clear timeout
 		mp = acquirem()
 		delete(notes, n)
 		delete(notesWithTimeout, n)
@@ -159,8 +153,6 @@ func init() {
 
 		gopark(nil, nil, waitReasonZero, traceEvNone, 1)
 		returnedEventHandler = nil
-
-		// pause(getcallersp() - 16)
 	}()
 	gopark(nil, nil, waitReasonZero, traceEvNone, 1)
 }

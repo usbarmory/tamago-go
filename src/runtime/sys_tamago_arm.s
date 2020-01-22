@@ -50,7 +50,7 @@ TEXT runtime·set_vbar(SB), NOSPLIT, $0-4
 TEXT runtime·set_ttbr0(SB), NOSPLIT, $0-4
 	MOVW	addr+0(FP), R0
 
-	B runtime·invallpages(SB)
+	BL runtime·invallpages(SB)
 
 	// Set TTBR0
 	MCR	15, 0, R0, C2, C0, 0

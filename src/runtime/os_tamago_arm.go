@@ -15,6 +15,21 @@ const tamagoDebug = true
 // FIXME: for mem_tamago.go copied from mem_plan9.go
 const _PAGESIZE uintptr = 0x1000
 
+// Translation Table entries
+const TTE_SECTION_1MB  uint32 = 0x2
+const TTE_SECTION_16MB uint32 = 0x40002
+const TTE_EXECUTE_NEVER uint32 = 0x10
+const TTE_CACHEABLE uint32 = 0x8
+const TTE_BUFFERABLE uint32 = 0x4
+const TTE_AP_000 uint32 = 0b000000 << 10	// PL1: no access   PL0: no access
+const TTE_AP_001 uint32 = 0b000001 << 10	// PL1: read/write  PL0: no access
+const TTE_AP_010 uint32 = 0b000010 << 10	// PL1: read/write  PL0: read only
+const TTE_AP_011 uint32 = 0b000011 << 10	// PL1: read/write  PL0: read/write
+const TTE_AP_100 uint32 = 0b100000 << 10	// Reserved
+const TTE_AP_101 uint32 = 0b100001 << 10	// PL1: read only   PL0: no access
+const TTE_AP_110 uint32 = 0b100010 << 10	// PL1: read only   PL0: read only
+const TTE_AP_111 uint32 = 0b100011 << 10	// PL1: read only   PL0: read only
+
 // the following variables must be provided externally
 var ramStart uint32
 var ramStackOffset uint32
@@ -293,11 +308,25 @@ func mmuinit() {
 	// MMU initialization is required to take advantage of data cache.
 	// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka13835.html
 
-	// Define an empty L1 page table, the MMU is enabled only for caching to work.
+	// Define a flat L1 page table, the MMU is enabled only for caching to work.
 	// The L1 page table is located 16KB after ramStart.
 
 	l1pageTableStart := ramStart + l1pageTableOffset
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(l1pageTableStart)), uintptr(l1pageTableSize))
+
+	var i uint32
+
+	memAttr := uint32(TTE_AP_011 | TTE_CACHEABLE | TTE_BUFFERABLE | TTE_SECTION_1MB)
+	devAttr := uint32(TTE_AP_011 | TTE_SECTION_1MB)
+
+	for i = 0; i < l1pageTableSize/4; i++ {
+		if i >= (ramStart >> 20) && i < ((ramStart+ramSize) >> 20) {
+			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | memAttr
+		} else {
+			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | devAttr
+		}
+	}
+
 	dmb()
 
 	if tamagoDebug {
@@ -305,7 +334,7 @@ func mmuinit() {
 		print("l1pageTableSize  ", hex(l1pageTableSize), "\n")
 	}
 
-	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart)))
+	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart + 0x59)))
 }
 
 //go:linkname syscall

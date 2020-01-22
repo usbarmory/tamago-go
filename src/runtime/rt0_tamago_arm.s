@@ -5,6 +5,12 @@
 #include "textflag.h"
 
 TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
+
+	// Disable MMU as soon as possible. Will be re-enabled in mmuinit().
+	MRC	15, 0, R0, C1, C0, 0
+	BIC	$0x1, R0
+	MCR	15, 0, R0, C1, C0, 0
+
 	MOVW	runtime·ramStart(SB), R13
 	MOVW	runtime·ramSize(SB), R1
 	MOVW	runtime·ramStackOffset(SB), R2

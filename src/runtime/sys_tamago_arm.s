@@ -97,11 +97,11 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 
 	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
 	BL	runtime·hwinit(SB)
+	BL	runtime·mmuinit(SB)
 	BL	runtime·check(SB)
 	BL	runtime·checkgoarm(SB)
 	BL	runtime·osinit(SB)
 	BL	runtime·vecinit(SB)
-	BL	runtime·mmuinit(SB)
 	BL	runtime·excstackinit(SB)
 	BL	runtime·schedinit(SB)
 

@@ -1,0 +1,21 @@
+name: Build Go compiler
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - name: Prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          bc binfmt-support bzip2 fakeroot gcc gcc-arm-linux-gnueabihf git \
+          gnupg make parted xz-utils zip  \
+          sudo dirmngr bison flex libssl-dev kmod
+
+    - name: Compile Go with make.bash
+      run: |
+        cd src ; ./make.bash

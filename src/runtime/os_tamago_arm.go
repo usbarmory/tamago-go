@@ -16,19 +16,19 @@ const tamagoDebug = true
 const _PAGESIZE uintptr = 0x1000
 
 // Translation Table entries
-const TTE_SECTION_1MB  uint32 = 0x2
+const TTE_SECTION_1MB uint32 = 0x2
 const TTE_SECTION_16MB uint32 = 0x40002
 const TTE_EXECUTE_NEVER uint32 = 0x10
 const TTE_CACHEABLE uint32 = 0x8
 const TTE_BUFFERABLE uint32 = 0x4
-const TTE_AP_000 uint32 = 0b000000 << 10	// PL1: no access   PL0: no access
-const TTE_AP_001 uint32 = 0b000001 << 10	// PL1: read/write  PL0: no access
-const TTE_AP_010 uint32 = 0b000010 << 10	// PL1: read/write  PL0: read only
-const TTE_AP_011 uint32 = 0b000011 << 10	// PL1: read/write  PL0: read/write
-const TTE_AP_100 uint32 = 0b100000 << 10	// Reserved
-const TTE_AP_101 uint32 = 0b100001 << 10	// PL1: read only   PL0: no access
-const TTE_AP_110 uint32 = 0b100010 << 10	// PL1: read only   PL0: read only
-const TTE_AP_111 uint32 = 0b100011 << 10	// PL1: read only   PL0: read only
+const TTE_AP_000 uint32 = 0b000000 << 10 // PL1: no access   PL0: no access
+const TTE_AP_001 uint32 = 0b000001 << 10 // PL1: read/write  PL0: no access
+const TTE_AP_010 uint32 = 0b000010 << 10 // PL1: read/write  PL0: read only
+const TTE_AP_011 uint32 = 0b000011 << 10 // PL1: read/write  PL0: read/write
+const TTE_AP_100 uint32 = 0b100000 << 10 // Reserved
+const TTE_AP_101 uint32 = 0b100001 << 10 // PL1: read only   PL0: no access
+const TTE_AP_110 uint32 = 0b100010 << 10 // PL1: read only   PL0: read only
+const TTE_AP_111 uint32 = 0b100011 << 10 // PL1: read only   PL0: read only
 
 // the following variables must be provided externally
 var ramStart uint32
@@ -279,7 +279,7 @@ func excstackinit() {
 		print(".noptrbss        ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
 		print(".end             ", hex(firstmoduledata.end), "\n")
 
-		imageSize := uint32(firstmoduledata.end-firstmoduledata.text)
+		imageSize := uint32(firstmoduledata.end - firstmoduledata.text)
 		heapSize := uint32(g0.stack.lo - firstmoduledata.end)
 		stackSize := uint32(g0.stack.hi - g0.stack.lo)
 		unusedSize := uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
@@ -320,7 +320,7 @@ func mmuinit() {
 	devAttr := uint32(TTE_AP_011 | TTE_SECTION_1MB)
 
 	for i = 0; i < l1pageTableSize/4; i++ {
-		if i >= (ramStart >> 20) && i < ((ramStart+ramSize) >> 20) {
+		if i >= (ramStart>>20) && i < ((ramStart+ramSize)>>20) {
 			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | memAttr
 		} else {
 			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | devAttr

@@ -334,7 +334,7 @@ func mmuinit() {
 		print("l1pageTableSize  ", hex(l1pageTableSize), "\n")
 	}
 
-	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart + 0x59)))
+	set_ttbr0(unsafe.Pointer(uintptr(l1pageTableStart)))
 }
 
 //go:linkname syscall

@@ -15,12 +15,16 @@ const tamagoDebug = true
 // FIXME: for mem_tamago.go copied from mem_plan9.go
 const _PAGESIZE uintptr = 0x1000
 
-// Translation Table entries
+// Memory region attributes
+// Table B3-10 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
 const TTE_SECTION_1MB uint32 = 0x2
 const TTE_SECTION_16MB uint32 = 0x40002
 const TTE_EXECUTE_NEVER uint32 = 0x10
 const TTE_CACHEABLE uint32 = 0x8
 const TTE_BUFFERABLE uint32 = 0x4
+
+// MMU access permissions
+// Table B3-8 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
 const TTE_AP_000 uint32 = 0b000000 << 10 // PL1: no access   PL0: no access
 const TTE_AP_001 uint32 = 0b000001 << 10 // PL1: read/write  PL0: no access
 const TTE_AP_010 uint32 = 0b000010 << 10 // PL1: read/write  PL0: read only

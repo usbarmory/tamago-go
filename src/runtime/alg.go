@@ -338,9 +338,6 @@ func alginit() {
 		initAlgAES()
 		return
 	}
-	if GOOS == "tamago" {
-		initRNG()
-	}
 	getRandomData((*[len(hashkey) * sys.PtrSize]byte)(unsafe.Pointer(&hashkey))[:])
 	hashkey[0] |= 1 // make sure these numbers are odd
 	hashkey[1] |= 1

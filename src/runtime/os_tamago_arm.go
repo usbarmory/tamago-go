@@ -50,8 +50,7 @@ func initRNG()
 
 // the following functions must be provided externally
 // (but are already stubbed somewhere else in the runtime)
-//func initRNG()
-//func nanotime() int64
+//func nanotime1() int64
 
 // the following functions are defined in sys_tamago_arm.s
 func set_vbar(addr unsafe.Pointer)
@@ -356,7 +355,7 @@ func syscall(number, a1, a2, a3 uintptr) (r1, r2, err uintptr) {
 }
 
 //go:nosplit
-func write(fd uintptr, buf unsafe.Pointer, count int32) int32 {
+func write1(fd uintptr, buf unsafe.Pointer, count int32) int32 {
 	if fd != 1 && fd != 2 {
 		throw("unexpected fd, only stdout/stderr are supported")
 	}
@@ -378,7 +377,7 @@ func syscall_now() (sec int64, nsec int32) {
 }
 
 //go:nosplit
-func walltime() (sec int64, nsec int32) {
+func walltime1() (sec int64, nsec int32) {
 	// TODO: probably better implement this in sys_tamago_arm.s for better
 	// performance
 	nano := nanotime()
@@ -408,4 +407,12 @@ func exit(code int32) {
 func exitThread(wait *uint32) {
 	// We should never reach exitThread
 	throw("exitThread: not implemented")
+}
+
+const preemptMSupported = false
+
+func preemptM(mp *m) {
+	// Not currently supported.
+	//
+	// TODO: Use a note like we use signals on POSIX OSes
 }

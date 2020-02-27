@@ -651,6 +651,9 @@ func mcommoninit(mp *m) {
 var fastrandseed uintptr
 
 func fastrandinit() {
+	if GOOS == "tamago" {
+		initRNG()
+	}
 	s := (*[unsafe.Sizeof(fastrandseed)]byte)(unsafe.Pointer(&fastrandseed))[:]
 	getRandomData(s)
 }

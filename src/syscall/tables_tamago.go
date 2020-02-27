@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build js,wasm
+// +build tamago
 
 package syscall
 
 import "runtime"
 
 // These were originally used by Nacl, then later also used by
-// js/wasm. Now that they're only used by js/wasm, these numbers are
+// tamago. Now that they're only used by tamago, these numbers are
 // just arbitrary.
 //
 // TODO: delete? replace with something meaningful?

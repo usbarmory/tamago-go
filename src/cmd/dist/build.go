@@ -1556,10 +1556,10 @@ var cgoEnabled = map[string]bool{
 	"plan9/amd64":     false,
 	"plan9/arm":       false,
 	"solaris/amd64":   true,
+	"tamago/arm":      true,
 	"windows/386":     true,
 	"windows/amd64":   true,
 	"windows/arm":     false,
-	"tamago/arm":      true,
 }
 
 // List of platforms which are supported but not complete yet. These get

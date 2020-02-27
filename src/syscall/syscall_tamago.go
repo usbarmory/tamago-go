@@ -24,7 +24,7 @@ type Dirent struct {
 }
 
 func direntIno(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Ino), unsafe.Sizeof(Dirent{}.Ino))
+	return 1, true
 }
 
 func direntReclen(buf []byte) (uint64, bool) {
@@ -48,6 +48,12 @@ const PathMax = 256
 //	if errno != 0 {
 //		err = errno
 //	}
+//
+// Errno values can be tested against error values from the os package
+// using errors.Is. For example:
+//
+//	_, _, err := syscall.Syscall(...)
+//	if errors.Is(err, os.ErrNotExist) ...
 type Errno uintptr
 
 func (e Errno) Error() string {
@@ -91,6 +97,7 @@ const (
 	SIGKILL
 	SIGTRAP
 	SIGQUIT
+	SIGTERM
 )
 
 func (s Signal) Signal() {}
@@ -116,9 +123,9 @@ const (
 )
 
 const (
-	O_RDONLY = 0
-	O_WRONLY = 1
-	O_RDWR   = 2
+	O_RDONLY  = 0
+	O_WRONLY  = 1
+	O_RDWR    = 2
 	O_ACCMODE = 3
 
 	O_CREAT  = 0100
@@ -218,7 +225,7 @@ type Stat_t struct {
 }
 
 // Processes
-// Not supported on tamago - just enough for package os.
+// Not supported - just enough for package os.
 
 var ForkLock sync.RWMutex
 

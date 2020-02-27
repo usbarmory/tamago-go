@@ -383,6 +383,10 @@ func xsamefile(f1, f2 string) bool {
 }
 
 func xgetgoarm() string {
+	if goos == "tamago" {
+		// tamago guarantees VFPv3 and is always cross-compiled.
+		return "7"
+	}
 	if goos == "android" {
 		// Assume all android devices have VFPv3.
 		// These ports are also mostly cross-compiled, so it makes little

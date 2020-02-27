@@ -15,6 +15,7 @@ const GoosHurd = 0
 const GoosIllumos = 0
 const GoosJs = 0
 const GoosLinux = 0
+const GoosNacl = 0
 const GoosNetbsd = 0
 const GoosOpenbsd = 0
 const GoosPlan9 = 0

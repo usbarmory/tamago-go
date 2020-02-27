@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// A simulated network for use within NaCl.
+// A simulated network for use within tamago (adapted from net_nacl.go).
 // The simulation is not particularly tied to NaCl,
 // but other systems have real networks.
 

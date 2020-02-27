@@ -142,27 +142,9 @@ func checkTimeouts() {
 	}
 }
 
-var returnedEventHandler *g
-
-func init() {
-	// At the toplevel we need an extra goroutine that handles asynchronous events.
-	initg := getg()
-	go func() {
-		returnedEventHandler = getg()
-		goready(initg, 1)
-
-		gopark(nil, nil, waitReasonZero, traceEvNone, 1)
-		returnedEventHandler = nil
-	}()
-	gopark(nil, nil, waitReasonZero, traceEvNone, 1)
-}
-
 // beforeIdle gets called by the scheduler if no goroutine is awake.
-// We resume the event handler (if available) which will pause the execution.
-func beforeIdle() bool {
-	if returnedEventHandler != nil {
-		goready(returnedEventHandler, 1)
-		return true
-	}
+// If we are not already handling an event, then we pause for an async event.
+// If an event handler returned, we resume it and it will pause the execution.
+func beforeIdle(delay int64) bool {
 	return false
 }

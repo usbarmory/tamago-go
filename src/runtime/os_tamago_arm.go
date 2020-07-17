@@ -12,27 +12,38 @@ import (
 
 const tamagoDebug = true
 
-// FIXME: for mem_tamago.go copied from mem_plan9.go
 const _PAGESIZE uintptr = 0x1000
 
 // Memory region attributes
 // Table B3-10 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
-const TTE_SECTION_1MB uint32 = 0x2
-const TTE_SECTION_16MB uint32 = 0x40002
-const TTE_EXECUTE_NEVER uint32 = 0x10
-const TTE_CACHEABLE uint32 = 0x8
-const TTE_BUFFERABLE uint32 = 0x4
+const (
+	TTE_SECTION_1MB   uint32 = 0x2
+	TTE_SECTION_16MB  uint32 = 0x40002
+	TTE_EXECUTE_NEVER uint32 = 0x10
+	TTE_CACHEABLE     uint32 = 0x8
+	TTE_BUFFERABLE    uint32 = 0x4
+)
 
 // MMU access permissions
 // Table B3-8 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
-const TTE_AP_000 uint32 = 0b000000 << 10 // PL1: no access   PL0: no access
-const TTE_AP_001 uint32 = 0b000001 << 10 // PL1: read/write  PL0: no access
-const TTE_AP_010 uint32 = 0b000010 << 10 // PL1: read/write  PL0: read only
-const TTE_AP_011 uint32 = 0b000011 << 10 // PL1: read/write  PL0: read/write
-const TTE_AP_100 uint32 = 0b100000 << 10 // Reserved
-const TTE_AP_101 uint32 = 0b100001 << 10 // PL1: read only   PL0: no access
-const TTE_AP_110 uint32 = 0b100010 << 10 // PL1: read only   PL0: read only
-const TTE_AP_111 uint32 = 0b100011 << 10 // PL1: read only   PL0: read only
+const (
+	// PL1: no access   PL0: no access
+	TTE_AP_000 uint32 = 0b000000 << 10
+	// PL1: read/write  PL0: no access
+	TTE_AP_001 uint32 = 0b000001 << 10
+	// PL1: read/write  PL0: read only
+	TTE_AP_010 uint32 = 0b000010 << 10
+	// PL1: read/write  PL0: read/write
+	TTE_AP_011 uint32 = 0b000011 << 10
+	// Reserved
+	TTE_AP_100 uint32 = 0b100000 << 10
+	// PL1: read only   PL0: no access
+	TTE_AP_101 uint32 = 0b100001 << 10
+	// PL1: read only   PL0: read only
+	TTE_AP_110 uint32 = 0b100010 << 10
+	// PL1: read only   PL0: read only
+	TTE_AP_111 uint32 = 0b100011 << 10
+)
 
 // the following variables must be provided externally
 var ramStart uint32
@@ -45,6 +56,7 @@ var ramStackOffset uint32
 // the following functions must be provided externally
 func hwinit()
 func printk(byte)
+func exceptionHandler()
 func getRandomData([]byte)
 func initRNG()
 
@@ -84,8 +96,6 @@ func sigignore(uint32)                                    {}
 func closeonexec(int32)                                   {}
 func osyield()                                            {}
 
-type ExceptionHandler func()
-
 // global variables
 var vt *vector_table
 
@@ -100,18 +110,6 @@ var excStackSize uint32 = 0x4000   // 16 kB
 
 // the following variables are set in sys_tamago_arm.s
 var stackBottom uint32
-
-var defaultHandler ExceptionHandler = func() {
-	// TODO: implement stack dump
-	throw("unhandled exception! (defaultHandler)\n")
-}
-
-var simpleHandler ExceptionHandler = func() {
-	// TODO: implement stack dump
-	print("unhandled exception! (simpleHandler)\n")
-	for {
-	} // freeze
-}
 
 // Table 11-1 ARM® Cortex™ -A Series Programmer’s Guide
 type vector_table struct {
@@ -191,7 +189,6 @@ func checkgoarm() {
 func cputicks() int64 {
 	// Currently cputicks() is used in blocking profiler and to seed runtime·fastrand().
 	// runtime·nanotime() is a poor approximation of CPU ticks that is enough for the profiler.
-	// TODO: need more entropy to better seed fastrand.
 	return nanotime()
 }
 
@@ -214,6 +211,15 @@ func GetRandomData(r []byte) {
 	getRandomData(r)
 }
 
+// the following functions are defined in sys_tamago_arm.s
+func resetHandler()
+func undefinedHandler()
+func svcHandler()
+func prefetchAbortHandler()
+func dataAbortHandler()
+func irqHandler()
+func fiqHandler()
+
 //go:nosplit
 func vecinit() {
 	// Allocate the vector table
@@ -234,20 +240,26 @@ func vecinit() {
 	vt.irq = resetVectorWord
 	vt.fiq = resetVectorWord
 
-	defaultHandlerAddr := **((**uint32)(unsafe.Pointer(&defaultHandler)))
-	simpleHandlerAddr := **((**uint32)(unsafe.Pointer(&simpleHandler)))
+	fn := resetHandler
+	vt.reset_addr = **((**uint32)(unsafe.Pointer(&fn)))
 
-	// We don't handle IRQ or exceptions yet.
-	vt.reset_addr = defaultHandlerAddr
-	vt.undefined_addr = defaultHandlerAddr
-	vt.prefetch_abort_addr = defaultHandlerAddr
-	vt.data_abort_addr = defaultHandlerAddr
-	vt.irq_addr = defaultHandlerAddr
-	vt.fiq_addr = defaultHandlerAddr
+	fn = undefinedHandler
+	vt.undefined_addr = **((**uint32)(unsafe.Pointer(&fn)))
 
-	// SWI calls are also triggered by throw, but we cannot panic in panic
-	// therefore this handler needs not to throw.
-	vt.svc_addr = simpleHandlerAddr
+	fn = svcHandler
+	vt.svc_addr = **((**uint32)(unsafe.Pointer(&fn)))
+
+	fn = prefetchAbortHandler
+	vt.prefetch_abort_addr = **((**uint32)(unsafe.Pointer(&fn)))
+
+	fn = dataAbortHandler
+	vt.data_abort_addr = **((**uint32)(unsafe.Pointer(&fn)))
+
+	fn = irqHandler
+	vt.irq_addr = **((**uint32)(unsafe.Pointer(&fn)))
+
+	fn = fiqHandler
+	vt.fiq_addr = **((**uint32)(unsafe.Pointer(&fn)))
 
 	if tamagoDebug {
 		print("vecTableStart    ", hex(vecTableStart), "\n")
@@ -388,11 +400,6 @@ func walltime1() (sec int64, nsec int32) {
 
 //go:nosplit
 func usleep(us uint32) {
-	// TODO: Understand how much this is used and if blocking operation is
-	// an acceptable strategy.
-	if tamagoDebug {
-		print("usleep for ", us, "us\n")
-	}
 	wake := nanotime() + int64(us)*1000
 	for nanotime() < wake {
 	}

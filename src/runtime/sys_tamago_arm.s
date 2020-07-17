@@ -131,3 +131,85 @@ TEXT runtime·semihostingstop(SB), NOSPLIT, $0
 
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
+
+#define CALLFNFROMEXCEPTION(VECTOR, NAME, OFFSET, RN, SAVE_SIZE)	\
+	/* restore caller stack pointer */				\
+	WORD	$0xe103d300			/* mrs sp, SP_svc */	\
+									\
+	/* save caller registers */					\
+	MOVM.DB.W	[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\
+									\
+	/* remove exception specific LR offset */			\
+	SUB	$OFFSET, R14, R14					\
+									\
+	/* save g->sched state to reflect exception */			\
+									\
+	/* restore caller stack pointer */				\
+	MOVW	R13, R3							\
+	ADD	$SAVE_SIZE, R3, R3					\
+	MOVW	R3, (g_sched+gobuf_sp)(g)				\
+									\
+	/* restore caller PC from LR */					\
+	MOVW	R14, (g_sched+gobuf_pc)(g)				\
+									\
+	/* restore caller g */						\
+	MOVW	LR, (g_sched+gobuf_lr)(g)				\
+	MOVW	g, (g_sched+gobuf_g)(g)					\
+									\
+	/* switch to g0 */						\
+	MOVW	g_m(g), R1						\
+	MOVW	m_g0(R1), R2						\
+	MOVW	R2, g							\
+	MOVW	(g_sched+gobuf_sp)(R2), R3				\
+									\
+	/* make it look like mstart called systemstack on g0 */		\
+	/* to stop traceback (see runtime·systemstack)       */		\
+	SUB	$4, R3, R3						\
+	MOVW	$runtime·mstart(SB), R4					\
+	MOVW	R4, 0(R3)						\
+	MOVW	R3, R13							\
+									\
+	/* call handler function */					\
+	MOVW $NAME(SB), R0						\
+	MOVW $VECTOR, R1						\
+	MOVW R1, off+0(FP)						\
+	BL	(R0)							\
+									\
+	/* switch back to g */						\
+	MOVW	g_m(g), R1						\
+	MOVW	m_curg(R1), R0						\
+	MOVW	R0, g							\
+									\
+	/* restore stack pointer */					\
+	MOVW	(g_sched+gobuf_sp)(g), R13				\
+	SUB $SAVE_SIZE, R13, R13					\
+	MOVW	$0, R3							\
+	MOVW	R3, (g_sched+gobuf_sp)(g)				\
+									\
+	/* restore caller registers */					\
+	MOVM.IA.W	(R13), [R0-RN, R14]	/* pop {r0-rN, r14}	\
+									\
+	/* restore caller PC from LR and mode */			\
+	MOVW.S	R14, R15
+
+TEXT runtime·resetHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x0, ·exceptionHandler, 0, R12, 56)
+	RET
+
+TEXT runtime·undefinedHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x4, ·exceptionHandler, 4, R12, 56)
+
+TEXT runtime·svcHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x8, ·exceptionHandler, 0, R12, 56)
+
+TEXT runtime·prefetchAbortHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0xc, ·exceptionHandler, 4, R12, 56)
+
+TEXT runtime·dataAbortHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x10, ·exceptionHandler, 8, R12, 56)
+
+TEXT runtime·irqHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x18, ·exceptionHandler, 4, R12, 56)
+
+TEXT runtime·fiqHandler(SB),NOSPLIT|NOFRAME,$0
+	CALLFNFROMEXCEPTION(0x1c, ·exceptionHandler, 4, R7, 38)

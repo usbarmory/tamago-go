@@ -220,6 +220,10 @@ func dataAbortHandler()
 func irqHandler()
 func fiqHandler()
 
+func fnAddress(fn func()) uint32 {
+	return **((**uint32)(unsafe.Pointer(&fn)))
+}
+
 //go:nosplit
 func vecinit() {
 	// Allocate the vector table
@@ -240,26 +244,13 @@ func vecinit() {
 	vt.irq = resetVectorWord
 	vt.fiq = resetVectorWord
 
-	fn := resetHandler
-	vt.reset_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = undefinedHandler
-	vt.undefined_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = svcHandler
-	vt.svc_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = prefetchAbortHandler
-	vt.prefetch_abort_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = dataAbortHandler
-	vt.data_abort_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = irqHandler
-	vt.irq_addr = **((**uint32)(unsafe.Pointer(&fn)))
-
-	fn = fiqHandler
-	vt.fiq_addr = **((**uint32)(unsafe.Pointer(&fn)))
+	vt.reset_addr = fnAddress(resetHandler)
+	vt.undefined_addr = fnAddress(undefinedHandler)
+	vt.svc_addr = fnAddress(svcHandler)
+	vt.prefetch_abort_addr = fnAddress(prefetchAbortHandler)
+	vt.data_abort_addr = fnAddress(dataAbortHandler)
+	vt.irq_addr = fnAddress(irqHandler)
+	vt.fiq_addr = fnAddress(fiqHandler)
 
 	if tamagoDebug {
 		print("vecTableStart    ", hex(vecTableStart), "\n")

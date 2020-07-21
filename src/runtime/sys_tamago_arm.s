@@ -133,10 +133,10 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
 
 #define CALLFNFROMEXCEPTION(VECTOR, NAME, OFFSET, RN, SAVE_SIZE)	\
-	/* restore caller stack pointer */				\
+	/* restore stack pointer */					\
 	WORD	$0xe103d300			/* mrs sp, SP_svc */	\
 									\
-	/* save caller registers */					\
+	/* save registers */						\
 	MOVM.DB.W	[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\
 									\
 	/* remove exception specific LR offset */			\
@@ -144,15 +144,15 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 									\
 	/* save g->sched state to reflect exception */			\
 									\
-	/* restore caller stack pointer */				\
+	/* restore stack pointer */					\
 	MOVW	R13, R3							\
 	ADD	$SAVE_SIZE, R3, R3					\
 	MOVW	R3, (g_sched+gobuf_sp)(g)				\
 									\
-	/* restore caller PC from LR */					\
+	/* restore PC from LR */					\
 	MOVW	R14, (g_sched+gobuf_pc)(g)				\
 									\
-	/* restore caller g */						\
+	/* restore g */							\
 	MOVW	LR, (g_sched+gobuf_lr)(g)				\
 	MOVW	g, (g_sched+gobuf_g)(g)					\
 									\
@@ -186,15 +186,14 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	$0, R3							\
 	MOVW	R3, (g_sched+gobuf_sp)(g)				\
 									\
-	/* restore caller registers */					\
+	/* restore registers */						\
 	MOVM.IA.W	(R13), [R0-RN, R14]	/* pop {r0-rN, r14}	\
 									\
-	/* restore caller PC from LR and mode */			\
+	/* restore PC from LR and mode */				\
 	MOVW.S	R14, R15
 
 TEXT runtime·resetHandler(SB),NOSPLIT|NOFRAME,$0
 	CALLFNFROMEXCEPTION(0x0, ·exceptionHandler, 0, R12, 56)
-	RET
 
 TEXT runtime·undefinedHandler(SB),NOSPLIT|NOFRAME,$0
 	CALLFNFROMEXCEPTION(0x4, ·exceptionHandler, 4, R12, 56)

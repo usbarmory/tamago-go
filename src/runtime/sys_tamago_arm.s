@@ -37,8 +37,12 @@ TEXT runtime·set_exc_stack(SB), NOSPLIT, $0-4
 	WORD	$0xe321f0db	// msr CPSR_c, 0xdb
 	MOVW R0, R13
 
-	// Return to Supervisor mode
+	// Set Supervisor mode SP
 	WORD	$0xe321f0d3	// msr CPSR_c, 0xd3
+	MOVW R0, R13
+
+	// Return to System mode
+	WORD	$0xe321f0df	// msr CPSR_c, 0xdf
 
 	RET
 
@@ -134,7 +138,7 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 
 #define CALLFNFROMEXCEPTION(VECTOR, NAME, OFFSET, RN, SAVE_SIZE)	\
 	/* restore stack pointer */					\
-	WORD	$0xe103d300			/* mrs sp, SP_svc */	\
+	WORD	$0xe105d200			/* mrs sp, SP_usr */	\
 									\
 	/* save registers */						\
 	MOVM.DB.W	[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\

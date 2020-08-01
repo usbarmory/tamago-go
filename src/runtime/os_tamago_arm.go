@@ -178,11 +178,6 @@ func signame(sig uint32) string {
 }
 
 func checkgoarm() {
-	// tamago/ARM only supports ARMv7
-	if goarm != 7 {
-		print("runtime: tamago requires ARMv7. Recompile using GOARM=7.\n")
-		exit(1)
-	}
 }
 
 //go:nosplit

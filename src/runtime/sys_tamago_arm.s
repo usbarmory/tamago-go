@@ -11,10 +11,10 @@
 #include "textflag.h"
 
 TEXT runtime·invallpages(SB), NOSPLIT, $0
-	// Flush Prefetch Buffer + Data Memory Barrier
+	// Invalidate Instruction Cache + DSB
 	MOVW	$0, R1
-	MCR 15, 0, R1, C7, C5, 4
-	MCR 15, 0, R1, C7, C10, 5
+	MCR	15, 0, R1, C7, C5, 0
+	MCR	15, 0, R1, C7, C10, 4
 
 	// Invalidate unified TLB
 	MCR	15, 0, R0, C8, C7, 0	// TLBIALL
@@ -22,8 +22,8 @@ TEXT runtime·invallpages(SB), NOSPLIT, $0
 
 TEXT runtime·dmb(SB), NOSPLIT, $0
 	// Data Memory Barrier
-	MOVW $0, R0
-	MCR 15, 0, R0, C7, C10, 5
+	MOVW	$0, R0
+	MCR	15, 0, R0, C7, C10, 5
 	RET
 
 TEXT runtime·set_exc_stack(SB), NOSPLIT, $0-4
@@ -71,10 +71,10 @@ TEXT runtime·set_ttbr0(SB), NOSPLIT, $0-4
 	MOVW	$0x3, R0
 	MCR	15, 0, R0, C3, C0, 0
 
-	// Flush Prefetch Buffer + Data Memory Barrier
+	// Invalidate Instruction Cache + DSB
 	MOVW	$0, R0
-	MCR 15, 0, R0, C7, C5, 4
-	MCR 15, 0, R0, C7, C10, 5
+	MCR	15, 0, R0, C7, C5, 0
+	MCR	15, 0, R0, C7, C10, 4
 
 	// Enable MMU
 	MRC	15, 0, R0, C1, C0, 0

@@ -178,6 +178,12 @@ func signame(sig uint32) string {
 }
 
 func checkgoarm() {
+	// Permit GOARM=5 to enable software floating-point implementation.  The Pi Zero
+	// fails in the `check()` function using hardware floating point.
+	if goarm < 5 || goarm > 7 {
+		print("runtime: tamago requires ARMv5 through ARMv7. Recompile using GOARM=5, GOARM=6 or GOARM=7.\n")
+		exit(1)
+	}
 }
 
 //go:nosplit

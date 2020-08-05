@@ -178,9 +178,8 @@ func signame(sig uint32) string {
 }
 
 func checkgoarm() {
-	// tamago/ARM only supports ARMv7
-	if goarm != 7 {
-		print("runtime: tamago requires ARMv7. Recompile using GOARM=7.\n")
+	if goarm < 5 || goarm > 7 {
+		print("runtime: tamago requires ARMv5 through ARMv7. Recompile using GOARM=5, GOARM=6 or GOARM=7.\n")
 		exit(1)
 	}
 }

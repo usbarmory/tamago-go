@@ -132,13 +132,6 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$1000, R1
 	MOVW	R0, (R1)	// fail hard
 
-// exit sequence for `qemu -semihosting`
-TEXT runtime·semihostingstop(SB), NOSPLIT, $0
-	MOVW	$0x18,    R0
-	MOVW	$0x20026, R1
-	WORD	$0xef123456	// svc 0x00123456
-	RET
-
 TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
 

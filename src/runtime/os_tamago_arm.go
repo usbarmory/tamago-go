@@ -71,7 +71,6 @@ func set_exc_stack(addr unsafe.Pointer)
 
 //go:nosplit
 func dmb()
-func semihostingstop()
 
 // stubs for unused/unimplemented functionality
 type mOS struct{}
@@ -397,8 +396,9 @@ func usleep(us uint32) {
 
 func exit(code int32) {
 	print("exit with code ", code, " halting\n")
-	// TODO: valid only within `qemu -semihosting`, support native hardware
-	semihostingstop()
+	for {
+		// hang forever
+	}
 }
 
 func exitThread(wait *uint32) {

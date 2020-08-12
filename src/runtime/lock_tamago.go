@@ -26,6 +26,10 @@ const (
 )
 
 func lock(l *mutex) {
+	lockWithRank(l, getLockRank(l))
+}
+
+func lock2(l *mutex) {
 	if l.key == mutex_locked {
 		// tamago is single-threaded so we should never
 		// observe this.
@@ -40,6 +44,10 @@ func lock(l *mutex) {
 }
 
 func unlock(l *mutex) {
+	unlockWithRank(l)
+}
+
+func unlock2(l *mutex) {
 	if l.key == mutex_unlocked {
 		throw("unlock of unlocked lock")
 	}
@@ -145,6 +153,6 @@ func checkTimeouts() {
 // beforeIdle gets called by the scheduler if no goroutine is awake.
 // If we are not already handling an event, then we pause for an async event.
 // If an event handler returned, we resume it and it will pause the execution.
-func beforeIdle(delay int64) bool {
-	return false
+func beforeIdle(delay int64) (gp *g, otherReady bool) {
+	return nil, false
 }

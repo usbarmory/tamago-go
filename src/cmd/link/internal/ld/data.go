@@ -109,6 +109,10 @@ func trampoline(ctxt *Link, s loader.Sym) {
 		return // no need or no support of trampolines on this arch
 	}
 
+	if ctxt.HeadType == objabi.Htamago {
+		return // no need or no support of trampolines on this arch
+	}
+
 	ldr := ctxt.loader
 	relocs := ldr.Relocs(s)
 	for ri := 0; ri < relocs.Count(); ri++ {

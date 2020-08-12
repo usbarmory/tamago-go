@@ -102,12 +102,6 @@ func (reporter *ErrorReporter) errorUnresolved2(s *sym.Symbol, r *sym.Reloc) {
 		if r.Sym.Name == "main.main" {
 			Errorf(s, "function main is undeclared in the main package")
 		} else if haveABI != ^obj.ABI(0) {
-			if objabi.GOOS == "tamago" && (reqABI == haveABI) {
-				// As tamago links runtime functions in the
-				// compiled application, avoid bening spurious
-				// messages here.
-				return
-			}
 			Errorf(s, "relocation target %s not defined for %s (but is defined for %s)", r.Sym.Name, reqABI, haveABI)
 		} else {
 			Errorf(s, "relocation target %s not defined", r.Sym.Name)

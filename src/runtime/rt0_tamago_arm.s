@@ -5,9 +5,7 @@
 #include "textflag.h"
 
 TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
-	// Raspberry Pi firmware sets CPU to HYP mode.
-	// Detect if in HYP mode and switch out of HYP mode
-	// to SVC mode (borrow technique from Linux kernel).
+	// Detect HYP mode and switch to SVC if necessary
 	WORD	$0xe10f0000	// mrs r0, CPSR
 	EOR	$0x1a, R0	// 0x1a = HYP mode
 	TST	$0x1f, R0
@@ -19,7 +17,6 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	WORD	$0xe12ef30e	// msr ELR_hyp, lr
 	WORD	$0xe160006e	// eret
 after_eret:
-
 	// Disable MMU as soon as possible. Will be re-enabled in mmuinit().
 	MRC	15, 0, R0, C1, C0, 0
 	BIC	$0x1, R0

@@ -93,10 +93,6 @@ func trampoline(ctxt *Link, s loader.Sym) {
 		return // no need or no support of trampolines on this arch
 	}
 
-	if ctxt.HeadType == objabi.Htamago {
-		return // no need or no support of trampolines on this arch
-	}
-
 	ldr := ctxt.loader
 	relocs := ldr.Relocs(s)
 	for ri := 0; ri < relocs.Count(); ri++ {
@@ -112,6 +108,10 @@ func trampoline(ctxt *Link, s loader.Sym) {
 		if ldr.SymValue(rs) == 0 && (ldr.SymType(rs) != sym.SDYNIMPORT && ldr.SymType(rs) != sym.SUNDEFEXT) {
 			if ldr.SymPkg(rs) != ldr.SymPkg(s) {
 				if !isRuntimeDepPkg(ldr.SymPkg(s)) || !isRuntimeDepPkg(ldr.SymPkg(rs)) {
+					// tamago may call to runtime due to go:linkname
+					if ctxt.HeadType == objabi.Htamago && strings.HasPrefix(ldr.SymName(rs), "runtime.")  {
+						continue
+					}
 					ctxt.Errorf(s, "unresolved inter-package jump to %s(%s) from %s", ldr.SymName(rs), ldr.SymPkg(rs), ldr.SymPkg(s))
 				}
 				// runtime and its dependent packages may call to each other.

@@ -215,3 +215,9 @@ TEXT runtime·irqHandler(SB),NOSPLIT|NOFRAME,$0
 
 TEXT runtime·fiqHandler(SB),NOSPLIT|NOFRAME,$0
 	CALLFNFROMEXCEPTION(0x1c, ·exceptionHandler, 4, R7, 38)
+
+// never called (cgo not supported)
+TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
+	MOVW	$0, R0
+	MOVW	R0, (R0)
+	RET

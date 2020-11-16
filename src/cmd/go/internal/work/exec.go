@@ -2464,6 +2464,8 @@ func (b *Builder) compilerCmd(compiler []string, incdir, workdir string) []strin
 		switch cfg.Goos {
 		case "windows":
 			a = append(a, "-mthreads")
+		case "tamago":
+			a = append(a, []string{"-ffreestanding", "-specs=nosys.specs"}...)
 		default:
 			a = append(a, "-pthread")
 		}

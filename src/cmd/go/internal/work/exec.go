@@ -2483,8 +2483,8 @@ func (b *Builder) compilerCmd(compiler []string, incdir, workdir string) []strin
 	// for multithreading with pthread library.
 	if cfg.BuildContext.CgoEnabled {
 		switch cfg.Goos {
-		case "tamago":
-			a = append(a, []string{"-ffreestanding", "-specs=nosys.specs"}...)
+		case "windows":
+			a = append(a, "-mthreads")
 		default:
 			a = append(a, "-pthread")
 		}

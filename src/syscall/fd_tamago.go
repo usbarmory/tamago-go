@@ -58,6 +58,14 @@ func newFD(impl fileImpl) int {
 	return fd
 }
 
+// Reserve stdin, stdout, stderr descriptors to never allocate them with this
+// API and avoid conflicts.
+func init() {
+	newFD(&pipeFile{})
+	newFD(&pipeFile{})
+	newFD(&pipeFile{})
+}
+
 // fdToFile retrieves the *file corresponding to a file descriptor.
 func fdToFile(fd int) (*file, error) {
 	files.Lock()

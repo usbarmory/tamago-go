@@ -78,7 +78,7 @@ type sigset struct{}
 type gsignalStack struct{}
 
 func goenvs()                                             {}
-func msigsave(mp *m)                                      {}
+func sigsave(p *sigset)                                   {}
 func msigrestore(sigmask sigset)                          {}
 func clearSignalHandlers()                                {}
 func sigblock()                                           {}

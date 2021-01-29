@@ -15,7 +15,6 @@
 package syscall
 
 import (
-	"io"
 	"sync"
 	"runtime"
 	"unsafe"
@@ -369,9 +368,9 @@ func (f *fsysFile) seek(offset int64, whence int) (int64, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	switch whence {
-	case io.SeekCurrent:
+	case 1:
 		offset += f.offset
-	case io.SeekEnd:
+	case 2:
 		offset += f.inode.Size
 	}
 	if offset < 0 {

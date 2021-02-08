@@ -81,9 +81,10 @@ func goenvs()                                             {}
 func sigsave(p *sigset)                                   {}
 func msigrestore(sigmask sigset)                          {}
 func clearSignalHandlers()                                {}
-func sigblock()                                           {}
+func sigblock(exiting bool)                               {}
 func minit()                                              {}
 func unminit()                                            {}
+func mdestroy(mp *m)                                      {}
 func madvise(addr unsafe.Pointer, n uintptr, flags int32) {}
 func munmap(addr unsafe.Pointer, n uintptr)               {}
 func setProcessCPUProfiler(hz int32)                      {}
@@ -310,8 +311,7 @@ func mmuinit() {
 	// Initialize page tables and map regions in privileged system area.
 	//
 	// MMU initialization is required to take advantage of data cache.
-	// http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka13835.html
-
+	//
 	// Define a flat L1 page table, the MMU is enabled only for caching to work.
 	// The L1 page table is located 16KB after ramStart.
 
@@ -323,7 +323,8 @@ func mmuinit() {
 	memAttr := uint32(TTE_AP_011 | TTE_CACHEABLE | TTE_BUFFERABLE | TTE_SECTION_1MB)
 	devAttr := uint32(TTE_AP_011 | TTE_SECTION_1MB)
 
-	for i = 0; i < l1pageTableSize/4; i++ {
+	// skip page zero to trap null pointers
+	for i = 1; i < l1pageTableSize/4; i++ {
 		if i >= (ramStart>>20) && i < ((ramStart+ramSize)>>20) {
 			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | memAttr
 		} else {

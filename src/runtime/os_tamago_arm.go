@@ -323,7 +323,8 @@ func mmuinit() {
 	memAttr := uint32(TTE_AP_011 | TTE_CACHEABLE | TTE_BUFFERABLE | TTE_SECTION_1MB)
 	devAttr := uint32(TTE_AP_011 | TTE_SECTION_1MB)
 
-	for i = 0; i < l1pageTableSize/4; i++ {
+	// skip page zero to trap null pointers
+	for i = 1; i < l1pageTableSize/4; i++ {
 		if i >= (ramStart>>20) && i < ((ramStart+ramSize)>>20) {
 			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | memAttr
 		} else {

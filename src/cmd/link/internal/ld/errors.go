@@ -59,12 +59,6 @@ func (reporter *ErrorReporter) errorUnresolved(ldr *loader.Loader, s, rs loader.
 		if name == "main.main" {
 			reporter.Errorf(s, "function main is undeclared in the main package")
 		} else if haveABI != ^obj.ABI(0) {
-			if objabi.GOOS == "tamago" && (reqABI == haveABI) {
-				// As tamago links runtime functions in the
-				// compiled application, avoid bening spurious
-				// messages here.
-				return
-			}
 			reporter.Errorf(s, "relocation target %s not defined for %s (but is defined for %s)", name, reqABI, haveABI)
 		} else {
 			reporter.Errorf(s, "relocation target %s not defined", name)

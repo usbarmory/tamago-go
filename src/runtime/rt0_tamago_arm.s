@@ -7,8 +7,8 @@
 TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	// Detect HYP mode and switch to SVC if necessary
 	WORD	$0xe10f0000	// mrs r0, CPSR
-	EOR	$0x1a, R0	// 0x1a = HYP mode
-	TST	$0x1f, R0
+	AND	$0x1f, R0, R0	// get user mode
+	CMP	$0x1a, R0	// 0x1a = HYP mode
 	BNE	after_eret	// Skip ERET if not HYP mode
 	BIC	$0x1f, R0
 	ORR	$0x1d3, R0	// 0x1d3 = AIF masked, SVC mode

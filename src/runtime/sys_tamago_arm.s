@@ -10,7 +10,7 @@
 #include "go_tls.h"
 #include "textflag.h"
 
-TEXT runtime·invallpages(SB), NOSPLIT, $0
+TEXT runtime·invallpages(SB),NOSPLIT,$0
 	// Invalidate Instruction Cache + DSB
 	MOVW	$0, R1
 	MCR	15, 0, R1, C7, C5, 0
@@ -20,13 +20,13 @@ TEXT runtime·invallpages(SB), NOSPLIT, $0
 	MCR	15, 0, R0, C8, C7, 0	// TLBIALL
 	RET
 
-TEXT runtime·dmb(SB), NOSPLIT, $0
+TEXT runtime·dmb(SB),NOSPLIT,$0
 	// Data Memory Barrier
 	MOVW	$0, R0
 	MCR	15, 0, R0, C7, C10, 5
 	RET
 
-TEXT runtime·set_exc_stack(SB), NOSPLIT, $0-4
+TEXT runtime·set_exc_stack(SB),NOSPLIT,$0-4
 	MOVW addr+0(FP), R0
 
 	// Set IRQ mode SP
@@ -50,12 +50,12 @@ TEXT runtime·set_exc_stack(SB), NOSPLIT, $0-4
 
 	RET
 
-TEXT runtime·set_vbar(SB), NOSPLIT, $0-4
+TEXT runtime·set_vbar(SB),NOSPLIT,$0-4
 	MOVW	addr+0(FP), R0
 	MCR	15, 0, R0, C12, C0, 0
 	RET
 
-TEXT runtime·set_ttbr0(SB), NOSPLIT, $0-4
+TEXT runtime·set_ttbr0(SB),NOSPLIT,$0-4
 	MOVW	addr+0(FP), R0
 
 	BL runtime·invallpages(SB)
@@ -80,6 +80,13 @@ TEXT runtime·set_ttbr0(SB), NOSPLIT, $0-4
 	MRC	15, 0, R0, C1, C0, 0
 	ORR	$0x1, R0
 	MCR	15, 0, R0, C1, C0, 0
+
+	RET
+
+TEXT runtime·processor_mode(SB),NOSPLIT,$0-4
+	WORD	$0xe10f0000	// mrs r0, CPSR
+	AND	$0x1f, R0, R0	// get processor mode
+	MOVW	R0, ret+0(FP)
 
 	RET
 
@@ -112,7 +119,6 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	BL	runtime·checkgoarm(SB)
 	BL	runtime·osinit(SB)
 	BL	runtime·vecinit(SB)
-	BL	runtime·excstackinit(SB)
 	BL	runtime·schedinit(SB)
 
 	// create a new goroutine to start program
@@ -139,11 +145,11 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	/* restore stack pointer */					\
 	WORD	$0xe105d200			/* mrs sp, SP_usr */	\
 									\
-	/* save registers */						\
-	MOVM.DB.W	[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\
-									\
 	/* remove exception specific LR offset */			\
 	SUB	$OFFSET, R14, R14					\
+									\
+	/* save registers */						\
+	MOVM.DB.W	[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\
 									\
 	/* save g->sched state to reflect exception */			\
 									\
@@ -193,6 +199,7 @@ TEXT ·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	MOVM.IA.W	(R13), [R0-RN, R14]	/* pop {r0-rN, r14}	\
 									\
 	/* restore PC from LR and mode */				\
+	ADD	$4, R14, R14						\
 	MOVW.S	R14, R15
 
 TEXT runtime·resetHandler(SB),NOSPLIT|NOFRAME,$0
@@ -214,7 +221,7 @@ TEXT runtime·irqHandler(SB),NOSPLIT|NOFRAME,$0
 	CALLFNFROMEXCEPTION(0x18, ·exceptionHandler, 4, R12, 56)
 
 TEXT runtime·fiqHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFNFROMEXCEPTION(0x1c, ·exceptionHandler, 4, R7, 38)
+	CALLFNFROMEXCEPTION(0x1c, ·exceptionHandler, 4, R7, 36)
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0

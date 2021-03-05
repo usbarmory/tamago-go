@@ -14,6 +14,20 @@ const tamagoDebug = true
 
 const _PAGESIZE uintptr = 0x1000
 
+// ARM processor modes
+// Table B1-1 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
+const (
+	USR_MODE = 0b10000
+	FIQ_MODE = 0b10001
+	IRQ_MODE = 0b10010
+	SVC_MODE = 0b10011
+	MON_MODE = 0b10110
+	ABT_MODE = 0b10111
+	HYP_MODE = 0b11010
+	UND_MODE = 0b11011
+	SYS_MODE = 0b11111
+)
+
 // Memory region attributes
 // Table B3-10 ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
 const (
@@ -68,6 +82,7 @@ func initRNG()
 func set_vbar(addr unsafe.Pointer)
 func set_ttbr0(addr unsafe.Pointer)
 func set_exc_stack(addr unsafe.Pointer)
+func processor_mode() uint32
 
 //go:nosplit
 func dmb()
@@ -225,6 +240,10 @@ func fnAddress(fn func()) uint32 {
 
 //go:nosplit
 func vecinit() {
+	if processor_mode() != SYS_MODE {
+		return
+	}
+
 	// Allocate the vector table
 	vecTableStart := ramStart + vecTableOffset
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(vecTableStart)), uintptr(vecTableSize))
@@ -251,59 +270,53 @@ func vecinit() {
 	vt.irq_addr = fnAddress(irqHandler)
 	vt.fiq_addr = fnAddress(fiqHandler)
 
-	if tamagoDebug {
-		print("vecTableStart    ", hex(vecTableStart), "\n")
-		print("vecTableSize     ", hex(vecTableSize), "\n")
-	}
-
 	set_vbar(unsafe.Pointer(vt))
-}
 
-//go:nosplit
-func excstackinit() {
 	// Allocate stack pointer for exception modes to provide a stack to the
 	// g0 goroutine when summoned by exception vectors.
-
 	excStackStart := ramStart + excStackOffset
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(excStackStart)), uintptr(excStackSize))
 	dmb()
 
-	if tamagoDebug {
-		print("excStackStart    ", hex(excStackStart), "\n")
-		print("excStackSize     ", hex(excStackSize), "\n")
-		print("stackBottom      ", hex(stackBottom), "\n")
-		print("g0.stackguard0   ", hex(g0.stackguard0), "\n")
-		print("g0.stackguard1   ", hex(g0.stackguard1), "\n")
-		print("g0.stack.lo      ", hex(g0.stack.lo), "\n")
-		print("g0.stack.hi      ", hex(g0.stack.hi), "\n")
-		print("-- ELF image layout (firstmoduledata dump) --\n")
-		print(".text            ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
-		print(".noptrdata       ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
-		print(".data            ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
-		print(".bss             ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
-		print(".noptrbss        ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
-		print(".end             ", hex(firstmoduledata.end), "\n")
+	set_exc_stack(unsafe.Pointer(uintptr(excStackStart + excStackSize)))
 
-		imageSize := uint32(firstmoduledata.end - firstmoduledata.text)
-		heapSize := uint32(g0.stack.lo - firstmoduledata.end)
-		stackSize := uint32(g0.stack.hi - g0.stack.lo)
-		unusedSize := uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
-
-		print("-- Memory section sizes ---------------------\n")
-		print("vector table:    ", vecTableSize, " (", vecTableSize/1024, " kB)\n")
-		print("L1 page table:   ", l1pageTableSize, " (", l1pageTableSize/1024, " kB)\n")
-		print("exception stack: ", excStackSize, " (", excStackSize/1024, " kB)\n")
-		print("program image:   ", imageSize, " (", imageSize/1024, " kB)\n")
-		print("heap:            ", heapSize, " (", heapSize/1024, " kB)\n")
-		print("g0 stack:        ", stackSize, " (", stackSize/1024, " kB)\n")
-		print("total unused:    ", unusedSize, " (", unusedSize/1024, " kB)\n")
-
-		totalSize := vecTableSize + l1pageTableSize + excStackSize + imageSize + heapSize + stackSize + unusedSize
-		print("total:           ", totalSize, " (", totalSize/1024, " kB)\n")
-		print("---------------------------------------------\n")
+	if !tamagoDebug {
+		return
 	}
 
-	set_exc_stack(unsafe.Pointer(uintptr(excStackStart + excStackSize)))
+	print("vecTableStart    ", hex(vecTableStart), "\n")
+	print("vecTableSize     ", hex(vecTableSize), "\n")
+	print("excStackStart    ", hex(excStackStart), "\n")
+	print("excStackSize     ", hex(excStackSize), "\n")
+	print("stackBottom      ", hex(stackBottom), "\n")
+	print("g0.stackguard0   ", hex(g0.stackguard0), "\n")
+	print("g0.stackguard1   ", hex(g0.stackguard1), "\n")
+	print("g0.stack.lo      ", hex(g0.stack.lo), "\n")
+	print("g0.stack.hi      ", hex(g0.stack.hi), "\n")
+	print("-- ELF image layout (firstmoduledata dump) --\n")
+	print(".text            ", hex(firstmoduledata.text), " - ", hex(firstmoduledata.etext), "\n")
+	print(".noptrdata       ", hex(firstmoduledata.noptrdata), " - ", hex(firstmoduledata.enoptrdata), "\n")
+	print(".data            ", hex(firstmoduledata.data), " - ", hex(firstmoduledata.edata), "\n")
+	print(".bss             ", hex(firstmoduledata.bss), " - ", hex(firstmoduledata.ebss), "\n")
+	print(".noptrbss        ", hex(firstmoduledata.noptrbss), " - ", hex(firstmoduledata.enoptrbss), "\n")
+	print(".end             ", hex(firstmoduledata.end), "\n")
+
+	imageSize := uint32(firstmoduledata.end - firstmoduledata.text)
+	heapSize := uint32(g0.stack.lo - firstmoduledata.end)
+	stackSize := uint32(g0.stack.hi - g0.stack.lo)
+	unusedSize := uint32(firstmoduledata.text) - (excStackStart + excStackSize) + ramStackOffset
+	totalSize := vecTableSize + l1pageTableSize + excStackSize + imageSize + heapSize + stackSize + unusedSize
+
+	print("-- Memory section sizes ---------------------\n")
+	print("vector table:    ", vecTableSize, " (", vecTableSize/1024, " kB)\n")
+	print("L1 page table:   ", l1pageTableSize, " (", l1pageTableSize/1024, " kB)\n")
+	print("exception stack: ", excStackSize, " (", excStackSize/1024, " kB)\n")
+	print("program image:   ", imageSize, " (", imageSize/1024, " kB)\n")
+	print("heap:            ", heapSize, " (", heapSize/1024, " kB)\n")
+	print("g0 stack:        ", stackSize, " (", stackSize/1024, " kB)\n")
+	print("total unused:    ", unusedSize, " (", unusedSize/1024, " kB)\n")
+	print("total:           ", totalSize, " (", totalSize/1024, " kB)\n")
+	print("---------------------------------------------\n")
 }
 
 //go:nosplit
@@ -315,16 +328,18 @@ func mmuinit() {
 	// Define a flat L1 page table, the MMU is enabled only for caching to work.
 	// The L1 page table is located 16KB after ramStart.
 
+	if processor_mode() != SYS_MODE {
+		return
+	}
+
 	l1pageTableStart := ramStart + l1pageTableOffset
 	memclrNoHeapPointers(unsafe.Pointer(uintptr(l1pageTableStart)), uintptr(l1pageTableSize))
-
-	var i uint32
 
 	memAttr := uint32(TTE_AP_011 | TTE_CACHEABLE | TTE_BUFFERABLE | TTE_SECTION_1MB)
 	devAttr := uint32(TTE_AP_011 | TTE_SECTION_1MB)
 
 	// skip page zero to trap null pointers
-	for i = 1; i < l1pageTableSize/4; i++ {
+	for i := uint32(1); i < l1pageTableSize/4; i++ {
 		if i >= (ramStart>>20) && i < ((ramStart+ramSize)>>20) {
 			*(*uint32)(unsafe.Pointer(uintptr(l1pageTableStart + 4*i))) = (i << 20) | memAttr
 		} else {

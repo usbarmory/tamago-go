@@ -10,10 +10,10 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	AND	$0x1f, R0, R0	// get processor mode
 
 	CMP	$0x10, R0	// 0x10 = USER mode
-	BEQ	runtime_start	// Skip initialization if USER mode
+	B.EQ	runtime_start	// Skip initialization if USER mode
 
 	CMP	$0x1a, R0	// 0x1a = HYP mode
-	BNE	after_eret	// Skip ERET if not HYP mode
+	B.NE	after_eret	// Skip ERET if not HYP mode
 
 	BIC	$0x1f, R0
 	ORR	$0x1d3, R0	// 0x1d3 = AIF masked, SVC mode

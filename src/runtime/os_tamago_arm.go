@@ -154,13 +154,6 @@ func newosproc(mp *m) {
 	panic("newosproc: not implemented")
 }
 
-func Setncpu(n int32) {
-	if n > 1 {
-		throw("unsupported: ncpu >= 2")
-	}
-	ncpu = n
-}
-
 // Called to do synchronous initialization of Go code built with
 // -buildmode=c-archive or -buildmode=c-shared.
 // None of the Go runtime is initialized.
@@ -178,8 +171,6 @@ func mpreinit(mp *m) {
 }
 
 func osinit() {
-	// the kernel uses Setncpu() to update ncpu to the number of
-	// booted CPUs on startup
 	ncpu = 1
 	physPageSize = 4096
 	initBloc()

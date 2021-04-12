@@ -10,90 +10,8 @@
 #include "go_tls.h"
 #include "textflag.h"
 
-TEXT runtime·invallpages(SB),NOSPLIT,$0
-	// Invalidate Instruction Cache + DSB
-	MOVW	$0, R1
-	MCR	15, 0, R1, C7, C5, 0
-	MCR	15, 0, R1, C7, C10, 4
-
-	// Invalidate unified TLB
-	MCR	15, 0, R0, C8, C7, 0	// TLBIALL
-	RET
-
-TEXT runtime·dmb(SB),NOSPLIT,$0
-	// Data Memory Barrier
-	MOVW	$0, R0
-	MCR	15, 0, R0, C7, C10, 5
-	RET
-
-TEXT runtime·set_exc_stack(SB),NOSPLIT,$0-4
-	MOVW addr+0(FP), R0
-
-	// Set IRQ mode SP
-	WORD	$0xe321f0d2	// msr CPSR_c, 0xd2
-	MOVW R0, R13
-
-	// Set Abort mode SP
-	WORD	$0xe321f0d7	// msr CPSR_c, 0xd7
-	MOVW R0, R13
-
-	// Set Undefined mode SP
-	WORD	$0xe321f0db	// msr CPSR_c, 0xdb
-	MOVW R0, R13
-
-	// Set Supervisor mode SP
-	WORD	$0xe321f0d3	// msr CPSR_c, 0xd3
-	MOVW R0, R13
-
-	// Return to System mode
-	WORD	$0xe321f0df	// msr CPSR_c, 0xdf
-
-	RET
-
-TEXT runtime·set_vbar(SB),NOSPLIT,$0-4
-	MOVW	addr+0(FP), R0
-	MCR	15, 0, R0, C12, C0, 0
-	RET
-
-TEXT runtime·set_ttbr0(SB),NOSPLIT,$0-4
-	MOVW	addr+0(FP), R0
-
-	BL runtime·invallpages(SB)
-
-	// Set TTBR0
-	MCR	15, 0, R0, C2, C0, 0
-
-	// Use TTBR0 for translation table walks
-	MOVW	$0x0, R0
-	MCR	15, 0, R0, C2, C0, 2
-
-	// Set Domain Access
-	MOVW	$0x3, R0
-	MCR	15, 0, R0, C3, C0, 0
-
-	// Invalidate Instruction Cache + DSB
-	MOVW	$0, R0
-	MCR	15, 0, R0, C7, C5, 0
-	MCR	15, 0, R0, C7, C10, 4
-
-	// Enable MMU
-	MRC	15, 0, R0, C1, C0, 0
-	ORR	$0x1, R0
-	MCR	15, 0, R0, C1, C0, 0
-
-	RET
-
-TEXT runtime·processor_mode(SB),NOSPLIT,$0-4
-	WORD	$0xe10f0000	// mrs r0, CPSR
-	AND	$0x1f, R0, R0	// get processor mode
-	MOVW	R0, ret+0(FP)
-
-	RET
-
 TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$0xcafebabe, R12
-
-	MOVW R13, runtime·stackBottom(SB)
 
 	// set up g register
 	// g is R10
@@ -114,11 +32,9 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 
 	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
 	BL	runtime·hwinit(SB)
-	BL	runtime·mmuinit(SB)
 	BL	runtime·check(SB)
 	BL	runtime·checkgoarm(SB)
 	BL	runtime·osinit(SB)
-	BL	runtime·vecinit(SB)
 	BL	runtime·schedinit(SB)
 
 	// create a new goroutine to start program
@@ -141,87 +57,68 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
 
-#define CALLFN_FROM_G0(FN, NAME)					\
-	/* restore SP */						\
-	MOVW	R13, (g_sched+gobuf_sp)(g)				\
-									\
-	/* restore PC from LR */					\
-	MOVW	R14, (g_sched+gobuf_pc)(g)				\
-									\
-	/* restore g */							\
-	MOVW	R14, (g_sched+gobuf_lr)(g)				\
-	MOVW	g, (g_sched+gobuf_g)(g)					\
-									\
-	/* switch to g0 */						\
-	MOVW	g_m(g), R1						\
-	MOVW	m_g0(R1), R2						\
-	MOVW	R2, g							\
-	MOVW	(g_sched+gobuf_sp)(R2), R3				\
-									\
-	/* make it look like mstart called systemstack on g0 */		\
-	/* to stop traceback (see runtime·systemstack)       */		\
-	SUB	$4, R3, R3						\
-	MOVW	$runtime·mstart(SB), R4					\
-	MOVW	R4, 0(R3)						\
-	MOVW	R3, R13							\
-									\
-	/* call handler function */					\
-	MOVW	$NAME(SB), R0						\
-	MOVW	$FN, R1							\
-	MOVW	R1, off+0(FP)						\
-	BL	(R0)							\
-									\
-	/* switch back to g */						\
-	MOVW	g_m(g), R1						\
-	MOVW	m_curg(R1), R0						\
-	MOVW	R0, g							\
-									\
-	/* restore stack pointer */					\
-	MOVW	(g_sched+gobuf_sp)(g), R13				\
-	MOVW	$0, R3							\
-	MOVW	R3, (g_sched+gobuf_sp)(g)				\
+// CallOnG0 calls a function (func(off int)) on g0 stack.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: fn argument (vector table offset)
+//   * R1: fn pointer
+//   * R2: size of stack area reserved for caller registers
+//   * R3: caller program counter
+TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
+	// restore SP
+	ADD	R2, R13, R5
+	MOVW	R5, (g_sched+gobuf_sp)(g)
 
-#define CALLFN_FROM_EXCEPTION(VECTOR, NAME, OFFSET, RN, SAVE_SIZE)	\
-	/* restore stack pointer */					\
-	WORD	$0xe105d200			/* mrs sp, SP_usr */	\
-									\
-	/* remove exception specific LR offset */			\
-	SUB	$OFFSET, R14, R14					\
-									\
-	/* save caller registers */					\
-	MOVM.DB		[R0-RN, R14], (R13)	/* push {r0-rN, r14} */	\
-									\
-	/* call exception handler from g0 */				\
-	CALLFN_FROM_G0(VECTOR, NAME)					\
-									\
-	/* restore registers */						\
-	SUB $SAVE_SIZE, R13, R13					\
-	MOVM.IA.W	(R13), [R0-RN, R14]	/* pop {r0-rN, r14} */	\
-									\
-	/* restore PC from LR and mode */				\
-	ADD	$OFFSET, R14, R14					\
-	MOVW.S	R14, R15
+	// align stack pointer to fixed offset
+	SUB	$56, R2, R4
+	SUB	R4, R13, R13
 
-TEXT runtime·resetHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x0, ·exceptionHandler, 0, R12, 56)
+	// save LR
+	WORD	$0xe92d4000		// stmdb r13!,{lr}
 
-TEXT runtime·undefinedHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x4, ·exceptionHandler, 4, R12, 56)
+	// restore PC
+	MOVW	R3, (g_sched+gobuf_pc)(g)
 
-TEXT runtime·svcHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x8, ·exceptionHandler, 0, R12, 56)
+	// restore g
+	MOVW	R3, (g_sched+gobuf_lr)(g)
+	MOVW	g, (g_sched+gobuf_g)(g)
 
-TEXT runtime·prefetchAbortHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0xc, ·exceptionHandler, 4, R12, 56)
+	// switch to g0
+	MOVW	g_m(g), R6
+	MOVW	m_g0(R6), R2
+	MOVW	R2, g
+	MOVW	(g_sched+gobuf_sp)(R2), R3
 
-TEXT runtime·dataAbortHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x10, ·exceptionHandler, 8, R12, 56)
+	/* make it look like mstart called systemstack on g0 */
+	/* to stop traceback (see runtime·systemstack)       */
+	SUB	$4, R3, R3
+	MOVW	$runtime·mstart(SB), R4
+	MOVW	R4, 0(R3)
+	MOVW	R3, R13
 
-TEXT runtime·irqHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x18, ·exceptionHandler, 4, R12, 56)
+	// call handler function
+	MOVW	R0, off+0(FP)
+	BL	(R1)
 
-TEXT runtime·fiqHandler(SB),NOSPLIT|NOFRAME,$0
-	CALLFN_FROM_EXCEPTION(0x1c, ·exceptionHandler, 4, R7, 36)
+	// switch back to g
+	MOVW	g_m(g), R1
+	MOVW	m_curg(R1), R0
+	MOVW	R0, g
+
+	// restore stack pointer
+	MOVW	(g_sched+gobuf_sp)(g), R13
+	MOVW	$0, R3
+	MOVW	R3, (g_sched+gobuf_sp)(g)
+
+	// restore LR
+	MOVW	(g_sched+gobuf_pc)(g), R14
+
+	// restore LR from PC
+	SUB	$4, R13, R13		// saved LR
+	SUB	$56, R13, R13		// saved caller registers
+	WORD	$0xe8bd8000		// ldmia r13!,{pc}
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0

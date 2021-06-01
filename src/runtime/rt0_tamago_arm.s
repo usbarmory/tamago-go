@@ -5,6 +5,9 @@
 #include "textflag.h"
 
 TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
+	// Enforce little-endian operation
+	WORD	$0xf1010000	// setend le
+
 	// Detect HYP mode and switch to SVC if necessary
 	WORD	$0xe10f0000	// mrs r0, CPSR
 	AND	$0x1f, R0, R0	// get processor mode

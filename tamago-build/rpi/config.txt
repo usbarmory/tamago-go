@@ -1,0 +1,9 @@
+# For more options and information see
+# http://rpf.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+enable_uart=1
+uart_2ndstage=1
+dtparam=uart0=on
+disable_commandline_tags=1
+core_freq=250

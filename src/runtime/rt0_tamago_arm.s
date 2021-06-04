@@ -12,14 +12,14 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	WORD	$0xe10f0000	// mrs r0, CPSR
 	AND	$0x1f, R0, R0	// get processor mode
 
-	CMP	$0x10, R0	// 0x10 = USER mode
+	CMP	$0x10, R0	// USR mode
 	B.EQ	runtime_start	// Skip initialization if USER mode
 
-	CMP	$0x1a, R0	// 0x1a = HYP mode
+	CMP	$0x1a, R0	// HYP mode
 	B.NE	after_eret	// Skip ERET if not HYP mode
 
 	BIC	$0x1f, R0
-	ORR	$0x1d3, R0	// 0x1d3 = AIF masked, SVC mode
+	ORR	$0x1d3, R0	// AIF masked, SVC mode
 	MOVW	$12(R15), R14	// add lr, pc, #12 (after_eret)
 	WORD	$0xe16ff000	// msr SPSR_fsxc, r0
 	WORD	$0xe12ef30e	// msr ELR_hyp, lr

@@ -32,14 +32,14 @@ type fsys struct {
 	root *inode                    // root directory
 	cwd  *inode                    // process current directory
 	inum uint64                    // number of inodes created
-	dev  []func() (devFile, error) // table for opening devices
+	dev  []func() (DevFile, error) // table for opening devices
 }
 
-// A devFile is the implementation required of device files
+// DevFile is the implementation required of device files
 // like /dev/null or /dev/random.
-type devFile interface {
-	pread([]byte, int64) (int, error)
-	pwrite([]byte, int64) (int, error)
+type DevFile interface {
+	Pread([]byte, int64) (int, error)
+	Pwrite([]byte, int64) (int, error)
 }
 
 // An inode is a (possibly special) file in the file system.
@@ -62,7 +62,7 @@ type fsysFile struct {
 	inode    *inode
 	openmode int
 	offset   int64
-	dev      devFile
+	dev      DevFile
 }
 
 // newFsys creates a new file system.
@@ -89,10 +89,10 @@ func init() {
 	fsinit = func() {}
 	Mkdir("/dev", 0555)
 	Mkdir("/tmp", 0777)
-	mkdev("/dev/null", 0666, openNull)
-	mkdev("/dev/random", 0444, openRandom)
-	mkdev("/dev/urandom", 0444, openRandom)
-	mkdev("/dev/zero", 0666, openZero)
+	MkDev("/dev/null", 0666, openNull)
+	MkDev("/dev/random", 0444, openRandom)
+	MkDev("/dev/urandom", 0444, openRandom)
+	MkDev("/dev/zero", 0666, openZero)
 	chdirEnv()
 }
 
@@ -252,7 +252,7 @@ func (fs *fsys) open(name string, openmode int, mode uint32) (fileImpl, error) {
 	}
 	var (
 		ip  *inode
-		dev devFile
+		dev DevFile
 	)
 	de, _, err := fs.dirlookup(dp, elem)
 	if err != nil {
@@ -383,13 +383,13 @@ func (f *fsysFile) seek(offset int64, whence int) (int64, error) {
 	return offset, nil
 }
 
-func (f *fsysFile) pread(b []byte, offset int64) (int, error) {
+func (f *fsysFile) Pread(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	return f.preadLocked(b, offset)
 }
 
-func (f *fsysFile) pwrite(b []byte, offset int64) (int, error) {
+func (f *fsysFile) Pwrite(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	return f.pwriteLocked(b, offset)
@@ -406,7 +406,7 @@ func (f *fsysFile) preadLocked(b []byte, offset int64) (int, error) {
 		f.fsys.atime(f.inode)
 		f.fsys.mu.Unlock()
 		defer f.fsys.mu.Lock()
-		return f.dev.pread(b, offset)
+		return f.dev.Pread(b, offset)
 	}
 	if offset > f.inode.Size {
 		return 0, nil
@@ -462,7 +462,7 @@ func (f *fsysFile) pwriteLocked(b []byte, offset int64) (int, error) {
 		f.fsys.atime(f.inode)
 		f.fsys.mu.Unlock()
 		defer f.fsys.mu.Lock()
-		return f.dev.pwrite(b, offset)
+		return f.dev.Pwrite(b, offset)
 	}
 	if offset > f.inode.Size {
 		return 0, EINVAL
@@ -762,7 +762,9 @@ func Fsync(fd int) error {
 
 // Special devices.
 
-func mkdev(path string, mode uint32, open func() (devFile, error)) error {
+// MkDev creates a character special file with an absolute path and a mode,
+// and a function which makes the device accessible.
+func MkDev(path string, mode uint32, open func() (DevFile, error)) error {
 	f, err := fs.open(path, O_CREATE|O_RDONLY|O_EXCL, S_IFCHR|mode)
 	if err != nil {
 		return err
@@ -775,18 +777,18 @@ func mkdev(path string, mode uint32, open func() (devFile, error)) error {
 
 type nullFile struct{}
 
-func openNull() (devFile, error)                               { return &nullFile{}, nil }
+func openNull() (DevFile, error)                               { return &nullFile{}, nil }
 func (f *nullFile) close() error                               { return nil }
-func (f *nullFile) pread(b []byte, offset int64) (int, error)  { return 0, nil }
-func (f *nullFile) pwrite(b []byte, offset int64) (int, error) { return len(b), nil }
+func (f *nullFile) Pread(b []byte, offset int64) (int, error)  { return 0, nil }
+func (f *nullFile) Pwrite(b []byte, offset int64) (int, error) { return len(b), nil }
 
 type zeroFile struct{}
 
-func openZero() (devFile, error)                               { return &zeroFile{}, nil }
+func openZero() (DevFile, error)                               { return &zeroFile{}, nil }
 func (f *zeroFile) close() error                               { return nil }
-func (f *zeroFile) pwrite(b []byte, offset int64) (int, error) { return len(b), nil }
+func (f *zeroFile) Pwrite(b []byte, offset int64) (int, error) { return len(b), nil }
 
-func (f *zeroFile) pread(b []byte, offset int64) (int, error) {
+func (f *zeroFile) Pread(b []byte, offset int64) (int, error) {
 	for i := range b {
 		b[i] = 0
 	}
@@ -795,7 +797,7 @@ func (f *zeroFile) pread(b []byte, offset int64) (int, error) {
 
 type randomFile struct{}
 
-func openRandom() (devFile, error) {
+func openRandom() (DevFile, error) {
 	return randomFile{}, nil
 }
 
@@ -803,12 +805,12 @@ func (f randomFile) close() error {
 	return nil
 }
 
-func (f randomFile) pread(b []byte, offset int64) (int, error) {
+func (f randomFile) Pread(b []byte, offset int64) (int, error) {
 	runtime.GetRandomData(b)
 	return len(b), nil
 }
 
-func (f randomFile) pwrite(b []byte, offset int64) (int, error) {
+func (f randomFile) Pwrite(b []byte, offset int64) (int, error) {
 	return 0, EPERM
 }
 

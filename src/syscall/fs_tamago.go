@@ -15,8 +15,8 @@
 package syscall
 
 import (
-	"sync"
 	"runtime"
+	"sync"
 	"unsafe"
 )
 
@@ -393,6 +393,10 @@ func (f *fsysFile) Pwrite(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	return f.pwriteLocked(b, offset)
+}
+
+func (f *fsysFile) pread(b []byte, offset int64) (int, error) {
+	return f.preadLocked(b, offset)
 }
 
 func (f *fsysFile) preadLocked(b []byte, offset int64) (int, error) {

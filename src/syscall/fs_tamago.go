@@ -387,13 +387,17 @@ func (f *fsysFile) Pread(b []byte, offset int64) (int, error) {
 	return f.pread(b, offset)
 }
 
+func (f *fsysFile) Pwrite(b []byte, offset int64) (int, error) {
+	return f.pwrite(b, offset)
+}
+
 func (f *fsysFile) pread(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	return f.preadLocked(b, offset)
 }
 
-func (f *fsysFile) Pwrite(b []byte, offset int64) (int, error) {
+func (f *fsysFile) pwrite(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	return f.pwriteLocked(b, offset)

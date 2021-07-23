@@ -174,7 +174,7 @@ func walltime1() (sec int64, nsec int32) {
 	// performance
 	nano := nanotime()
 	sec = nano / 1000000000
-	nsec = int32(nano - (sec * 1000000000))
+	nsec = int32(nano % 1000000000)
 	return
 }
 

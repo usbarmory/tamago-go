@@ -7,6 +7,7 @@
 package syscall
 
 import (
+	"internal/itoa"
 	"internal/oserror"
 	"sync"
 	"unsafe"
@@ -53,7 +54,7 @@ const PathMax = 256
 // using errors.Is. For example:
 //
 //	_, _, err := syscall.Syscall(...)
-//	if errors.Is(err, os.ErrNotExist) ...
+//	if errors.Is(err, fs.ErrNotExist) ...
 type Errno uintptr
 
 func (e Errno) Error() string {
@@ -63,7 +64,7 @@ func (e Errno) Error() string {
 			return s
 		}
 	}
-	return "errno " + itoa(int(e))
+	return "errno " + itoa.Itoa(int(e))
 }
 
 func (e Errno) Is(target error) bool {
@@ -109,7 +110,7 @@ func (s Signal) String() string {
 			return str
 		}
 	}
-	return "signal " + itoa(int(s))
+	return "signal " + itoa.Itoa(int(s))
 }
 
 var signals = [...]string{}

@@ -70,6 +70,7 @@ func setProcessCPUProfiler(hz int32) {}
 func setThreadCPUProfiler(hz int32)  {}
 func initsig(preinit bool)           {}
 func osyield()                       {}
+func osyield_no_g()                  {}
 
 // May run with m.p==nil, so write barriers are not allowed.
 //go:nowritebarrier
@@ -169,7 +170,7 @@ func syscall_now() (sec int64, nsec int32) {
 }
 
 //go:nosplit
-func walltime1() (sec int64, nsec int32) {
+func walltime() (sec int64, nsec int32) {
 	// TODO: probably better implement this in sys_tamago_arm.s for better
 	// performance
 	nano := nanotime()
@@ -183,6 +184,11 @@ func usleep(us uint32) {
 	wake := nanotime() + int64(us)*1000
 	for nanotime() < wake {
 	}
+}
+
+//go:nosplit
+func usleep_no_g(usec uint32) {
+	usleep(usec)
 }
 
 func exit(code int32) {

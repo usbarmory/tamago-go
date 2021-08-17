@@ -153,6 +153,8 @@ func checkTimeouts() {
 // beforeIdle gets called by the scheduler if no goroutine is awake.
 // If we are not already handling an event, then we pause for an async event.
 // If an event handler returned, we resume it and it will pause the execution.
-func beforeIdle(delay int64) (gp *g, otherReady bool) {
+// beforeIdle either returns the specific goroutine to schedule next or
+// indicates with otherReady that some goroutine became ready.
+func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
 	return nil, false
 }

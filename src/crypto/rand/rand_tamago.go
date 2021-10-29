@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build tamago
 // +build tamago
 
 package rand
@@ -16,7 +17,7 @@ func init() {
 }
 
 type reader struct {
-	mu   sync.Mutex
+	mu sync.Mutex
 }
 
 func (r *reader) Read(b []byte) (int, error) {

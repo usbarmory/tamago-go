@@ -578,7 +578,7 @@ func mallocinit() {
 		// On TamaGo each memory allocation directly consumes physical
 		// memory. To keep heapArenas size as low as possible we
 		// allocate the exact number needed to fill available RAM.
-		if sys.GoosTamago == 1 {
+		if goos.IsTamago == 1 {
 			heapArenaCount = uintptr(ramSize)/heapArenaBytes
 		}
 

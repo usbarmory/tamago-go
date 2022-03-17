@@ -65,13 +65,6 @@ func current() (*User, error) {
 	return u, fmt.Errorf("user: Current requires cgo or %s set in environment", missing)
 }
 
-func listGroups(*User) ([]string, error) {
-	if runtime.GOOS == "android" || runtime.GOOS == "aix" || runtime.GOOS == "tamago" {
-		return nil, fmt.Errorf("user: GroupIds not implemented on %s", runtime.GOOS)
-	}
-	return nil, fmt.Errorf("user: GroupIds requires cgo")
-}
-
 func currentUID() string {
 	if id := os.Getuid(); id >= 0 {
 		return strconv.Itoa(id)

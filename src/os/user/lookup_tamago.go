@@ -27,3 +27,7 @@ func lookupGroup(groupname string) (*Group, error) {
 func lookupGroupId(string) (*Group, error) {
 	return nil, errors.New("unsupported")
 }
+
+func listGroups(*User) ([]string, error) {
+	return nil, errors.New("unsupported")
+}

@@ -89,10 +89,10 @@ func init() {
 	fsinit = func() {}
 	Mkdir("/dev", 0555)
 	Mkdir("/tmp", 0777)
-	MkDev("/dev/null", 0666, openNull)
-	MkDev("/dev/random", 0444, openRandom)
-	MkDev("/dev/urandom", 0444, openRandom)
-	MkDev("/dev/zero", 0666, openZero)
+	Mkdev("/dev/null", 0666, openNull)
+	Mkdev("/dev/random", 0444, openRandom)
+	Mkdev("/dev/urandom", 0444, openRandom)
+	Mkdev("/dev/zero", 0666, openZero)
 	chdirEnv()
 }
 
@@ -770,9 +770,9 @@ func Fsync(fd int) error {
 
 // Special devices.
 
-// MkDev creates a character special file with an absolute path and a mode,
+// Mkdev creates a character special file with an absolute path and a mode,
 // and a function which makes the device accessible.
-func MkDev(path string, mode uint32, open func() (DevFile, error)) error {
+func Mkdev(path string, mode uint32, open func() (DevFile, error)) error {
 	f, err := fs.open(path, O_CREATE|O_RDONLY|O_EXCL, S_IFCHR|mode)
 	if err != nil {
 		return err

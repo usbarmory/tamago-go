@@ -119,11 +119,6 @@ func cputicks() int64 {
 	return nanotime()
 }
 
-//go:nosplit
-func roundup(val, upto uint32) uint32 {
-	return ((val + (upto - 1)) & ^(upto - 1))
-}
-
 //go:linkname os_sigpipe os.sigpipe
 func os_sigpipe() {
 	throw("too many writes on closed pipe")

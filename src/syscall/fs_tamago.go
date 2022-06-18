@@ -35,13 +35,6 @@ type fsys struct {
 	dev  []func() (DevFile, error) // table for opening devices
 }
 
-// DevFile is the implementation required of device files
-// like /dev/null or /dev/random.
-type DevFile interface {
-	Pread([]byte, int64) (int, error)
-	Pwrite([]byte, int64) (int, error)
-}
-
 // An inode is a (possibly special) file in the file system.
 type inode struct {
 	Stat_t

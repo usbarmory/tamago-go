@@ -57,7 +57,7 @@ func Init() (*sys.Arch, ld.Arch) {
 
 func archinit(ctxt *ld.Link) {
 	switch ctxt.HeadType {
-	case objabi.Hlinux, objabi.Hfreebsd, objabi.Hopenbsd:
+	case objabi.Hlinux, objabi.Hfreebsd, objabi.Hopenbsd, objabi.Htamago:
 		ld.Elfinit(ctxt)
 		ld.HEADR = ld.ELFRESERVE
 		if *ld.FlagRound == -1 {

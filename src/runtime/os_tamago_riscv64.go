@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && arm
-// +build tamago,arm
+//go:build tamago && riscv64
+// +build tamago,riscv64
 
 package runtime
 
@@ -14,9 +14,9 @@ import (
 const _PAGESIZE uintptr = 0x1000
 
 // the following variables must be provided externally
-var ramStart uint32
-var ramSize uint32
-var ramStackOffset uint32
+var ramStart uint64
+var ramSize uint64
+var ramStackOffset uint64
 
 // the following functions must be provided externally
 func hwinit()
@@ -34,20 +34,9 @@ func GetRandomData(r []byte) {
 	getRandomData(r)
 }
 
-// CallOnG0 calls a function (func(off int)) on g0 stack.
-//
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: fn argument (vector table offset)
-//   * R1: fn pointer
-//   * R2: size of stack area reserved for caller registers
-//   * R3: caller program counter
-func CallOnG0()
-
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
-func MemRegion() (start uint32, end uint32) {
+func MemRegion() (start uint64, end uint64) {
 	return ramStart, ramStart + ramSize
 }
 
@@ -76,15 +65,6 @@ func newosproc(mp *m) {
 	panic("newosproc: not implemented")
 }
 
-// Called to do synchronous initialization of Go code built with
-// -buildmode=c-archive or -buildmode=c-shared.
-// None of the Go runtime is initialized.
-//go:nosplit
-//go:nowritebarrierrec
-func libpreinit() {
-	initsig(true)
-}
-
 // Called to initialize a new m (including the bootstrap m).
 // Called on the parent thread (main thread in case of bootstrap), can allocate memory.
 func mpreinit(mp *m) {
@@ -100,20 +80,6 @@ func osinit() {
 
 func signame(sig uint32) string {
 	return ""
-}
-
-func checkgoarm() {
-	if goarm < 5 || goarm > 7 {
-		print("runtime: tamago requires ARMv5 through ARMv7. Recompile using GOARM=5, GOARM=6 or GOARM=7.\n")
-		exit(1)
-	}
-}
-
-//go:nosplit
-func cputicks() int64 {
-	// Currently cputicks() is used in blocking profiler and to seed runtime·fastrand().
-	// runtime·nanotime() is a poor approximation of CPU ticks that is enough for the profiler.
-	return nanotime()
 }
 
 //go:linkname os_sigpipe os.sigpipe
@@ -164,7 +130,7 @@ func syscall_now() (sec int64, nsec int32) {
 
 //go:nosplit
 func walltime() (sec int64, nsec int32) {
-	// TODO: probably better implement this in sys_tamago_arm.s for better
+	// TODO: probably better implement this in sys_tamago_riscv64.s for better
 	// performance
 	nano := nanotime()
 	sec = nano / 1000000000

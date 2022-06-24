@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && arm
-// +build tamago,arm
+//go:build tamago
+// +build tamago
 
 package runtime
 

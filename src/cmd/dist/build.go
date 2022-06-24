@@ -1819,6 +1819,7 @@ var cgoEnabled = map[string]bool{
 	"windows/arm":     false,
 	"windows/arm64":   true,
 	"tamago/arm":      true,
+	"tamago/riscv64":  true,
 }
 
 // List of platforms that are marked as broken ports.

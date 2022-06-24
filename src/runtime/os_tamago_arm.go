@@ -15,11 +15,8 @@ const _PAGESIZE uintptr = 0x1000
 
 // the following variables must be provided externally
 var ramStart uint32
+var ramSize uint32
 var ramStackOffset uint32
-
-// the following variables must be provided externally
-// (but are already stubbed somewhere else in the runtime)
-// var ramSize uint32
 
 // the following functions must be provided externally
 func hwinit()

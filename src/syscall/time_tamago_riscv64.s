@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !tamago
+#include "textflag.h"
 
-package runtime
+TEXT ·startTimer(SB),NOSPLIT,$0
+	JMP time·startTimer(SB)
 
-var ramSize uint32
-func initRNG() {}
+TEXT ·stopTimer(SB),NOSPLIT,$0
+	JMP time·stopTimer(SB)

@@ -79,6 +79,8 @@ TEXT setg_gcc<>(SB),NOSPLIT,$0-0
 	CALL	runtime·save_g(SB)
 	RET
 
+#ifndef GOOS_tamago
+
 // func cputicks() int64
 TEXT runtime·cputicks<ABIInternal>(SB),NOSPLIT,$0-0
 	// RDTIME to emulate cpu ticks
@@ -86,6 +88,8 @@ TEXT runtime·cputicks<ABIInternal>(SB),NOSPLIT,$0-0
 	// according to the riscv manual, see issue 46737
 	RDTIME	X10
 	RET
+
+#endif
 
 // systemstack_switch is a dummy routine that systemstack leaves at the bottom
 // of the G stack. We need to distinguish the routine that

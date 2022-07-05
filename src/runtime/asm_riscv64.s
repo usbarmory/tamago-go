@@ -79,6 +79,8 @@ TEXT setg_gcc<>(SB),NOSPLIT,$0-0
 	CALL	runtime·save_g(SB)
 	RET
 
+#ifndef GOOS_tamago
+
 // func cputicks() int64
 TEXT runtime·cputicks(SB),NOSPLIT,$0-8
 	// RDTIME to emulate cpu ticks
@@ -87,6 +89,8 @@ TEXT runtime·cputicks(SB),NOSPLIT,$0-8
 	RDTIME	A0
 	MOV	A0, ret+0(FP)
 	RET
+
+#endif
 
 // systemstack_switch is a dummy routine that systemstack leaves at the bottom
 // of the G stack. We need to distinguish the routine that

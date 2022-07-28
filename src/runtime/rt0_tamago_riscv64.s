@@ -8,13 +8,21 @@
 #include "textflag.h"
 
 #define s0 8
+#define uie     0x004
+#define sie     0x104
+#define hie     0x204
 #define mstatus 0x300
+#define mie     0x304
 
 #define CSRC(RS,CSR) WORD $(0x3073 + RS<<15 + CSR<<20)
 #define CSRS(RS,CSR) WORD $(0x2073 + RS<<15 + CSR<<20)
+#define CSRW(RS,CSR) WORD $(0x1073 + RS<<15 + CSR<<20)
 
 TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	// Disable interrupts
+	MOV	$0, S0
+	CSRW	(s0, sie)
+	CSRW	(s0, mie)
 	MOV	$0x7FFF, S0
 	CSRC	(s0, mstatus)
 

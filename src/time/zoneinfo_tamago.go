@@ -3,11 +3,10 @@
 // license that can be found in the LICENSE file.
 
 //go:build tamago
-// +build tamago
 
 package time
 
-var zoneSources = []string{}
+var platformZoneSources = []string{}
 
 func initLocal() {
 	localLoc.name = "UTC"

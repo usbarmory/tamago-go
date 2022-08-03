@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build tamago
-// +build tamago
 
 package runtime
 
@@ -141,8 +140,12 @@ func notetsleepg(n *note, ns int64) bool {
 }
 
 // checkTimeouts resumes goroutines that are waiting on a note which has reached its deadline.
+// TODO(drchase): need to understand if write barriers are really okay in this context.
+//
+//go:yeswritebarrierrec
 func checkTimeouts() {
 	now := nanotime()
+	// TODO: map iteration has the write barriers in it; is that okay?
 	for n, nt := range notesWithTimeout {
 		if n.key == note_cleared && now >= nt.deadline {
 			n.key = note_timeout
@@ -156,6 +159,9 @@ func checkTimeouts() {
 // If an event handler returned, we resume it and it will pause the execution.
 // beforeIdle either returns the specific goroutine to schedule next or
 // indicates with otherReady that some goroutine became ready.
+// TODO(drchase): need to understand if write barriers are really okay in this context.
+//
+//go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
 	return nil, false
 }

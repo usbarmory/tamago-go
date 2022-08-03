@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build tamago && riscv64
-// +build tamago,riscv64
 
 package runtime
 
@@ -60,9 +59,11 @@ func osyield()                       {}
 func osyield_no_g()                  {}
 
 // May run with m.p==nil, so write barriers are not allowed.
+//
 //go:nowritebarrier
 func newosproc(mp *m) {
-	panic("newosproc: not implemented")
+	print("newosproc: not implemented")
+	crash()
 }
 
 // Called to initialize a new m (including the bootstrap m).

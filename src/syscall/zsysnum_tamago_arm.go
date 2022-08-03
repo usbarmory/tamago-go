@@ -1,5 +1,4 @@
 //go:build arm && tamago
-// +build arm,tamago
 
 package syscall
 

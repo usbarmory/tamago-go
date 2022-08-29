@@ -7,10 +7,9 @@
 #include "funcdata.h"
 #include "textflag.h"
 
-#define s0 8
-#define uie     0x004
+#define t0 5
+
 #define sie     0x104
-#define hie     0x204
 #define mstatus 0x300
 #define mie     0x304
 
@@ -18,19 +17,23 @@
 #define CSRS(RS,CSR) WORD $(0x2073 + RS<<15 + CSR<<20)
 #define CSRW(RS,CSR) WORD $(0x1073 + RS<<15 + CSR<<20)
 
+// entry point for M privilege level instances
 TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	// Disable interrupts
-	MOV	$0, S0
-	CSRW	(s0, sie)
-	CSRW	(s0, mie)
-	MOV	$0x7FFF, S0
-	CSRC	(s0, mstatus)
+	MOV	$0, T0
+	CSRW	(t0, sie)
+	CSRW	(t0, mie)
+	MOV	$0x7FFF, T0
+	CSRC	(t0, mstatus)
 
 	// Enable FPU
-	MOV	$(1<<13), S0
-	CSRS	(s0, mstatus)
+	MOV	$(1<<13), T0
+	CSRS	(t0, mstatus)
 
-runtime_start:
+	JMP	_rt0_riscv64_tamago_start(SB)
+
+// entry point for S/U privilege level instances
+TEXT _rt0_riscv64_tamago_start(SB),NOSPLIT|NOFRAME,$0
 	MOV	runtime·ramStart(SB), X2
 	MOV	runtime·ramSize(SB), T1
 	MOV	runtime·ramStackOffset(SB), T2

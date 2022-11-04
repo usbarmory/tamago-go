@@ -7,6 +7,7 @@
 package runtime
 
 import (
+	"runtime/internal/atomic"
 	"unsafe"
 )
 
@@ -192,7 +193,7 @@ func exit(code int32) {
 	}
 }
 
-func exitThread(wait *uint32) {
+func exitThread(wait *atomic.Uint32) {
 	// We should never reach exitThread
 	throw("exitThread: not implemented")
 }

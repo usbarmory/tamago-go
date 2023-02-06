@@ -5005,7 +5005,6 @@ func newproc1(fn *funcval, callergp *g, callerpc uintptr, parked bool, waitreaso
 		casgstatus(newg, _Gidle, _Gdead)
 		allgadd(newg) // publishes with a g->status of Gdead so GC scanner doesn't look at uninitialized stack.
 	}
-
 	if newg.stack.hi == 0 {
 		throw("newproc1: newg missing stack")
 	}

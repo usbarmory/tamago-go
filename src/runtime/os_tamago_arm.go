@@ -74,8 +74,7 @@ func osyield_no_g()                  {}
 //
 //go:nowritebarrier
 func newosproc(mp *m) {
-	print("newosproc: not implemented")
-	crash()
+	throw("newosproc: not implemented")
 }
 
 // Called to do synchronous initialization of Go code built with

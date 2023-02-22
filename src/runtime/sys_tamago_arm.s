@@ -66,6 +66,10 @@ TEXT runtime·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 //   * R2: size of stack area reserved for caller registers
 //   * R3: caller program counter
 TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
+	MOVW	$runtime·g0(SB), R5
+	CMP	g, R5
+	B.EQ	noswitch
+
 	// restore SP
 	ADD	R2, R13, R5
 	MOVW	R5, (g_sched+gobuf_sp)(g)
@@ -90,14 +94,13 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	R2, g
 	MOVW	(g_sched+gobuf_sp)(R2), R3
 
-	/* make it look like mstart called systemstack on g0 */
-	/* to stop traceback (see runtime·systemstack)       */
+	// make it look like mstart called systemstack on g0, to stop traceback
 	SUB	$4, R3, R3
 	MOVW	$runtime·mstart(SB), R4
 	MOVW	R4, 0(R3)
 	MOVW	R3, R13
 
-	// call handler function
+	// call target function
 	MOVW	R0, off+0(FP)
 	BL	(R1)
 
@@ -111,13 +114,15 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	$0, R3
 	MOVW	R3, (g_sched+gobuf_sp)(g)
 
-	// restore LR
-	MOVW	(g_sched+gobuf_pc)(g), R14
-
-	// restore LR from PC
-	SUB	$4, R13, R13		// saved LR
+	// restore PC
 	SUB	$56, R13, R13		// saved caller registers
+	SUB	$4, R13, R13		// saved LR
 	WORD	$0xe8bd8000		// ldmia r13!,{pc}
+
+noswitch:
+	// call target function
+	MOVW	R0, off+0(FP)
+	B	(R1)
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0

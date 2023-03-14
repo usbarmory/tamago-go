@@ -100,6 +100,7 @@ const (
 	SIGTRAP
 	SIGQUIT
 	SIGTERM
+	SIGABRT
 )
 
 func (s Signal) Signal() {}

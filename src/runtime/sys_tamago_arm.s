@@ -119,6 +119,8 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	SUB	$56, R13, R13		// saved caller registers
 	SUB	$8, R13, R13		// saved offset and LR
 	WORD	$0xe8bd0030		// pop {r4, r5}
+	ADD	R4, R13, R13		// remove fixed offset
+	MOVW	R5, R15
 
 noswitch:
 	// call target function

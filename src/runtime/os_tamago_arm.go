@@ -41,7 +41,8 @@ func GetRandomData(r []byte) {
 //
 //   * R0: fn argument (vector table offset)
 //   * R1: fn pointer
-//   * R2: caller program counter
+//   * R2: size of stack area reserved for caller registers
+//   * R3: caller program counter
 func CallOnG0()
 
 // MemRegion returns the start and end addresses of the physical RAM assigned

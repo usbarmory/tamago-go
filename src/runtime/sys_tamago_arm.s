@@ -63,19 +63,29 @@ TEXT runtime·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 //
 //   * R0: fn argument (vector table offset)
 //   * R1: fn pointer
-//   * R2: caller program counter
+//   * R2: size of stack area reserved for caller registers
+//   * R3: caller program counter
 TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	$runtime·g0(SB), R5
 	CMP	g, R5
 	B.EQ	noswitch
 
-	// save LR as Thread ID (TPIDRURW)
-	MCR	15, 0, R14, C13, C0, 2
+	// restore SP
+	ADD	R2, R13, R5
+	MOVW	R5, (g_sched+gobuf_sp)(g)
 
-	// save our state in g->sched
-	MOVW	R13, (g_sched+gobuf_sp)(g)
-	MOVW	R2, (g_sched+gobuf_pc)(g)
-	MOVW	R2, (g_sched+gobuf_lr)(g)
+	// align stack pointer to fixed offset
+	SUB	$56, R2, R4
+	SUB	R4, R13, R13
+
+	// save LR
+	WORD	$0xe92d4000		// stmdb r13!,{lr}
+
+	// restore PC
+	MOVW	R3, (g_sched+gobuf_pc)(g)
+
+	// restore g
+	MOVW	R3, (g_sched+gobuf_lr)(g)
 	MOVW	g, (g_sched+gobuf_g)(g)
 
 	// switch to g0
@@ -98,12 +108,16 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	g_m(g), R1
 	MOVW	m_curg(R1), R0
 	MOVW	R0, g
+
+	// restore stack pointer
+	MOVW	(g_sched+gobuf_sp)(g), R13
 	MOVW	$0, R3
 	MOVW	R3, (g_sched+gobuf_sp)(g)
 
-	// restore PC from Thread ID (TPIDRURW)
-	MRC	15, 0, R5, C13, C0, 2
-	MOVW	R5, R15
+	// restore PC
+	SUB	$56, R13, R13		// saved caller registers
+	SUB	$4, R13, R13		// saved LR
+	WORD	$0xe8bd8000		// ldmia r13!,{pc}
 
 noswitch:
 	// call target function

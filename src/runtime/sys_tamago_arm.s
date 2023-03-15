@@ -75,11 +75,12 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	R5, (g_sched+gobuf_sp)(g)
 
 	// align stack pointer to fixed offset
-	SUB	$56, R2, R4
+	MOVW	$56, R4
+	SUB	R2, R4, R4
 	SUB	R4, R13, R13
 
-	// save LR
-	WORD	$0xe92d4000		// stmdb r13!,{lr}
+	// save offset and LR
+	WORD	$0xe92d4010		// push {r4, lr}
 
 	// restore PC
 	MOVW	R3, (g_sched+gobuf_pc)(g)
@@ -116,8 +117,8 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 
 	// restore PC
 	SUB	$56, R13, R13		// saved caller registers
-	SUB	$4, R13, R13		// saved LR
-	WORD	$0xe8bd8000		// ldmia r13!,{pc}
+	SUB	$8, R13, R13		// saved offset and LR
+	WORD	$0xe8bd0030		// pop {r4, r5}
 
 noswitch:
 	// call target function

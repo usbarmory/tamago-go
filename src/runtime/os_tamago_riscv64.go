@@ -33,6 +33,14 @@ func initRNG()
 func GetRandomData(r []byte) {
 	getRandomData(r)
 }
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: G pointer
+func WakeG()
 
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
@@ -63,8 +71,7 @@ func osyield_no_g()                  {}
 //
 //go:nowritebarrier
 func newosproc(mp *m) {
-	print("newosproc: not implemented")
-	crash()
+	throw("newosproc: not implemented")
 }
 
 // Called to initialize a new m (including the bootstrap m).
@@ -84,16 +91,16 @@ func signame(sig uint32) string {
 	return ""
 }
 
-//go:linkname os_sigpipe os.sigpipe
-func os_sigpipe() {
-	throw("too many writes on closed pipe")
-}
-
 //go:nosplit
 func cputicks() int64 {
 	// Currently cputicks() is used in blocking profiler and to seed runtime·fastrand().
 	// runtime·nanotime() is a poor approximation of CPU ticks that is enough for the profiler.
 	return nanotime()
+}
+
+//go:linkname os_sigpipe os.sigpipe
+func os_sigpipe() {
+	throw("too many writes on closed pipe")
 }
 
 //go:nosplit

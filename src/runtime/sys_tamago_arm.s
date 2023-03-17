@@ -127,6 +127,36 @@ noswitch:
 	MOVW	R0, off+0(FP)
 	B	(R1)
 
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: G pointer
+TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+	MOVW	(g_timer)(R0), R0
+	CMP	$0, R0
+	B.EQ	done
+
+	// g->timer.nextwhen = 1
+	MOVW	$1, R1
+	MOVW	R1, (timer_nextwhen+0)(R0)
+	MOVW	$0, R1
+	MOVW	R1, (timer_nextwhen+4)(R0)
+
+	// g->timer.status = timerModifiedEarlier
+	MOVW	$const_timerModifiedEarlier, R1
+	MOVW	R1, (timer_status+0)(R0)
+
+	// g->m->p.timerModifiedEarliest = 1
+	MOVW	$1, R1
+	MOVW	runtime·allp(SB), R0
+	MOVW	(R0), R0
+	MOVW	R1, (p_timerModifiedEarliest)(R0)
+done:
+	RET
+
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$0, R0

@@ -45,6 +45,15 @@ func GetRandomData(r []byte) {
 //   * R3: caller program counter
 func CallOnG0()
 
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: G pointer
+func WakeG()
+
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint32, end uint32) {

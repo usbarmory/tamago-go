@@ -49,3 +49,31 @@ TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|TOPFRAME,$0
 
 	WORD $0 // crash if reached
 	RET
+
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: G pointer
+TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+	MOVW	(g_timer)(T0), T0
+	BEQ	T0, ZERO, done
+
+	// g->timer.nextwhen = 1
+	MOV	$(1 << 32), T1
+	MOV	T1, (timer_nextwhen)(T0)
+
+	// g->timer.status = timerModifiedEarlier
+	MOV	$const_timerModifiedEarlier, T1
+	MOV	T1, (timer_status+0)(T0)
+
+	// g->m->p.timerModifiedEarliest = 1
+	MOV	$1, T1
+	MOV	runtime·allp(SB), T0
+	MOV	(T0), T0
+	MOV	T1, (p_timerModifiedEarliest)(T0)
+done:
+	RET
+

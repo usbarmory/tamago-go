@@ -127,6 +127,17 @@ noswitch:
 	MOVW	R0, off+0(FP)
 	B	(R1)
 
+
+// GetG returns the pointer to the current G and its P.
+TEXT runtime·GetG(SB),NOSPLIT,$0-8
+	MOVW	g, ret+0(FP)
+
+	MOVW	(g_m)(g), R0
+	MOVW	(m_p)(R0), R0
+	MOVW	R0, ret+4(FP)
+
+	RET
+
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
@@ -134,26 +145,25 @@ noswitch:
 // (rather than on the frame pointer):
 //
 //   * R0: G pointer
+//   * R1: P pointer
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	(g_timer)(R0), R0
 	CMP	$0, R0
 	B.EQ	done
 
 	// g->timer.nextwhen = 1
-	MOVW	$1, R1
-	MOVW	R1, (timer_nextwhen+0)(R0)
-	MOVW	$0, R1
-	MOVW	R1, (timer_nextwhen+4)(R0)
+	MOVW	$1, R2
+	MOVW	R2, (timer_nextwhen+0)(R0)
+	MOVW	$0, R2
+	MOVW	R2, (timer_nextwhen+4)(R0)
 
 	// g->timer.status = timerModifiedEarlier
-	MOVW	$const_timerModifiedEarlier, R1
-	MOVW	R1, (timer_status+0)(R0)
+	MOVW	$const_timerModifiedEarlier, R2
+	MOVW	R2, (timer_status+0)(R0)
 
 	// g->m->p.timerModifiedEarliest = 1
-	MOVW	$1, R1
-	MOVW	runtime·allp(SB), R0
-	MOVW	(R0), R0
-	MOVW	R1, (p_timerModifiedEarliest)(R0)
+	MOVW	$1, R2
+	MOVW	R2, (p_timerModifiedEarliest)(R1)
 done:
 	RET
 

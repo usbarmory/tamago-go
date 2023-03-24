@@ -45,6 +45,9 @@ func GetRandomData(r []byte) {
 //   * R3: caller program counter
 func CallOnG0()
 
+// GetG returns the pointer to the current G and its P.
+func GetG() (g uint32, p uint32)
+
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
@@ -52,6 +55,7 @@ func CallOnG0()
 // (rather than on the frame pointer):
 //
 //   * R0: G pointer
+//   * R1: P pointer
 func WakeG()
 
 // MemRegion returns the start and end addresses of the physical RAM assigned

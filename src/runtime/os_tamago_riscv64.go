@@ -33,13 +33,18 @@ func initRNG()
 func GetRandomData(r []byte) {
 	getRandomData(r)
 }
+
+// GetG returns the pointer to the current G and its P.
+func GetG() (g uint64, p uint64)
+
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
 // The function arguments must be passed through the following registers
 // (rather than on the frame pointer):
 //
-//   * R0: G pointer
+//   * T0: G pointer
+//   * T1: P pointer
 func WakeG()
 
 // MemRegion returns the start and end addresses of the physical RAM assigned

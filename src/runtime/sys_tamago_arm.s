@@ -127,7 +127,6 @@ noswitch:
 	MOVW	R0, off+0(FP)
 	B	(R1)
 
-
 // GetG returns the pointer to the current G and its P.
 TEXT runtime·GetG(SB),NOSPLIT,$0-8
 	MOVW	g, ret+0(FP)

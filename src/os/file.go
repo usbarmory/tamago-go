@@ -479,6 +479,9 @@ func UserCacheDir() (string, error) {
 		}
 		dir += "/lib/cache"
 
+	case "tamago":
+		dir = "/"
+
 	default: // Unix
 		dir = Getenv("XDG_CACHE_HOME")
 		if dir == "" {
@@ -529,6 +532,9 @@ func UserConfigDir() (string, error) {
 			return "", errors.New("$home is not defined")
 		}
 		dir += "/lib"
+
+	case "tamago":
+		dir = "/"
 
 	default: // Unix
 		dir = Getenv("XDG_CONFIG_HOME")

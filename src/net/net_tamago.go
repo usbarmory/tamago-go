@@ -99,11 +99,16 @@ func (fd *netFD) closeWrite() error {
 }
 
 func (fd *netFD) accept() (f *netFD, err error) {
-	if fd.c, err = fd.c.(Listener).Accept(); err != nil {
+	f = &netFD{family: fd.family, sotype: fd.sotype, net:fd.net}
+
+	if f.c, err = fd.c.(Listener).Accept(); err != nil {
 		return nil, err
 	}
 
-	return fd, nil
+	f.laddr = f.c.(Conn).LocalAddr()
+	f.raddr = f.c.(Conn).RemoteAddr()
+
+	return
 }
 
 func (fd *netFD) SetDeadline(t time.Time) error {

@@ -52,6 +52,9 @@ func (p *ipStackCapabilities) probe() {
 		{laddr: TCPAddr{IP: IPv4(127, 0, 0, 1)}, value: 0},
 	}
 	switch runtime.GOOS {
+	case "tamago":
+		p.ipv4Enabled = true
+		probes = probes[:1]
 	case "dragonfly", "openbsd":
 		// The latest DragonFly BSD and OpenBSD kernels don't
 		// support IPV6_V6ONLY=0. They always return an error

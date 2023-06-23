@@ -49,7 +49,7 @@ func supportsIPv4map() bool {
 	// Some operating systems provide no support for mapping IPv4
 	// addresses to IPv6, and a runtime check is unnecessary.
 	switch runtime.GOOS {
-	case "dragonfly", "openbsd":
+	case "dragonfly", "openbsd", "tamago":
 		return false
 	}
 

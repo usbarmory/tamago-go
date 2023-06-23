@@ -12,7 +12,7 @@ import (
 var (
 	DefaultNS         = []string{"8.8.8.8:53"}
 	DefaultDNSTimeout = time.Duration(5) * time.Second
-	UseTCP            = false
+	DNSUseTCP         = false
 )
 
 func getSystemDNSConfig() *dnsConfig {
@@ -22,6 +22,6 @@ func getSystemDNSConfig() *dnsConfig {
 		timeout:  DefaultDNSTimeout,
 		attempts: 2,
 		err:      fs.ErrNotExist,
-		useTCP:   UseTCP,
+		useTCP:   DNSUseTCP,
 	}
 }

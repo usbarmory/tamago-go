@@ -176,14 +176,14 @@ func usleep_no_g(usec uint32) {
 var Exit func()
 
 func exit(code int32) {
+	print("exit with code ", code, " halting\n")
+
 	if Exit != nil {
 		Exit()
-	} else {
-		print("exit with code ", code, " halting\n")
+	}
 
-		for {
-			// hang forever
-		}
+	for {
+		// hang forever
 	}
 }
 

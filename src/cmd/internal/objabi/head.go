@@ -74,12 +74,12 @@ func (h *HeadType) Set(s string) error {
 		*h = Hplan9
 	case "illumos", "solaris":
 		*h = Hsolaris
+	case "tamago":
+		*h = Htamago
 	case "wasip1":
 		*h = Hwasip1
 	case "windows":
 		*h = Hwindows
-	case "tamago":
-		*h = Htamago
 	default:
 		return fmt.Errorf("invalid headtype: %q", s)
 	}
@@ -108,12 +108,12 @@ func (h HeadType) String() string {
 		return "plan9"
 	case Hsolaris:
 		return "solaris"
+	case Htamago:
+		return "tamago"
 	case Hwasip1:
 		return "wasip1"
 	case Hwindows:
 		return "windows"
-	case Htamago:
-		return "tamago"
 	}
 	return fmt.Sprintf("HeadType(%d)", h)
 }

@@ -9,7 +9,9 @@ import (
 )
 
 func init() {
+	userImplemented = false
 	groupImplemented = false
+	groupListImplemented = false
 }
 
 func lookupUser(username string) (*User, error) {

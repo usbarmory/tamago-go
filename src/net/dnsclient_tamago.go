@@ -665,5 +665,6 @@ func (r *Resolver) goLookupPTR(ctx context.Context, addr string, conf *dnsConfig
 		ptrs = append(ptrs, ptr.PTR.String())
 
 	}
+
 	return ptrs, nil
 }

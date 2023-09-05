@@ -4445,7 +4445,6 @@ func gdestroy(gp *g) {
 	if isSystemGoroutine(gp, false) {
 		sched.ngsys.Add(-1)
 	}
-
 	gp.m = nil
 	locked := gp.lockedm != 0
 	gp.lockedm = 0

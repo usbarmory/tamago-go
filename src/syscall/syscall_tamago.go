@@ -1,12 +1,13 @@
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
+
 //go:build tamago
 
 package syscall
 
 import (
+	errorspkg "errors"
 	"internal/itoa"
 	"internal/oserror"
 	"sync"
@@ -51,8 +52,8 @@ const PathMax = 256
 //		err = errno
 //	}
 //
-// Errno values can be tested against error values from the os package
-// using errors.Is. For example:
+// Errno values can be tested against error values using errors.Is.
+// For example:
 //
 //	_, _, err := syscall.Syscall(...)
 //	if errors.Is(err, fs.ErrNotExist) ...
@@ -76,6 +77,8 @@ func (e Errno) Is(target error) bool {
 		return e == EEXIST || e == ENOTEMPTY
 	case oserror.ErrNotExist:
 		return e == ENOENT
+	case errorspkg.ErrUnsupported:
+		return e == ENOSYS || e == ENOTSUP || e == EOPNOTSUPP
 	}
 	return false
 }

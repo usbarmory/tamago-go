@@ -54,13 +54,13 @@ var List = []OSArch{
 	{"plan9", "amd64"},
 	{"plan9", "arm"},
 	{"solaris", "amd64"},
+	{"tamago", "arm"},
+	{"tamago", "riscv64"},
 	{"wasip1", "wasm"},
 	{"windows", "386"},
 	{"windows", "amd64"},
 	{"windows", "arm"},
 	{"windows", "arm64"},
-	{"tamago", "arm"},
-	{"tamago", "riscv64"},
 }
 
 var distInfo = map[OSArch]osArchInfo{
@@ -110,11 +110,11 @@ var distInfo = map[OSArch]osArchInfo{
 	{"plan9", "amd64"}:     {},
 	{"plan9", "arm"}:       {},
 	{"solaris", "amd64"}:   {CgoSupported: true},
+	{"tamago", "arm"}:      {},
+	{"tamago", "riscv64"}:  {},
 	{"wasip1", "wasm"}:     {},
 	{"windows", "386"}:     {CgoSupported: true, FirstClass: true},
 	{"windows", "amd64"}:   {CgoSupported: true, FirstClass: true},
 	{"windows", "arm"}:     {Broken: true},
 	{"windows", "arm64"}:   {CgoSupported: true},
-	{"tamago", "arm"}:      {},
-	{"tamago", "riscv64"}:  {},
 }

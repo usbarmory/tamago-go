@@ -1818,12 +1818,12 @@ var cgoEnabled = map[string]bool{
 	"plan9/amd64":     false,
 	"plan9/arm":       false,
 	"solaris/amd64":   true,
+	"tamago/arm":      false,
+	"tamago/riscv64":  false,
 	"windows/386":     true,
 	"windows/amd64":   true,
 	"windows/arm":     false,
 	"windows/arm64":   true,
-	"tamago/arm":      true,
-	"tamago/riscv64":  true,
 }
 
 // List of platforms that are marked as broken ports.

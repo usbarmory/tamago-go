@@ -6,9 +6,7 @@
 
 package runtime
 
-import (
-	_ "unsafe"
-)
+import _ "unsafe" // for go:linkname
 
 // tamago has no support for threads yet. There is no preemption. (adapted from lock_js.go)
 
@@ -115,7 +113,7 @@ func notetsleepg(n *note, ns int64) bool {
 		notesWithTimeout[n] = noteWithTimeout{gp: gp, deadline: deadline}
 		releasem(mp)
 
-		gopark(nil, nil, waitReasonSleep, traceEvNone, 1)
+		gopark(nil, nil, waitReasonSleep, traceBlockSleep, 1)
 
 		mp = acquirem()
 		delete(notes, n)
@@ -130,7 +128,7 @@ func notetsleepg(n *note, ns int64) bool {
 		notes[n] = gp
 		releasem(mp)
 
-		gopark(nil, nil, waitReasonZero, traceEvNone, 1)
+		gopark(nil, nil, waitReasonZero, traceBlockGeneric, 1)
 
 		mp = acquirem()
 		delete(notes, n)

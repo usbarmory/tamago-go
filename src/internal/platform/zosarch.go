@@ -58,6 +58,8 @@ var List = []OSArch{
 	{"windows", "386"},
 	{"windows", "amd64"},
 	{"windows", "arm64"},
+	{"tamago", "arm"},
+	{"tamago", "riscv64"},
 }
 
 var distInfo = map[OSArch]osArchInfo{
@@ -111,4 +113,6 @@ var distInfo = map[OSArch]osArchInfo{
 	{"windows", "386"}:     {CgoSupported: true, FirstClass: true},
 	{"windows", "amd64"}:   {CgoSupported: true, FirstClass: true},
 	{"windows", "arm64"}:   {CgoSupported: true},
+	{"tamago", "arm"}:      {},
+	{"tamago", "riscv64"}:  {},
 }

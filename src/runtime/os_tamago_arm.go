@@ -11,8 +11,6 @@ import (
 	"unsafe"
 )
 
-const _PAGESIZE uintptr = 0x1000
-
 // the following variables must be provided externally
 var ramStart uint32
 var ramSize uint32

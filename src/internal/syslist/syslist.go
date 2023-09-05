@@ -33,6 +33,7 @@ var KnownOS = map[string]bool{
 	"tamago":    true,
 	"wasip1":    true,
 	"tamago":    true,
+	"wasip1":    true,
 	"windows":   true,
 	"zos":       true,
 }

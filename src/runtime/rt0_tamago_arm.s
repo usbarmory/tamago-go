@@ -23,12 +23,6 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	WORD	$0xe160006e	// eret
 
 after_eret:
-	// Disable MMU as soon as possible. It must be re-enabled by the
-	// application.
-	MRC	15, 0, R0, C1, C0, 0
-	BIC	$0x1, R0
-	MCR	15, 0, R0, C1, C0, 0
-
 	// Enter System Mode
 	WORD	$0xe321f0df	// msr CPSR_c, 0xdf
 

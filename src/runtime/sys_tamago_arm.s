@@ -163,6 +163,8 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	// g->m->p.timerModifiedEarliest = 1
 	MOVW	$1, R2
 	MOVW	R2, (p_timerModifiedEarliest)(R1)
+	MOVW	$0, R2
+	MOVW	R2, (p_timerModifiedEarliest+4)(R1)
 done:
 	RET
 

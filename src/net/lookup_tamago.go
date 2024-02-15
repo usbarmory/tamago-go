@@ -24,37 +24,36 @@ func (r *Resolver) lookupHost(ctx context.Context, host string) (addrs []string,
 	return
 }
 
-func (r *Resolver) lookupIP(ctx context.Context, network, name string) (addrs []IPAddr, err error) {
-	ips, _, err := r.goLookupIPCNAME(ctx, network, name, getSystemDNSConfig())
+func (r *Resolver) lookupIP(ctx context.Context, network, host string) (addrs []IPAddr, err error) {
+	ips, _, err := r.goLookupIPCNAME(ctx, network, host, getSystemDNSConfig())
 	return ips, err
 }
 
-func (*Resolver) lookupPort(ctx context.Context, network, service string) (port int, err error) {
+func (r *Resolver) lookupPort(ctx context.Context, network, service string) (int, error) {
 	return goLookupPort(network, service)
 }
 
 func (r *Resolver) lookupCNAME(ctx context.Context, name string) (string, error) {
-	_, cname, err := r.goLookupIPCNAME(ctx, "CNAME", name, getSystemDNSConfig())
-	return cname.String(), err
+	return r.goLookupCNAME(ctx,  name, getSystemDNSConfig())
 }
 
-func (r *Resolver) lookupSRV(ctx context.Context, service, proto, name string) (cname string, srvs []*SRV, err error) {
+func (r *Resolver) lookupSRV(ctx context.Context, service, proto, name string) (string, []*SRV, error) {
 	return r.goLookupSRV(ctx, service, proto, name)
 }
 
-func (r *Resolver) lookupMX(ctx context.Context, name string) (mxs []*MX, err error) {
+func (r *Resolver) lookupMX(ctx context.Context, name string) ([]*MX, error) {
 	return r.goLookupMX(ctx, name)
 }
 
-func (r *Resolver) lookupNS(ctx context.Context, name string) (nss []*NS, err error) {
+func (r *Resolver) lookupNS(ctx context.Context, name string) ([]*NS, error) {
 	return r.goLookupNS(ctx, name)
 }
 
-func (r *Resolver) lookupTXT(ctx context.Context, name string) (txts []string, err error) {
+func (r *Resolver) lookupTXT(ctx context.Context, name string) ([]string, error) {
 	return r.goLookupTXT(ctx, name)
 }
 
-func (r *Resolver) lookupAddr(ctx context.Context, addr string) (ptrs []string, err error) {
+func (r *Resolver) lookupAddr(ctx context.Context, addr string) ([]string, error) {
 	return r.goLookupPTR(ctx, addr, getSystemDNSConfig())
 }
 

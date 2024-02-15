@@ -7,4 +7,3 @@
 package runtime
 
 var ramSize uint32
-func initRNG() {}

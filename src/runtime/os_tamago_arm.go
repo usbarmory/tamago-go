@@ -62,6 +62,12 @@ func MemRegion() (start uint32, end uint32) {
 	return ramStart, ramStart + ramSize
 }
 
+// TextRegion returns the start and end addresses of the physical RAM
+// containing the Go runtime executable instructions.
+func TextRegion() (start uint32, end uint32) {
+	return uint32(firstmoduledata.text), uint32(firstmoduledata.etext)
+}
+
 // stubs for unused/unimplemented functionality
 type mOS struct{}
 type sigset struct{}

@@ -30,9 +30,6 @@ type runtimeTimer struct {
 	seq    uintptr
 }
 
-func startTimer(*runtimeTimer)
-func stopTimer(*runtimeTimer) bool
-
 type timer struct {
 	expired bool
 	q       *queue
@@ -40,35 +37,19 @@ type timer struct {
 }
 
 func (t *timer) start(q *queue, deadline int64) {
-	if deadline == 0 {
-		return
+	if deadline != 0 {
+		panic("unsupported deadline")
 	}
-	t.q = q
-	t.r.when = deadline
-	t.r.f = timerExpired
-	t.r.arg = t
-	startTimer(&t.r)
 }
 
 func (t *timer) stop() {
-	if t.r.f == nil {
-		return
-	}
-	stopTimer(&t.r)
+	return
 }
 
 func (t *timer) reset(q *queue, deadline int64) {
-	t.stop()
-	if deadline == 0 {
-		return
+	if deadline != 0 {
+		panic("unsupported deadline")
 	}
-	if t.r.f == nil {
-		t.q = q
-		t.r.f = timerExpired
-		t.r.arg = t
-	}
-	t.r.when = deadline
-	startTimer(&t.r)
 }
 
 func timerExpired(i interface{}, seq uintptr) {

@@ -67,22 +67,43 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 // (rather than on the frame pointer):
 //
 //   * T0: G pointer
-//   * T1: P pointer
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
-	MOVW	(g_timer)(T0), T0
+	MOV	(g_timer)(T0), T0
 	BEQ	T0, ZERO, done
 
-	// g->timer.nextwhen = 1
-	MOV	$(1 << 32), T2
-	MOV	T2, (timer_nextwhen)(T0)
+	// g->timer.when = 1
+	MOV	$(1 << 32), T1
+	MOV	T1, (timer_when)(T0)
 
-	// g->timer.status = timerModifiedEarlier
-	MOV	$const_timerModifiedEarlier, T2
-	MOV	T2, (timer_status+0)(T0)
+	// g->timer.astate &= timerModified
+	// g->timer.state  &= timerModified
+	MOV	(timer_astate)(T0), T2
+	OR	$const_timerModified<<8|const_timerModified, T2, T2
+	MOV	T2, (timer_astate)(T0)
 
-	// g->m->p.timerModifiedEarliest = 1
-	MOV	$1, T2
-	MOV	T2, (p_timerModifiedEarliest)(T1)
+	MOV	(timer_ts)(T0), T0
+	BEQ	T0, ZERO, done
+
+	// g->timer.ts.minWhenModified = 1
+	MOV	$(1 << 32), T1
+	MOV	T1, (timers_minWhenModified)(T0)
+
+	// len(g->timer.ts.heap)
+	MOV	(timers_heap+8)(T0), T2
+	BEQ	T2, ZERO, done
+
+	// find longest timer offset
+	SUB	$1, T2, T2
+	MOV	$(timerWhen__size), T3
+	MUL	T3, T2, T2
+
+	MOV	(timers_heap)(T0), T0
+	BEQ	T0, ZERO, done
+
+	// g->timer.ts.heap[last].when = 1
+	ADD	T2, T0, T0
+	MOV	$(1 << 32), T1
+	MOV	T1, (timerWhen_when)(T0)
+
 done:
 	RET
-

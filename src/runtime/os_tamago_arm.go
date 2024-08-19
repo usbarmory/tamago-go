@@ -59,7 +59,6 @@ func GetG() (g uint32, p uint32)
 // (rather than on the frame pointer):
 //
 //   * R0: G pointer
-//   * R1: P pointer
 func WakeG()
 
 // MemRegion returns the start and end addresses of the physical RAM assigned

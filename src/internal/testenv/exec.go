@@ -46,7 +46,7 @@ var (
 
 func tryExec() error {
 	switch runtime.GOOS {
-	case "wasip1", "js", "ios":
+	case "wasip1", "js", "ios", "tamago":
 	default:
 		// Assume that exec always works on non-mobile platforms and Android.
 		return nil

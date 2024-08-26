@@ -4,4 +4,20 @@
 
 package signal
 
+import (
+	"os"
+)
+
 const numSig = 0
+
+func signum(sig os.Signal) int {
+	return -1
+}
+
+func enableSignal(sig int)  {}
+func disableSignal(sig int) {}
+func ignoreSignal(sig int)  {}
+
+func signalIgnored(sig int) bool {
+	return false
+}

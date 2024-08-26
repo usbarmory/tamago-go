@@ -54,6 +54,7 @@ func (p *ipStackCapabilities) probe() {
 	switch runtime.GOOS {
 	case "tamago":
 		p.ipv4Enabled = true
+		p.ipv6Enabled = false
 		probes = probes[:1]
 	case "dragonfly", "openbsd":
 		// The latest DragonFly BSD and OpenBSD kernels don't

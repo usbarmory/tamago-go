@@ -4,13 +4,18 @@
 
 #include "textflag.h"
 
+// for EABI, as we don't support OABI
+#define SYS_BASE 0x0
+
+#define SYS_mmap2 (SYS_BASE + 192)
+
 TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 	// Detect HYP mode and switch to SVC if necessary
 	WORD	$0xe10f0000	// mrs r0, CPSR
 	AND	$0x1f, R0, R0	// get processor mode
 
 	CMP	$0x10, R0	// USR mode
-	B.EQ	runtime_start	// Skip initialization if USER mode
+	B.EQ	check_testing	// Skip initialization if USER mode
 
 	CMP	$0x1a, R0	// HYP mode
 	B.NE	after_eret	// Skip ERET if not HYP mode
@@ -25,6 +30,22 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 after_eret:
 	// Enter System Mode
 	WORD	$0xe321f0df	// msr CPSR_c, 0xdf
+	B	runtime_start
+
+check_testing:
+	MOVW	runtime·testBinary(SB), R0
+	CMP	$0, R0
+	B.EQ	runtime_start
+
+	// when testing bare metal memory is mapped as OS virtual memory
+	MOVW	runtime·ramStart(SB), R0
+	MOVW	runtime·ramSize(SB), R1
+	MOVW	$0x3, R2	// PROT_READ | PROT_WRITE
+	MOVW	$0x22, R3	// MAP_PRIVATE | MAP_ANONYMOUS
+	MOVW	$0xffffffff, R4
+	MOVW	$0, R5
+	MOVW	$SYS_mmap2, R7
+	SWI	$0
 
 runtime_start:
 	MOVW	runtime·ramStart(SB), R13

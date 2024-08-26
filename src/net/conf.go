@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !tamago
-
 package net
 
 import (
@@ -132,7 +130,7 @@ func initConfVal() {
 
 	// The remaining checks are specific to Unix systems.
 	switch runtime.GOOS {
-	case "plan9", "windows", "js", "wasip1":
+	case "plan9", "windows", "js", "wasip1", "tamago":
 		return
 	}
 
@@ -264,6 +262,8 @@ func (c *conf) lookupOrder(r *Resolver, hostname string) (ret hostLookupOrder, d
 
 	// On systems that don't use /etc/resolv.conf or /etc/nsswitch.conf, we are done.
 	switch c.goos {
+	case "tamago":
+		return hostLookupDNS, nil
 	case "windows", "plan9", "android", "ios":
 		return fallbackOrder, nil
 	}

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !js && !wasip1
+//go:build !js && !wasip1 && !tamago
 
 // TODO(@musiol, @odeke-em): re-unify this entire file back into
 // example.go when js/wasm gets an os.Pipe implementation

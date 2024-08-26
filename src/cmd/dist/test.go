@@ -223,7 +223,7 @@ func (t *tester) run() {
 		}
 	}
 
-	if !t.json {
+	if !t.json && goos != "tamago" {
 		if err := t.maybeLogMetadata(); err != nil {
 			t.failed = true
 			if t.keepGoing {
@@ -1372,7 +1372,7 @@ func (t *tester) runPending(nextTest *distTest) {
 
 func (t *tester) hasBash() bool {
 	switch gohostos {
-	case "windows", "plan9":
+	case "windows", "plan9", "tamago":
 		return false
 	}
 	return true
@@ -1383,7 +1383,7 @@ func (t *tester) hasBash() bool {
 // because cmd/dist can not import internal packages during bootstrap.
 func (t *tester) hasParallelism() bool {
 	switch goos {
-	case "js", "wasip1":
+	case "js", "wasip1", "tamago":
 		return false
 	}
 	return true

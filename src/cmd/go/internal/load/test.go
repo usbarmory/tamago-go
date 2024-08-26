@@ -267,7 +267,7 @@ func TestPackagesAndErrors(ctx context.Context, done func(), opts PackageOpts, p
 	}
 
 	// Arrange for testing.Testing to report true.
-	ldflags := append(p.Internal.Ldflags, "-X", "testing.testBinary=1")
+	ldflags := append(p.Internal.Ldflags, "-X", "testing.testBinary=1", "-X", "runtime.testBinary=1")
 	gccgoflags := append(p.Internal.Gccgoflags, "-Wl,--defsym,testing.gccgoTestBinary=1")
 
 	// Build main package.

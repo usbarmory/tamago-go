@@ -13,6 +13,12 @@ import (
 
 const _PAGESIZE uintptr = 0x1000
 
+// see testing.testBinary
+var testBinary string
+
+// Bloc allows to override the heap memory start address
+var Bloc uintptr
+
 // the following variables must be provided externally
 var ramStart uint64
 var ramSize uint64
@@ -95,7 +101,13 @@ func mpreinit(mp *m) {
 func osinit() {
 	ncpu = 1
 	physPageSize = 4096
-	initBloc()
+
+	if Block != 0 {
+		bloc = Bloc
+		blocMax = bloc
+	} else {
+		initBloc()
+	}
 }
 
 func readRandom(r []byte) int {
@@ -187,11 +199,11 @@ func usleep_no_g(usec uint32) {
 var Exit func()
 
 func exit(code int32) {
-	print("exit with code ", code, " halting\n")
-
 	if Exit != nil {
 		Exit()
 	}
+
+	print("exit with code ", code, " halting\n")
 
 	for {
 		// hang forever
@@ -208,3 +220,8 @@ const preemptMSupported = false
 func preemptM(mp *m) {
 	// No threads, so nothing to do.
 }
+
+// Stubs so tests can link correctly. These should never be called.
+func open(name *byte, mode, perm int32) int32        { panic("not implemented") }
+func closefd(fd int32) int32                         { panic("not implemented") }
+func read(fd int32, p unsafe.Pointer, n int32) int32 { panic("not implemented") }

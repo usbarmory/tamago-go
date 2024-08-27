@@ -629,7 +629,7 @@ func TestReaddirnamesOneAtATime(t *testing.T) {
 	switch runtime.GOOS {
 	case "android":
 		dir = "/system/bin"
-	case "ios", "wasip1":
+	case "ios", "wasip1", "tamago":
 		wd, err := Getwd()
 		if err != nil {
 			t.Fatal(err)

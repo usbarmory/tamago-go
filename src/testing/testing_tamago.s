@@ -46,18 +46,18 @@ TEXT ·sys_exit(SB), $0
 	RET
 
 // func sys_write(c *byte)
-TEXT ·sys_write(SB),NOSPLIT,$0-1
+TEXT ·sys_write(SB),NOSPLIT,$0-4
 	MOVW	$1, R0		// fd
-	MOVW	cr+0(FP), R1	// p
+	MOVW	c+0(FP), R1	// p
 	MOVW	$1, R2		// n
 	MOVW	$SYS_write, R7
 	SWI	$0
 	RET
 
 // func sys_getrandom(b []byte, n int)
-TEXT ·sys_getrandom(SB), $0-8
+TEXT ·sys_getrandom(SB), $0-16
 	MOVW	b+0(FP), R0
-	MOVW	n+4(FP), R1
+	MOVW	n+12(FP), R1
 	MOVW	$0, R2
 	MOVW	$SYS_getrandom, R7
 	SWI	$0

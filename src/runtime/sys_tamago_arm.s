@@ -102,7 +102,7 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	R3, R13
 
 	// call target function
-	MOVW	R0, off+0(FP)
+	MOVW	R0, argframe+0(FP)
 	BL	(R1)
 
 	// switch back to g
@@ -124,16 +124,16 @@ TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
 
 noswitch:
 	// call target function
-	MOVW	R0, off+0(FP)
+	MOVW	R0, argframe+0(FP)
 	B	(R1)
 
 // GetG returns the pointer to the current G and its P.
 TEXT runtime·GetG(SB),NOSPLIT,$0-8
-	MOVW	g, ret+0(FP)
+	MOVW	g, gp+0(FP)
 
 	MOVW	(g_m)(g), R0
 	MOVW	(m_p)(R0), R0
-	MOVW	R0, ret+4(FP)
+	MOVW	R0, pp+4(FP)
 
 	RET
 

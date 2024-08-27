@@ -50,7 +50,7 @@ func GetRandomData(r []byte) {
 func CallOnG0()
 
 // GetG returns the pointer to the current G and its P.
-func GetG() (g uint32, p uint32)
+func GetG() (gp uint32, pp uint32)
 
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.

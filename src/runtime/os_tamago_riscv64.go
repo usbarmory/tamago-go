@@ -101,7 +101,7 @@ func osinit() {
 	ncpu = 1
 	physPageSize = 4096
 
-	if Block != 0 {
+	if Bloc != 0 {
 		bloc = Bloc
 		blocMax = bloc
 	} else {

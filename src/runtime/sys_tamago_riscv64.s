@@ -52,11 +52,11 @@ TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|TOPFRAME,$0
 
 // GetG returns the pointer to the current G and its P.
 TEXT runtime·GetG(SB),NOSPLIT,$0-16
-	MOV	g, ret+0(FP)
+	MOV	g, gp+0(FP)
 
 	MOV	(g_m)(g), T0
 	MOV	(m_p)(T0), T0
-	MOV	T0, ret+8(FP)
+	MOV	T0, pp+8(FP)
 
 	RET
 

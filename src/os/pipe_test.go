@@ -4,7 +4,7 @@
 
 // Test broken pipes on Unix systems.
 //
-//go:build !plan9 && !js && !wasip1
+//go:build !plan9 && !js && !wasip1 && !tamago
 
 package os_test
 

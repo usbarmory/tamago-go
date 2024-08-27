@@ -18,8 +18,8 @@ func TestProcessLiteral(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("Process literals do not work on Windows. FindProcess/etc must initialize the process handle")
 	}
-	if runtime.GOARCH == "wasm" {
-		t.Skip("Signals send + notify not fully supported om wasm port")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skip("Signals send + notify not fully supported")
 	}
 
 	c := make(chan os.Signal, 1)

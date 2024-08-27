@@ -1631,7 +1631,7 @@ func TestChdirAndGetwd(t *testing.T) {
 		dirs = []string{"/system/bin"}
 	case "plan9":
 		dirs = []string{"/", "/usr"}
-	case "ios", "windows", "wasip1":
+	case "ios", "windows", "wasip1", "tamago":
 		dirs = nil
 		for _, dir := range []string{t.TempDir(), t.TempDir()} {
 			// Expand symlinks so path equality tests work.
@@ -1789,7 +1789,7 @@ func TestSeek(t *testing.T) {
 
 func TestSeekError(t *testing.T) {
 	switch runtime.GOOS {
-	case "js", "plan9", "wasip1":
+	case "js", "plan9", "wasip1", "tamago":
 		t.Skipf("skipping test on %v", runtime.GOOS)
 	}
 	t.Parallel()
@@ -2911,6 +2911,8 @@ func TestPipeThreads(t *testing.T) {
 		t.Skip("skipping on js; no support for os.Pipe")
 	case "wasip1":
 		t.Skip("skipping on wasip1; no support for os.Pipe")
+	case "tamagp":
+		t.Skip("skipping on tamago; no support for os.Pipe")
 	}
 
 	threads := 100
@@ -3499,7 +3501,7 @@ func TestFileIOCloseRace(t *testing.T) {
 // Test that it's OK to have parallel I/O and Close on a pipe.
 func TestPipeIOCloseRace(t *testing.T) {
 	// Skip on wasm, which doesn't have pipes.
-	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
+	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" || runtime.GOOS == "tamago" {
 		t.Skipf("skipping on %s: no pipes", runtime.GOOS)
 	}
 	t.Parallel()
@@ -3577,7 +3579,7 @@ func TestPipeIOCloseRace(t *testing.T) {
 // Test that it's OK to call Close concurrently on a pipe.
 func TestPipeCloseRace(t *testing.T) {
 	// Skip on wasm, which doesn't have pipes.
-	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
+	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" || runtime.GOOS == "tamago" {
 		t.Skipf("skipping on %s: no pipes", runtime.GOOS)
 	}
 	t.Parallel()

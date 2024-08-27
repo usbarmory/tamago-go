@@ -16,7 +16,7 @@ import (
 
 var hasSymlink = sync.OnceValues(func() (ok bool, reason string) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		return false, ""
 	case "android", "wasip1":
 		// For wasip1, some runtimes forbid absolute symlinks,

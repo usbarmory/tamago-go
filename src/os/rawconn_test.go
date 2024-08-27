@@ -4,7 +4,7 @@
 
 // Test use of raw connections.
 //
-//go:build !plan9 && !js && !wasip1
+//go:build !plan9 && !js && !wasip1 && !tamago
 
 package os_test
 

@@ -92,7 +92,7 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOV	(timers_heap+8)(T0), T2
 	BEQ	T2, ZERO, done
 
-	// find longest timer offset
+	// offset to last element
 	SUB	$1, T2, T2
 	MOV	$(timerWhen__size), T3
 	MUL	T3, T2, T2
@@ -100,8 +100,21 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOV	(timers_heap)(T0), T0
 	BEQ	T0, ZERO, done
 
-	// g->timer.ts.heap[last].when = 1
+	// g->timer.ts.heap[len-1]
 	ADD	T2, T0, T0
+	JMP	check
+
+prev:
+	SUB	$(timerWhen__size), T0
+	BEQ	T0, ZERO, done
+
+check:
+	// find longest timer as *timers.adjust() might be pending
+	MOV	(timerWhen_when)(T0), T1
+	MOV	$((1 << 63) - 1), T2 // math.MaxInt64
+	BNE	T2, T1, prev
+
+	// g->timer.ts.heap[off] = 1
 	MOV	$(1 << 32), T1
 	MOV	T1, (timerWhen_when)(T0)
 

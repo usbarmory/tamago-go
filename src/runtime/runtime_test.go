@@ -207,7 +207,7 @@ func TestSetPanicOnFault(t *testing.T) {
 //
 //go:nocheckptr
 func testSetPanicOnFault(t *testing.T, addr uintptr, nfault *int) {
-	if GOOS == "js" || GOOS == "wasip1" {
+	if GOOS == "js" || GOOS == "wasip1" || GOOS == "tamago" {
 		t.Skip(GOOS + " does not support catching faults")
 	}
 

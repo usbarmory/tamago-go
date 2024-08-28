@@ -103,10 +103,15 @@ func TestConnections(t *testing.T) {
 	Info("msg", "p", nil)
 	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg p=<nil>`)
 	logbuf.Reset()
-	var r *regexp.Regexp
-	Info("msg", "r", r)
-	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg r=<nil>`)
-	logbuf.Reset()
+
+	// skipping as signals are not yet handled under tamago testing
+	if runtime.GOOS != "tamago" {
+		var r *regexp.Regexp
+		Info("msg", "r", r)
+		checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg r=<nil>`)
+		logbuf.Reset()
+	}
+
 	Warn("msg", "b", 2)
 	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: WARN msg b=2`)
 	logbuf.Reset()

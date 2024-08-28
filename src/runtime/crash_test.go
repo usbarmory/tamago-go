@@ -699,6 +699,10 @@ func (p *point) negate() {
 
 // Test for issue #10152.
 func TestPanicInlined(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping as signals are not yet handled under tamago testing")
+	}
+
 	defer func() {
 		r := recover()
 		if r == nil {

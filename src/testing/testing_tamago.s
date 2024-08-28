@@ -33,14 +33,14 @@ TEXT ·nanotime1(SB),NOSPLIT,$12-8
 	ADD.S	R2, R0
 	ADC	$0, R1	// Add carry bit to upper half.
 
-	MOVW	R0, ret_lo+0(FP)
-	MOVW	R1, ret_hi+4(FP)
+	MOVW	R0, ns_lo+0(FP)
+	MOVW	R1, ns_hi+4(FP)
 
 	RET
 
-// func sys_exit()
-TEXT ·sys_exit(SB), $0
-	MOVW	$0, R0
+// func sys_exit(code int32)
+TEXT ·sys_exit(SB), $0-4
+	MOVW	code+0(FP), R0
 	MOVW	$SYS_exit, R7
 	SWI	$0
 	RET

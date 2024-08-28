@@ -326,6 +326,10 @@ func testDeferLeafSigpanic1() {
 // that we match up the defer correctly to get the right liveness map.
 // See issue #25499.
 func TestDeferLeafSigpanic(t *testing.T) {
+	if GOOS == "tamago" {
+		t.Skip(GOOS + " does not support nil pointer panics under testing")
+	}
+
 	// Push a defer that will walk the stack.
 	defer func() {
 		if err := recover(); err == nil {
@@ -722,6 +726,10 @@ type I interface {
 }
 
 func TestStackWrapperStackPanic(t *testing.T) {
+	if GOOS == "tamago" {
+		t.Skip(GOOS + " does not support nil pointer panics under testing")
+	}
+
 	t.Run("sigpanic", func(t *testing.T) {
 		// nil calls to interface methods cause a sigpanic.
 		testStackWrapperPanic(t, func() { I.M(nil) }, "runtime_test.I.M")

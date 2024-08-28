@@ -1030,7 +1030,7 @@ func (lcr *lookupCustomResolver) dial() func(ctx context.Context, network, addre
 // PreferGo option used concurrently are all dialed properly.
 func TestConcurrentPreferGoResolversDial(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		// TODO: plan9 implementation of the resolver uses the Dial function since
 		// https://go.dev/cl/409234, this test could probably be reenabled.
 		t.Skipf("skip on %v", runtime.GOOS)

@@ -276,7 +276,7 @@ func checkUnicastStats(ifStats *ifStats, uniStats *routeStats) error {
 
 func checkMulticastStats(ifStats *ifStats, uniStats, multiStats *routeStats) error {
 	switch runtime.GOOS {
-	case "aix", "dragonfly", "netbsd", "openbsd", "plan9", "solaris", "illumos":
+	case "aix", "dragonfly", "netbsd", "openbsd", "plan9", "solaris", "illumos", "tamago":
 	default:
 		// Test the existence of connected multicast route
 		// clones for IPv4. Unlike IPv6, IPv4 multicast

@@ -687,11 +687,11 @@ func generateMutexWaitTime(mu locker2) time.Duration {
 
 // See issue #60276.
 func TestCPUMetricsSleep(t *testing.T) {
-	if runtime.GOOS == "wasip1" {
+	if runtime.GOOS == "wasip1" || runtime.GOOS == "tamago" {
 		// Since wasip1 busy-waits in the scheduler, there's no meaningful idle
 		// time. This is accurately reflected in the metrics, but it means this
 		// test is basically meaningless on this platform.
-		t.Skip("wasip1 currently busy-waits in idle time; test not applicable")
+		t.Skipf("%s currently busy-waits in idle time; test not applicable", runtime.GOOS)
 	}
 
 	names := []string{
@@ -869,8 +869,8 @@ func TestSchedPauseMetrics(t *testing.T) {
 		{
 			name: "runtime.GOMAXPROCS",
 			fn: func(t *testing.T) {
-				if runtime.GOARCH == "wasm" {
-					t.Skip("GOMAXPROCS >1 not supported on wasm")
+				if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+					t.Skip("GOMAXPROCS >1 not supported on " + runtime.GOOS)
 				}
 
 				n := runtime.GOMAXPROCS(0)
@@ -903,8 +903,8 @@ func TestSchedPauseMetrics(t *testing.T) {
 		{
 			name: "runtime/debug.WriteHeapDump",
 			fn: func(t *testing.T) {
-				if runtime.GOOS == "js" {
-					t.Skip("WriteHeapDump not supported on js")
+				if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
+					t.Skip("WriteHeapDump not supported on " + runtime.GOOS)
 				}
 
 				f, err := os.CreateTemp(t.TempDir(), "heapdumptest")

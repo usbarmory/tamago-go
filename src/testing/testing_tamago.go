@@ -21,8 +21,8 @@ var ramSize uint32 = 0x10000000
 var ramStackOffset uint32 = 0x100
 
 // defined in testing_tamago.s
-func nanotime1() int64
-func sys_exit()
+func nanotime1() (ns int64)
+func sys_exit(code int32)
 func sys_write(c *byte)
 func sys_getrandom(b []byte, n int)
 

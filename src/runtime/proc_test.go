@@ -36,8 +36,8 @@ func perpetuumMobile() {
 }
 
 func TestStopTheWorldDeadlock(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 	if testing.Short() {
 		t.Skip("skipping during short test")
@@ -249,8 +249,8 @@ func TestBlockLocked(t *testing.T) {
 }
 
 func TestTimerFairness(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 
 	done := make(chan bool)
@@ -279,8 +279,8 @@ func TestTimerFairness(t *testing.T) {
 }
 
 func TestTimerFairness2(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 
 	done := make(chan bool)
@@ -317,8 +317,8 @@ var preempt = func() int {
 }
 
 func TestPreemption(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 
 	// Test that goroutines are preempted at function calls.
@@ -344,8 +344,8 @@ func TestPreemption(t *testing.T) {
 }
 
 func TestPreemptionGC(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 
 	// Test that pending GC preempts running goroutines.
@@ -434,8 +434,8 @@ func TestNumGoroutine(t *testing.T) {
 }
 
 func TestPingPongHog(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 	if testing.Short() {
 		t.Skip("skipping in -short mode")
@@ -952,8 +952,8 @@ func TestStealOrder(t *testing.T) {
 }
 
 func TestLockOSThreadNesting(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no threads on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no threads on %s yet", runtime.GOOS)
 	}
 
 	go func() {
@@ -1053,8 +1053,8 @@ func fakeSyscall(duration time.Duration) {
 
 // Check that a goroutine will be preempted if it is calling short system calls.
 func testPreemptionAfterSyscall(t *testing.T, syscallDuration time.Duration) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("no preemption on wasm yet")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skipf("no preemption on %s yet", runtime.GOOS)
 	}
 
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(2))

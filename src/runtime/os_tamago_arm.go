@@ -220,11 +220,11 @@ func usleep_no_g(usec uint32) {
 
 // Exit can be provided externally by the linked application to provide an
 // implementation for runtime.exit.
-var Exit func()
+var Exit func(int32)
 
 func exit(code int32) {
 	if Exit != nil {
-		Exit()
+		Exit(code)
 	}
 
 	print("exit with code ", code, " halting\n")

@@ -23,7 +23,7 @@ import (
 
 func TestTCPListenerSpecificMethods(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -62,6 +62,11 @@ func TestTCPListenerSpecificMethods(t *testing.T) {
 }
 
 func TestTCPConnSpecificMethods(t *testing.T) {
+	switch runtime.GOOS {
+	case "tamago":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	la, err := ResolveTCPAddr("tcp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
@@ -111,6 +116,11 @@ func TestTCPConnSpecificMethods(t *testing.T) {
 }
 
 func TestUDPConnSpecificMethods(t *testing.T) {
+	switch runtime.GOOS {
+	case "tamago":
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	la, err := ResolveUDPAddr("udp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)

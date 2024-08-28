@@ -17,7 +17,7 @@ import (
 
 func TestCloseRead(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	t.Parallel()

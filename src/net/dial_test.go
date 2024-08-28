@@ -32,7 +32,7 @@ func TestProhibitionaryDialArg(t *testing.T) {
 	testenv.MustHaveExternalNetwork(t)
 
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv4map() {
@@ -75,7 +75,7 @@ func TestDialLocal(t *testing.T) {
 
 func TestDialerDualStackFDLeak(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	case "windows":
 		t.Skipf("not implemented a way to cancel dial racers in TCP SYN-SENT state on %s", runtime.GOOS)
@@ -987,7 +987,7 @@ func TestDialListenerAddr(t *testing.T) {
 
 func TestDialerControl(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	case "js", "wasip1":
 		t.Skipf("skipping: fake net does not support Dialer.Control")
@@ -1032,7 +1032,7 @@ func TestDialerControl(t *testing.T) {
 
 func TestDialerControlContext(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	case "js", "wasip1":
 		t.Skipf("skipping: fake net does not support Dialer.ControlContext")
@@ -1071,7 +1071,7 @@ func mustHaveExternalNetwork(t *testing.T) {
 	t.Helper()
 	definitelyHasLongtestBuilder := runtime.GOOS == "linux"
 	mobile := runtime.GOOS == "android" || runtime.GOOS == "ios"
-	fake := runtime.GOOS == "js" || runtime.GOOS == "wasip1"
+	fake := runtime.GOOS == "js" || runtime.GOOS == "wasip1" || runtime.GOOS == "tamago"
 	if testenv.Builder() != "" && !definitelyHasLongtestBuilder && !mobile && !fake {
 		// On a non-Linux, non-mobile builder (e.g., freebsd-amd64-13_0).
 		//

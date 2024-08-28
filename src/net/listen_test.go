@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !plan9
+//go:build !plan9 && !tamago
 
 package net
 
@@ -63,7 +63,7 @@ var tcpListenerTests = []struct {
 // same port.
 func TestTCPListener(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -124,7 +124,7 @@ var udpListenerTests = []struct {
 // same port.
 func TestUDPListener(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -223,7 +223,7 @@ var dualStackTCPListenerTests = []struct {
 // to be greater than or equal to 4.4.
 func TestDualStackTCPListener(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv4() || !supportsIPv6() {
@@ -313,7 +313,7 @@ var dualStackUDPListenerTests = []struct {
 // to be greater than or equal to 4.4.
 func TestDualStackUDPListener(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv4() || !supportsIPv6() {
@@ -488,7 +488,7 @@ func TestWildWildcardListener(t *testing.T) {
 	testenv.MustHaveExternalNetwork(t)
 
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -531,7 +531,7 @@ func TestIPv4MulticastListener(t *testing.T) {
 	testenv.MustHaveExternalNetwork(t)
 
 	switch runtime.GOOS {
-	case "android", "plan9":
+	case "android", "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv4() {
@@ -604,7 +604,7 @@ func TestIPv6MulticastListener(t *testing.T) {
 	testenv.MustHaveExternalNetwork(t)
 
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv6() {
@@ -670,7 +670,7 @@ func checkMulticastListener(c *UDPConn, ip IP) error {
 
 func multicastRIBContains(ip IP) (bool, error) {
 	switch runtime.GOOS {
-	case "aix", "dragonfly", "netbsd", "openbsd", "plan9", "solaris", "illumos":
+	case "aix", "dragonfly", "netbsd", "openbsd", "plan9", "solaris", "illumos", "tamago":
 		return true, nil // not implemented yet
 	case "linux":
 		if runtime.GOARCH == "arm" || runtime.GOARCH == "alpha" {
@@ -726,7 +726,7 @@ func TestClosingListener(t *testing.T) {
 
 func TestListenConfigControl(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 

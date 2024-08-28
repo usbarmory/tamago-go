@@ -212,6 +212,10 @@ func TestCallersAbortedPanic2(t *testing.T) {
 }
 
 func TestCallersNilPointerPanic(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping as signals are not yet handled under tamago testing")
+	}
+
 	// Make sure we don't have any extra frames on the stack (due to
 	// open-coded defer processing)
 	want := []string{"runtime.Callers", "runtime_test.TestCallersNilPointerPanic.func1",
@@ -254,6 +258,10 @@ func TestCallersDivZeroPanic(t *testing.T) {
 }
 
 func TestCallersDeferNilFuncPanic(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping as signals are not yet handled under tamago testing")
+	}
+
 	// Make sure we don't have any extra frames on the stack. We cut off the check
 	// at runtime.sigpanic, because non-open-coded defers (which may be used in
 	// non-opt or race checker mode) include an extra 'deferreturn' frame (which is
@@ -284,6 +292,10 @@ func TestCallersDeferNilFuncPanic(t *testing.T) {
 // Same test, but forcing non-open-coded defer by putting the defer in a loop.  See
 // issue #36050
 func TestCallersDeferNilFuncPanicWithLoop(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping as signals are not yet handled under tamago testing")
+	}
+
 	state := 1
 	want := []string{"runtime.Callers", "runtime_test.TestCallersDeferNilFuncPanicWithLoop.func1",
 		"runtime.gopanic", "runtime.panicmem", "runtime.sigpanic", "runtime.deferreturn", "runtime_test.TestCallersDeferNilFuncPanicWithLoop"}

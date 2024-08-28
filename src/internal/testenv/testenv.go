@@ -141,7 +141,7 @@ func MustHaveGoRun(t testing.TB) {
 // There is a copy of this function in cmd/dist/test.go.
 func HasParallelism() bool {
 	switch runtime.GOOS {
-	case "js", "wasip1":
+	case "js", "wasip1", "tamago":
 		return false
 	}
 	return true
@@ -281,14 +281,14 @@ func MustHaveSource(t testing.TB) {
 // HasExternalNetwork reports whether the current system can use
 // external (non-localhost) networks.
 func HasExternalNetwork() bool {
-	return !testing.Short() && runtime.GOOS != "js" && runtime.GOOS != "wasip1"
+	return !testing.Short() && runtime.GOOS != "js" && runtime.GOOS != "wasip1" && runtime.GOOS != "tamago"
 }
 
 // MustHaveExternalNetwork checks that the current system can use
 // external (non-localhost) networks.
 // If not, MustHaveExternalNetwork calls t.Skip with an explanation.
 func MustHaveExternalNetwork(t testing.TB) {
-	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" {
+	if runtime.GOOS == "js" || runtime.GOOS == "wasip1" || runtime.GOOS == "tamago" {
 		t.Helper()
 		t.Skipf("skipping test: no external network on %s", runtime.GOOS)
 	}

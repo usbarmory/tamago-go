@@ -2922,6 +2922,10 @@ func TestAutoAligned64(t *testing.T) {
 }
 
 func TestNilDeref(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping as signals are not yet handled under tamago testing")
+	}
+
 	funcs := [...]func(){
 		func() { CompareAndSwapInt32(nil, 0, 0) },
 		func() { (*Int32)(nil).CompareAndSwap(0, 0) },

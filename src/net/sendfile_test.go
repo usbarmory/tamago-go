@@ -302,7 +302,7 @@ func TestSendfileSeeked(t *testing.T) {
 // Test that sendfile doesn't put a pipe into blocking mode.
 func TestSendfilePipe(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "windows", "js", "wasip1":
+	case "plan9", "windows", "js", "wasip1", "tamago":
 		// These systems don't support deadlines on pipes.
 		t.Skipf("skipping on %s", runtime.GOOS)
 	}

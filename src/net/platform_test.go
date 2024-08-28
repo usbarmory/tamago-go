@@ -34,6 +34,10 @@ func init() {
 // testableNetwork reports whether network is testable on the current
 // platform configuration.
 func testableNetwork(network string) bool {
+	if runtime.GOOS == "tamago" {
+		return false
+	}
+
 	net, _, _ := strings.Cut(network, ":")
 	switch net {
 	case "ip+nopriv":
@@ -165,7 +169,7 @@ func condFatalf(t *testing.T, network string, format string, args ...any) {
 	// A few APIs like File and Read/WriteMsg{UDP,IP} are not
 	// fully implemented yet on Plan 9 and Windows.
 	switch runtime.GOOS {
-	case "windows", "js", "wasip1":
+	case "windows", "js", "wasip1", "tamago":
 		if network == "file+net" {
 			t.Logf(format, args...)
 			return

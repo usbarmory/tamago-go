@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Not all systems have syscall.Mkfifo.
-//go:build !aix && !plan9 && !solaris && !wasm && !windows
+//go:build !aix && !plan9 && !solaris && !wasm && !windows && !tamago
 
 package wasi_test
 

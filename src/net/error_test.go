@@ -139,7 +139,7 @@ var dialErrorTests = []struct {
 
 func TestDialError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	}
 
@@ -216,7 +216,7 @@ func TestProtocolDialError(t *testing.T) {
 
 func TestDialAddrError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -294,7 +294,7 @@ var listenErrorTests = []struct {
 
 func TestListenError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	}
 
@@ -354,7 +354,7 @@ var listenPacketErrorTests = []struct {
 
 func TestListenPacketError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	}
 
@@ -384,7 +384,7 @@ func TestListenPacketError(t *testing.T) {
 
 func TestProtocolListenError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9":
+	case "plan9", "tamago":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 

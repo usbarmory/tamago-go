@@ -37,6 +37,10 @@ func testUnixAddr(t testing.TB) string {
 }
 
 func newLocalListener(t testing.TB, network string, lcOpt ...*ListenConfig) Listener {
+	if runtime.GOOS == "tamago" {
+		t.Skipf("not supported on %s", runtime.GOOS)
+	}
+
 	var lc *ListenConfig
 	switch len(lcOpt) {
 	case 0:

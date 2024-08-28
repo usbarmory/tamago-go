@@ -104,6 +104,7 @@ const (
 	SIGQUIT
 	SIGTERM
 	SIGABRT
+	SIGIO
 )
 
 func (s Signal) Signal() {}

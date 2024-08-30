@@ -494,8 +494,8 @@ func suffixIsZip64(t *testing.T, zip sizedReaderAt) bool {
 
 // Zip64 is required if the total size of the records is uint32max.
 func TestZip64LargeDirectory(t *testing.T) {
-	if runtime.GOARCH == "wasm" {
-		t.Skip("too slow on wasm")
+	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
+		t.Skip("too slow on " + runtime.GOOS)
 	}
 	if testing.Short() {
 		t.Skip("skipping in short mode")

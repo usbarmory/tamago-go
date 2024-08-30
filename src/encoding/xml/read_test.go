@@ -1112,7 +1112,7 @@ func TestCVE202228131(t *testing.T) {
 }
 
 func TestCVE202230633(t *testing.T) {
-	if testing.Short() || runtime.GOARCH == "wasm" {
+	if testing.Short() || runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
 		t.Skip("test requires significant memory")
 	}
 	defer func() {

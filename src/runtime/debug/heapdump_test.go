@@ -12,7 +12,7 @@ import (
 )
 
 func TestWriteHeapDumpNonempty(t *testing.T) {
-	if runtime.GOOS == "js" {
+	if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
 		t.Skipf("WriteHeapDump is not available on %s.", runtime.GOOS)
 	}
 	f, err := os.CreateTemp("", "heapdumptest")
@@ -41,7 +41,7 @@ func objfin(x *Obj) {
 }
 
 func TestWriteHeapDumpFinalizers(t *testing.T) {
-	if runtime.GOOS == "js" {
+	if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
 		t.Skipf("WriteHeapDump is not available on %s.", runtime.GOOS)
 	}
 	f, err := os.CreateTemp("", "heapdumptest")
@@ -80,7 +80,7 @@ var dummy I = G[int]{}
 var dummy2 I = G[G[int]]{}
 
 func TestWriteHeapDumpTypeName(t *testing.T) {
-	if runtime.GOOS == "js" {
+	if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
 		t.Skipf("WriteHeapDump is not available on %s.", runtime.GOOS)
 	}
 	f, err := os.CreateTemp("", "heapdumptest")

@@ -11,8 +11,8 @@ import (
 )
 
 func TestExists(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("Exists not implemented for windows")
+	if runtime.GOOS == "windows" || runtime.GOOS == "tamago" {
+		t.Skip("Exists not implemented for " + runtime.GOOS)
 	}
 
 	if !Exists(os.Stdout.Fd()) {

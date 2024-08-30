@@ -133,7 +133,7 @@ func TestMultiplePackageImport(t *testing.T) {
 }
 
 func TestLocalDirectory(t *testing.T) {
-	if runtime.GOOS == "ios" {
+	if runtime.GOOS == "ios" || runtime.GOOS == "tamago" {
 		t.Skipf("skipping on %s/%s, no valid GOROOT", runtime.GOOS, runtime.GOARCH)
 	}
 
@@ -425,7 +425,7 @@ func TestMatchFile(t *testing.T) {
 }
 
 func TestImportCmd(t *testing.T) {
-	if runtime.GOOS == "ios" {
+	if runtime.GOOS == "ios" || runtime.GOOS == "tamago" {
 		t.Skipf("skipping on %s/%s, no valid GOROOT", runtime.GOOS, runtime.GOARCH)
 	}
 

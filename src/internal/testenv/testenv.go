@@ -293,7 +293,7 @@ var (
 // HasSrc reports whether the entire source tree is available under GOROOT.
 func HasSrc() bool {
 	switch runtime.GOOS {
-	case "ios":
+	case "ios", "tamago":
 		return false
 	}
 	return true

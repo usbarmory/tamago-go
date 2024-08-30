@@ -45,8 +45,8 @@ func TestMain(m *testing.M) {
 }
 
 func maybeSkip(t *testing.T) {
-	if runtime.GOOS == "ios" {
-		t.Skip("iOS does not have a full file tree")
+	if runtime.GOOS == "ios" || runtime.GOOS == "tamago" {
+		t.Skip(runtime.GOOS + " does not have a full file tree")
 	}
 }
 

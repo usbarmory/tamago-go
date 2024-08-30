@@ -51,7 +51,7 @@ func init() {
 	if os.Getenv("GO_EXEC_TEST_PID") != "" {
 		return
 	}
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" || runtime.GOOS == "tamago" {
 		return
 	}
 	for fd := uintptr(3); fd <= 100; fd++ {
@@ -614,8 +614,8 @@ func TestStdinCloseRace(t *testing.T) {
 
 // Issue 5071
 func TestPipeLookPathLeak(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("we don't currently suppore counting open handles on windows")
+	if runtime.GOOS == "windows" || runtime.GOOS == "tamago" {
+		t.Skip("we don't currently suppore counting open handles on " + runtime.GOOS)
 	}
 	// Not parallel: checks for leaked file descriptors
 
@@ -792,7 +792,7 @@ func TestExtraFiles(t *testing.T) {
 }
 
 func TestExtraFilesRace(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" || runtime.GOOS == "tamago" {
 		maySkipHelperCommand("describefiles")
 		t.Skip("no operating system support; skipping")
 	}

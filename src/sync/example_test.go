@@ -112,7 +112,7 @@ func ExampleOnceValue() {
 func ExampleOnceValues() {
 	once := sync.OnceValues(func() ([]byte, error) {
 		fmt.Println("Reading file once")
-		return os.ReadFile("example_test.go")
+		return os.ReadFile("/")
 	})
 	done := make(chan bool)
 	for i := 0; i < 10; i++ {

@@ -119,6 +119,13 @@ var sysdir = func() *sysDir {
 				"CONTRIBUTING.md",
 			},
 		}
+	case "tamago":
+		return &sysDir{
+			"testdata",
+			[]string{
+				"hello",
+			},
+		}
 	}
 	return &sysDir{
 		"/etc",

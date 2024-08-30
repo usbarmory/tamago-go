@@ -6,6 +6,7 @@ package bzip2
 
 import (
 	"bytes"
+	"embed"
 	"encoding/hex"
 	"fmt"
 	"internal/obscuretestdata"
@@ -14,6 +15,13 @@ import (
 	"strings"
 	"testing"
 )
+
+//go:embed testdata/*
+var testdata embed.FS
+
+func init() {
+	os.CopyFS(".", testdata)
+}
 
 func mustDecodeHex(s string) []byte {
 	b, err := hex.DecodeString(s)
@@ -32,7 +40,7 @@ func mustLoadFile(f string) []byte {
 		f = tf
 	}
 
-	b, err := os.ReadFile(f)
+	b, err := testdata.ReadFile(f)
 	if err != nil {
 		panic(err)
 	}

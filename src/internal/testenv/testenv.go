@@ -280,7 +280,8 @@ var goTool = sync.OnceValues(func() (string, error) {
 func MustHaveSource(t testing.TB) {
 	t.Helper()
 	switch runtime.GOOS {
-	case "ios":
+	case "ios", "tamago":
+		t.Helper()
 		t.Skip("skipping test: no source tree on " + runtime.GOOS)
 	}
 	if Builder() != "" {

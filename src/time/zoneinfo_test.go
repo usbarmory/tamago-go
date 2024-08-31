@@ -132,7 +132,7 @@ func TestLoadLocationFromTZData(t *testing.T) {
 	undo := time.DisablePlatformSources()
 	defer undo()
 
-	const locationName = "Asia/Jerusalem"
+	const locationName = "Europe/Berlin"
 	reference, err := time.LoadLocation(locationName)
 	if err != nil {
 		t.Fatal(err)

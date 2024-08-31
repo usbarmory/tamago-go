@@ -377,7 +377,8 @@ func (f *fsysFile) seek(offset int64, whence int) (int64, error) {
 		return 0, EINVAL
 	}
 	if offset > f.inode.Size {
-		return 0, EINVAL
+		// simulate sparse file
+		f.inode.Size = f.offset + 1
 	}
 	f.offset = offset
 	return offset, nil
@@ -627,6 +628,7 @@ func Lchown(path string, uid, gid int) error {
 }
 
 func UtimesNano(path string, ts []Timespec) error {
+	const UTIME_OMIT = -0x2
 	if len(ts) != 2 {
 		return EINVAL
 	}
@@ -637,10 +639,17 @@ func UtimesNano(path string, ts []Timespec) error {
 	if err != nil {
 		return err
 	}
-	ip.Atime = ts[0].Sec
-	ip.AtimeNsec = int64(ts[0].Nsec)
-	ip.Mtime = ts[1].Sec
-	ip.MtimeNsec = int64(ts[1].Nsec)
+
+	if ts[0].Nsec != -2 {
+		ip.Atime = ts[0].Sec
+		ip.AtimeNsec = int64(ts[0].Nsec)
+	}
+
+	if ts[1].Nsec != -2 {
+		ip.Mtime = ts[1].Sec
+		ip.MtimeNsec = int64(ts[1].Nsec)
+	}
+
 	return nil
 }
 

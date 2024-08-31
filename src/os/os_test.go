@@ -2919,7 +2919,7 @@ func TestPipeThreads(t *testing.T) {
 		t.Skip("skipping on js; no support for os.Pipe")
 	case "wasip1":
 		t.Skip("skipping on wasip1; no support for os.Pipe")
-	case "tamagp":
+	case "tamago":
 		t.Skip("skipping on tamago; no support for os.Pipe")
 	}
 

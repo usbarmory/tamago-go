@@ -422,3 +422,4 @@ const disabledOnPlatform = false ||
 	runtime.GOOS == "js" || // #60971
 	runtime.GOOS == "wasip1" || // #60971
 	runtime.GOOS == "plan9" // https://github.com/golang/go/issues/57540#issuecomment-1470766639
+	runtime.GOOS == "tamago"

@@ -26,8 +26,6 @@ var files = flag.String("files", "", "consider only Go test files matching this 
 
 const dataDir = "testdata"
 
-var templateTxt = readTemplate("template.txt")
-
 func readTemplate(filename string) *template.Template {
 	t := template.New(filename)
 	t.Funcs(template.FuncMap{
@@ -79,6 +77,8 @@ type bundle struct {
 }
 
 func test(t *testing.T, mode Mode) {
+	templateTxt := readTemplate("template.txt")
+
 	// determine file filter
 	filter := isGoFile
 	if *files != "" {

@@ -1425,7 +1425,7 @@ func testChtimesOmit(t *testing.T, omitAt, omitMt bool) {
 	if !gotAtime.Equal(wantAtime) {
 		errormsg := fmt.Sprintf("atime mismatch, got: %q, want: %q", gotAtime, wantAtime)
 		switch runtime.GOOS {
-		case "plan9":
+		case "plan9", "tamago":
 			// Mtime is the time of the last change of content.
 			// Similarly, atime is set whenever the contents are
 			// accessed; also, it is set whenever mtime is set.
@@ -1503,7 +1503,7 @@ func testChtimes(t *testing.T, name string) {
 	if !pat.Before(at) {
 		errormsg := fmt.Sprintf("AccessTime didn't go backwards; was=%v, after=%v", at, pat)
 		switch runtime.GOOS {
-		case "plan9":
+		case "plan9", "tamago":
 			// Mtime is the time of the last change of
 			// content.  Similarly, atime is set whenever
 			// the contents are accessed; also, it is set

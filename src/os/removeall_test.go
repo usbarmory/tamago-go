@@ -239,7 +239,7 @@ func TestRemoveReadOnlyDir(t *testing.T) {
 // Issue #29983.
 func TestRemoveAllButReadOnlyAndPathError(t *testing.T) {
 	switch runtime.GOOS {
-	case "js", "wasip1", "windows":
+	case "js", "wasip1", "windows", "tamago":
 		t.Skipf("skipping test on %s", runtime.GOOS)
 	}
 
@@ -387,7 +387,7 @@ func TestRemoveAllWithMoreErrorThanReqSize(t *testing.T) {
 		return
 	}
 	if err == nil {
-		if runtime.GOOS == "windows" || runtime.GOOS == "wasip1" {
+		if runtime.GOOS == "windows" || runtime.GOOS == "wasip1" || runtime.GOOS == "tamago" {
 			// Marking a directory as read-only in Windows does not prevent the RemoveAll
 			// from creating or removing files within it.
 			//

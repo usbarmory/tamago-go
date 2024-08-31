@@ -473,7 +473,8 @@ func (f *fsysFile) pwriteLocked(b []byte, offset int64) (int, error) {
 		return f.dev.Pwrite(b, offset)
 	}
 	if offset > f.inode.Size {
-		return 0, EINVAL
+		f.inode.data = append(f.inode.data, make([]byte, offset - f.inode.Size)...)
+		f.inode.Size += offset
 	}
 	f.fsys.mtime(f.inode)
 	n := copy(f.inode.data[offset:], b)

@@ -8,6 +8,7 @@ package time
 
 import (
 	"errors"
+	"syscall"
 )
 
 // for testing: whatever interrupts a sleep
@@ -15,16 +16,39 @@ func interrupt() {
 	// cannot predict pid, don't want to kill group
 }
 
-func open(name string) (p uintptr, err error) {
-	return 0, errors.New("not implemented")
+func open(name string) (uintptr, error) {
+	fd, err := syscall.Open(name, syscall.O_RDONLY, 0600)
+	if err != nil {
+		return 0, err
+	}
+	return uintptr(fd), nil
 }
 
 func read(fd uintptr, buf []byte) (int, error) {
-	return -1, errors.New("not implemented")
+	return syscall.Read(int(fd), buf)
 }
 
-func closefd(fd uintptr) { }
+func closefd(fd uintptr) {
+	syscall.Close(int(fd))
+}
 
 func preadn(fd uintptr, buf []byte, off int) error {
-	return errors.New("not implemented")
+	whence := seekStart
+	if off < 0 {
+		whence = seekEnd
+	}
+	if _, err := syscall.Seek(int(fd), int64(off), whence); err != nil {
+		return err
+	}
+	for len(buf) > 0 {
+		m, err := syscall.Read(int(fd), buf)
+		if m <= 0 {
+			if err == nil {
+				return errors.New("short read")
+			}
+			return err
+		}
+		buf = buf[m:]
+	}
+	return nil
 }

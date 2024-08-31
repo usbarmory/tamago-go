@@ -13,6 +13,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -755,7 +756,8 @@ func TestDimensionOverflow(t *testing.T) {
 			continue
 		}
 
-		if nPixels := int64(cfg.Width) * int64(cfg.Height); nPixels > 0x7f000000 {
+		if nPixels := int64(cfg.Width) * int64(cfg.Height); nPixels > 0x7f000000 ||
+			runtime.GOOS == "tamago" && nPixels >= 0x4000000 {
 			// In theory, calling Decode would succeed, given several gigabytes
 			// of memory. In practice, trying to make a []uint8 big enough to
 			// hold all of the pixels can often result in OOM (out of memory).

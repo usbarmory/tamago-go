@@ -1,6 +1,9 @@
 # Issue 65406. The testdata directory in GOROOT/src
 # shouldn't be treated as a standard package.
 
+# disabled to allow GOOS=tamago testing
+[GOOS:linux] skip
+
 go list -f '{{.ImportPath}} {{.Dir}}' testdata
 ! stderr 'found package testdata in multiple modules'
 stdout 'testdata '$WORK${/}'gopath'${/}'src'

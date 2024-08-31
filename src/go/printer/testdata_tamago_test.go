@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-//go:embed printer.go
+//go:embed example_test.go printer.go
 var src embed.FS
 
 //go:embed testdata/*

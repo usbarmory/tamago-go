@@ -8,6 +8,10 @@ package time
 
 var platformZoneSources = []string{}
 
+func gorootZoneSource(goroot string) (string, bool) {
+	return "zoneinfo", true
+}
+
 func initLocal() {
 	localLoc.name = "UTC"
 }

@@ -7,7 +7,7 @@
 #include "go_asm.h"
 #include "textflag.h"
 
-#define CLOCK_MONOTONIC	1
+#define CLOCK_REALTIME	0
 
 // for EABI, as we don't support OABI
 #define SYS_BASE 0x0
@@ -17,9 +17,9 @@
 #define SYS_clock_gettime (SYS_BASE + 263)
 #define SYS_getrandom (SYS_BASE + 384)
 
-// func nanotime1() int64
-TEXT ·nanotime1(SB),NOSPLIT,$12-8
-	MOVW	$CLOCK_MONOTONIC, R0
+// func sys_clock_gettime() int64
+TEXT ·sys_clock_gettime(SB),NOSPLIT,$12-8
+	MOVW	$CLOCK_REALTIME, R0
 	MOVW	$spec-12(SP), R1	// timespec
 
 	MOVW	$SYS_clock_gettime, R7
@@ -33,8 +33,8 @@ TEXT ·nanotime1(SB),NOSPLIT,$12-8
 	ADD.S	R2, R0
 	ADC	$0, R1	// Add carry bit to upper half.
 
-	MOVW	R0, ns_lo+0(FP)
-	MOVW	R1, ns_hi+4(FP)
+	MOVW	R0, ret_lo+0(FP)
+	MOVW	R1, ret_hi+4(FP)
 
 	RET
 

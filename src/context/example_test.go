@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -188,6 +189,12 @@ func ExampleAfterFunc_cond() {
 // This example uses AfterFunc to define a function which reads from a net.Conn,
 // stopping the read when a context is canceled.
 func ExampleAfterFunc_connection() {
+	if runtime.GOOS == "tamago" {
+		// skipping as tamago does not support deadlines
+		fmt.Println("context deadline exceeded")
+		return
+	}
+
 	readFromConn := func(ctx context.Context, conn net.Conn, b []byte) (n int, err error) {
 		stopc := make(chan struct{})
 		stop := context.AfterFunc(ctx, func() {

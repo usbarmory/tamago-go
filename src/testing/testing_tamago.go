@@ -15,20 +15,20 @@ import (
 var ramStart uint32 = 0x80000000 // unused
 
 //go:linkname ramSize runtime.ramSize
-var ramSize uint32 = 0x10000000
+var ramSize uint32 = 0x20000000
 
 //go:linkname ramStackOffset runtime.ramStackOffset
 var ramStackOffset uint32 = 0x100
 
 // defined in testing_tamago.s
-func nanotime1() (ns int64)
 func sys_exit(code int32)
 func sys_write(c *byte)
+func sys_clock_gettime() (ns int64)
 func sys_getrandom(b []byte, n int)
 
-//go:linkname nanotime runtime.nanotime1
-func nanotime() int64 {
-	return nanotime1()
+//go:linkname nanotime1 runtime.nanotime1
+func nanotime1() int64 {
+	return sys_clock_gettime()
 }
 
 //go:linkname initRNG runtime.initRNG

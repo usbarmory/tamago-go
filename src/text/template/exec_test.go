@@ -12,6 +12,7 @@ import (
 	"io"
 	"iter"
 	"reflect"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -1758,6 +1759,12 @@ func TestExecutePanicDuringCall(t *testing.T) {
 			`template: t:1:23: executing "t" at <.NonEmptyInterfaceNil.Method0>: nil pointer evaluating template.I.Method0`,
 		},
 	}
+
+	// tamago does not support nil pointer panics under testing
+	if runtime.GOOS == "tamago" {
+		tests = append(tests[:2], tests[4:]...)
+	}
+
 	for _, tc := range tests {
 		b := new(bytes.Buffer)
 		tmpl, err := New("t").Funcs(funcs).Parse(tc.input)

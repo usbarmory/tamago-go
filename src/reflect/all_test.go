@@ -6043,10 +6043,14 @@ func TestStructOfWithInterface(t *testing.T) {
 	}}
 	rt := StructOf(fields)
 	rv := New(rt).Elem()
-	// This should panic since the pointer is nil.
-	shouldPanic("", func() {
-		rv.Interface().(IfaceSet).Set(want)
-	})
+
+	// tamago does not support nil pointer panics under testing
+	if runtime.GOOS != "tamago" {
+		// This should panic since the pointer is nil.
+		shouldPanic("", func() {
+			rv.Interface().(IfaceSet).Set(want)
+		})
+	}
 
 	// Test an embedded nil pointer to a struct with pointer methods.
 
@@ -6057,10 +6061,14 @@ func TestStructOfWithInterface(t *testing.T) {
 	}}
 	rt = StructOf(fields)
 	rv = New(rt).Elem()
-	// This should panic since the pointer is nil.
-	shouldPanic("", func() {
-		rv.Interface().(IfaceSet).Set(want)
-	})
+
+	// tamago does not support nil pointer panics under testing
+	if runtime.GOOS != "tamago" {
+		// This should panic since the pointer is nil.
+		shouldPanic("", func() {
+			rv.Interface().(IfaceSet).Set(want)
+		})
+	}
 
 	// The behavior is different if there is a second field,
 	// since now an interface value holds a pointer to the struct

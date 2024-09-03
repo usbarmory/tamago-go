@@ -33,8 +33,8 @@ TEXT ·sys_clock_gettime(SB),NOSPLIT,$12-8
 	ADD.S	R2, R0
 	ADC	$0, R1	// Add carry bit to upper half.
 
-	MOVW	R0, ret_lo+0(FP)
-	MOVW	R1, ret_hi+4(FP)
+	MOVW	R0, ns_lo+0(FP)
+	MOVW	R1, ns_hi+4(FP)
 
 	RET
 

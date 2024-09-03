@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-var src = readFile("../printer/nodes.go")
+var src []byte
 
 func readFile(filename string) []byte {
 	data, err := os.ReadFile(filename)

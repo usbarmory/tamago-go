@@ -137,7 +137,7 @@ func TestScripts(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		if rel == "README" {
+		if filepath.Ext(rel) != "txt" {
 			return nil
 		}
 

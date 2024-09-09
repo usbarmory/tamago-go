@@ -685,6 +685,11 @@ func Short() bool {
 		panic("testing: Short called before Parse")
 	}
 
+	// -test.short is forced due to lack of os.Args support
+	if runtime.GOOS == "tamago" {
+		return true
+	}
+
 	return *short
 }
 

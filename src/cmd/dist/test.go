@@ -437,6 +437,9 @@ func (opts *goTest) buildArgs(t *tester) (build, run, pkgs, testFlags []string, 
 		run = append(run, "-short")
 	}
 	var tags []string
+	if goos == "tamago" {
+		tags = append(tags, "fakenet")
+	}
 	if noOpt {
 		tags = append(tags, "noopt")
 	}

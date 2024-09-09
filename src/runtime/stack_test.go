@@ -327,7 +327,7 @@ func testDeferLeafSigpanic1() {
 // See issue #25499.
 func TestDeferLeafSigpanic(t *testing.T) {
 	if GOOS == "tamago" {
-		t.Skip(GOOS + " does not support nil pointer panics under testing")
+		t.Skip(GOOS + " does not yet handle signals under testing")
 	}
 
 	// Push a defer that will walk the stack.
@@ -727,7 +727,7 @@ type I interface {
 
 func TestStackWrapperStackPanic(t *testing.T) {
 	if GOOS == "tamago" {
-		t.Skip(GOOS + " does not support nil pointer panics under testing")
+		t.Skip(GOOS + " does not yet handle signals under testing")
 	}
 
 	t.Run("sigpanic", func(t *testing.T) {

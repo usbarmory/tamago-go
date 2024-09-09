@@ -32,7 +32,7 @@ func TestProhibitionaryDialArg(t *testing.T) {
 	testenv.MustHaveExternalNetwork(t)
 
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !supportsIPv4map() {
@@ -75,7 +75,7 @@ func TestDialLocal(t *testing.T) {
 
 func TestDialerDualStackFDLeak(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	case "windows":
 		t.Skipf("not implemented a way to cancel dial racers in TCP SYN-SENT state on %s", runtime.GOOS)
@@ -955,14 +955,14 @@ func TestDialListenerAddr(t *testing.T) {
 	// To address both of those problems, we open a tcp4-only localhost port, but
 	// then dial the address string that the listener would have reported for a
 	// dual-stack port.
-	ln, err := Listen("tcp4", "localhost:0")
+	ln, err := Listen("tcp4", ":0")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer ln.Close()
 
 	t.Logf("listening on %q", ln.Addr())
-	_, port, err := SplitHostPort(ln.Addr().String())
+	host, port, err := SplitHostPort(ln.Addr().String())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -976,7 +976,7 @@ func TestDialListenerAddr(t *testing.T) {
 	// UDP, "", "0.0.0.0" or "::" for IP, the local system is assumed.’
 	// In #18806, it was decided that that should include the local tcp4 host
 	// even if the string is in the tcp6 format.
-	dialAddr := "[::]:" + port
+	dialAddr := host + ":" + port
 	c, err := Dial("tcp4", dialAddr)
 	if err != nil {
 		t.Fatalf(`Dial("tcp4", %q): %v`, dialAddr, err)
@@ -987,9 +987,9 @@ func TestDialListenerAddr(t *testing.T) {
 
 func TestDialerControl(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
-	case "js", "wasip1":
+	case "js", "wasip1", "tamago":
 		t.Skipf("skipping: fake net does not support Dialer.Control")
 	}
 
@@ -1032,7 +1032,7 @@ func TestDialerControl(t *testing.T) {
 
 func TestDialerControlContext(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("%s does not have full support of socktest", runtime.GOOS)
 	case "js", "wasip1":
 		t.Skipf("skipping: fake net does not support Dialer.ControlContext")

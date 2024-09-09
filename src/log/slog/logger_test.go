@@ -97,7 +97,7 @@ func TestConnections(t *testing.T) {
 	checkLogOutput(t, logbuf.String(), `logger_test.go:\d+: INFO msg p=<nil>`)
 	logbuf.Reset()
 
-	// skipping as signals are not yet handled under tamago testing
+	// tamago does not yet handle signals under testing
 	if runtime.GOOS != "tamago" {
 		var r *regexp.Regexp
 		Info("msg", "r", r)

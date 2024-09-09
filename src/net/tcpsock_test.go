@@ -425,11 +425,6 @@ func TestIPv6LinkLocalUnicastTCP(t *testing.T) {
 }
 
 func TestTCPConcurrentAccept(t *testing.T) {
-	switch runtime.GOOS {
-	case "tamago":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	defer runtime.GOMAXPROCS(runtime.GOMAXPROCS(4))
 	ln, err := Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -473,7 +468,7 @@ func TestTCPConcurrentAccept(t *testing.T) {
 
 func TestTCPReadWriteAllocs(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		// The implementation of asynchronous cancelable
 		// I/O on Plan 9 allocates memory.
 		// See net/fd_io_plan9.go.
@@ -541,11 +536,6 @@ func TestTCPReadWriteAllocs(t *testing.T) {
 }
 
 func TestTCPStress(t *testing.T) {
-	switch runtime.GOOS {
-	case "tamago":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	const conns = 2
 	const msgLen = 512
 	msgs := int(1e4)
@@ -681,7 +671,7 @@ func TestTCPBig(t *testing.T) {
 
 func TestCopyPipeIntoTCP(t *testing.T) {
 	switch runtime.GOOS {
-	case "js", "wasip1", "tamago":
+	case "js", "wasip1":
 		t.Skipf("skipping: os.Pipe not supported on %s", runtime.GOOS)
 	}
 
@@ -800,11 +790,6 @@ func TestDialTCPDefaultKeepAlive(t *testing.T) {
 }
 
 func TestTCPListenAfterClose(t *testing.T) {
-	switch runtime.GOOS {
-	case "tamago":
-		t.Skipf("not supported on %s", runtime.GOOS)
-	}
-
 	// Regression test for https://go.dev/issue/50216:
 	// after calling Close on a Listener, the fake net implementation would
 	// erroneously Accept a connection dialed before the call to Close.

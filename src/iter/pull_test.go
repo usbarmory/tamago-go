@@ -194,7 +194,7 @@ func doDoubleNext2() Seq2[int, int] {
 
 func TestPullDoubleYield(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	next, stop := Pull(storeYield())
@@ -227,7 +227,7 @@ var yieldSlot func(int) bool
 
 func TestPullDoubleYield2(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	next, stop := Pull2(storeYield2())

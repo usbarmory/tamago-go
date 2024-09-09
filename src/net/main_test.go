@@ -67,7 +67,7 @@ func mustSetDeadline(t testing.TB, m func(time.Time) error, d time.Duration) {
 	err := m(time.Now().Add(d))
 	if err != nil {
 		t.Helper()
-		if runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
+		if runtime.GOOS == "plan9" {
 			t.Skipf("skipping: %s does not support deadlines", runtime.GOOS)
 		}
 		t.Fatal(err)

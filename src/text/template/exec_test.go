@@ -1760,7 +1760,7 @@ func TestExecutePanicDuringCall(t *testing.T) {
 		},
 	}
 
-	// tamago does not support nil pointer panics under testing
+	// tamago does not yet handle signals under testing
 	if runtime.GOOS == "tamago" {
 		tests = append(tests[:2], tests[4:]...)
 	}

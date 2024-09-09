@@ -34,10 +34,6 @@ func init() {
 // testableNetwork reports whether network is testable on the current
 // platform configuration.
 func testableNetwork(network string) bool {
-	if runtime.GOOS == "tamago" {
-		return false
-	}
-
 	net, _, _ := strings.Cut(network, ":")
 	switch net {
 	case "ip+nopriv":
@@ -52,14 +48,14 @@ func testableNetwork(network string) bool {
 		}
 	case "unix", "unixgram":
 		switch runtime.GOOS {
-		case "android", "ios", "plan9", "windows":
+		case "android", "ios", "plan9", "windows", "tamago":
 			return false
 		case "aix":
 			return unixEnabledOnAIX
 		}
 	case "unixpacket":
 		switch runtime.GOOS {
-		case "aix", "android", "darwin", "ios", "plan9", "windows":
+		case "aix", "android", "darwin", "ios", "plan9", "windows", "tamago":
 			return false
 		}
 	}

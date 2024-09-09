@@ -111,7 +111,7 @@ func TestResolveUDPAddr(t *testing.T) {
 
 func TestWriteToUDP(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 
@@ -338,7 +338,7 @@ func TestIPv6LinkLocalUnicastUDP(t *testing.T) {
 
 func TestUDPZeroBytePayload(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	case "darwin", "ios":
 		testenv.SkipFlaky(t, 29225)
@@ -376,7 +376,7 @@ func TestUDPZeroBytePayload(t *testing.T) {
 
 func TestUDPZeroByteBuffer(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
@@ -413,7 +413,7 @@ func TestUDPZeroByteBuffer(t *testing.T) {
 
 func TestUDPReadSizeError(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
 	}
 	if !testableNetwork("udp") {
@@ -617,7 +617,7 @@ func BenchmarkWriteToReadFromUDPAddrPort(b *testing.B) {
 
 func TestUDPIPVersionReadMsg(t *testing.T) {
 	switch runtime.GOOS {
-	case "plan9", "tamago":
+	case "plan9":
 		t.Skipf("skipping on %v", runtime.GOOS)
 	}
 	if !testableNetwork("udp4") {

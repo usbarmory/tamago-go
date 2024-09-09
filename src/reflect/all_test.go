@@ -5958,7 +5958,7 @@ func TestStructOfWithInterface(t *testing.T) {
 	rt := StructOf(fields)
 	rv := New(rt).Elem()
 
-	// tamago does not support nil pointer panics under testing
+	// tamago does not yet handle signals under testing
 	if runtime.GOOS != "tamago" {
 		// This should panic since the pointer is nil.
 		shouldPanic("", func() {
@@ -5976,7 +5976,7 @@ func TestStructOfWithInterface(t *testing.T) {
 	rt = StructOf(fields)
 	rv = New(rt).Elem()
 
-	// tamago does not support nil pointer panics under testing
+	// tamago does not yet handle signals under testing
 	if runtime.GOOS != "tamago" {
 		// This should panic since the pointer is nil.
 		shouldPanic("", func() {

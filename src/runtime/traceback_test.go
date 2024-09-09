@@ -59,7 +59,7 @@ func TestTracebackInlined(t *testing.T) {
 		check(t, r, "runtime_test.ttiSimple3(...)", "runtime_test.ttiSimple2(...)", "runtime_test.ttiSimple1()")
 	})
 
-	// skipping as signals are not yet handled under tamago testing
+	// tamago does not yet handle signals under testing
 	if runtime.GOOS != "tamago" {
 		t.Run("sigpanic", func(t *testing.T) {
 			// Check that sigpanic from an inlined function prints correctly

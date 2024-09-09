@@ -213,7 +213,7 @@ func TestCallersAbortedPanic2(t *testing.T) {
 
 func TestCallersNilPointerPanic(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	// Make sure we don't have any extra frames on the stack (due to
@@ -259,7 +259,7 @@ func TestCallersDivZeroPanic(t *testing.T) {
 
 func TestCallersDeferNilFuncPanic(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	// Make sure we don't have any extra frames on the stack. We cut off the check
@@ -293,7 +293,7 @@ func TestCallersDeferNilFuncPanic(t *testing.T) {
 // issue #36050
 func TestCallersDeferNilFuncPanicWithLoop(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	state := 1

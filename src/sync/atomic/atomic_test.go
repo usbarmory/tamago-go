@@ -2923,7 +2923,7 @@ func TestAutoAligned64(t *testing.T) {
 
 func TestNilDeref(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping as signals are not yet handled under tamago testing")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	funcs := [...]func(){

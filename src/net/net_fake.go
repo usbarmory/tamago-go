@@ -5,7 +5,7 @@
 // Fake networking for js/wasm and wasip1/wasm.
 // It is intended to allow tests of other package to pass.
 
-//go:build js || wasip1
+//go:build js || wasip1 || (tamago && fakenet)
 
 package net
 

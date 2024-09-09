@@ -792,7 +792,7 @@ func TestExtraFiles(t *testing.T) {
 }
 
 func TestExtraFilesRace(t *testing.T) {
-	if runtime.GOOS == "windows" || runtime.GOOS == "tamago" {
+	if runtime.GOOS == "windows" {
 		maySkipHelperCommand("describefiles")
 		t.Skip("no operating system support; skipping")
 	}

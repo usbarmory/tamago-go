@@ -3433,6 +3433,9 @@ func testProxyForRequest(t *testing.T, tt proxyFromEnvTest, proxyForRequest func
 		t.Errorf("%v: got error = %q, want %q", tt, g, e)
 		return
 	}
+	if url == nil && tt.want == "<nil>" {
+		return
+	}
 	if got := fmt.Sprintf("%s", url); got != tt.want {
 		t.Errorf("%v: got URL = %q, want %q", tt, url, tt.want)
 	}

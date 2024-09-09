@@ -955,7 +955,7 @@ func TestDialListenerAddr(t *testing.T) {
 	// To address both of those problems, we open a tcp4-only localhost port, but
 	// then dial the address string that the listener would have reported for a
 	// dual-stack port.
-	ln, err := Listen("tcp4", ":0")
+	ln, err := Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}

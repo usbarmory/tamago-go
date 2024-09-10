@@ -118,10 +118,6 @@ func Test(t *testing.T) {
 	goDebug = env.GODEBUG
 	tmpDir = t.TempDir()
 
-	if goos == "tamago" {
-		t.Skipf("skipping: unsupported")
-	}
-
 	common := testCommon{
 		gorootTestDir: filepath.Join(testenv.GOROOT(t), "test"),
 		runoutputGate: make(chan bool, *runoutputLimit),

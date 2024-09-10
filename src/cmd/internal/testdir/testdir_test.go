@@ -116,10 +116,6 @@ func Test(t *testing.T) {
 	goExperiment = env.GOEXPERIMENT
 	goDebug = env.GODEBUG
 
-	if goos == "tamago" {
-		t.Skipf("skipping: unsupported")
-	}
-
 	common := testCommon{
 		gorootTestDir: filepath.Join(testenv.GOROOT(t), "test"),
 		runoutputGate: make(chan bool, *runoutputLimit),

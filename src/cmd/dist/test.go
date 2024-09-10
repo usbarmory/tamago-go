@@ -966,7 +966,7 @@ func (t *tester) registerTests() {
 		t.registerRaceTests()
 	}
 
-	if goos != "android" && !t.iOS() {
+	if goos != "android" && !t.iOS() && goos != "tamago" {
 		// Only start multiple test dir shards on builders,
 		// where they get distributed to multiple machines.
 		// See issues 20141 and 31834.

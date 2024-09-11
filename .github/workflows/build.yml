@@ -16,4 +16,4 @@ jobs:
         cd src ; ./clean.bash ; ./all.bash
     - name: Run Go distribution tests under GOOS=tamago
       run: |
-        GO_BUILDER_NAME="tamago" GOOS=tamago GOARCH=arm ./bin/go run cmd/dist test
+        GO_BUILDER_NAME="tamago" GOOS=tamago GOARCH=arm ./bin/go tool dist test

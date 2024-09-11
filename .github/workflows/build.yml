@@ -8,12 +8,20 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v4.1.7
+
+    - name: Prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y binfmt-support qemu-user-static
+
     - name: Compile Go with make.bash
       run: |
         cd src ; ./make.bash
+
     - name: Compile Go with all.bash
       run: |
         cd src ; ./clean.bash ; ./all.bash
+
     - name: Run Go distribution tests under tamago/arm
       run: |
         GO_BUILDER_NAME="tamago" GOOS=tamago GOARCH=arm ./bin/go tool dist test

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && arm
+//go:build tamago && (arm || riscv64)
 
 package testing
 
@@ -12,15 +12,15 @@ import (
 )
 
 //go:linkname ramStart runtime.ramStart
-var ramStart uint32 = 0x80000000
+var ramStart uint64 = 0x80000000
 
 //go:linkname ramSize runtime.ramSize
-var ramSize uint32 = 0x20000000 // 512MB
+var ramSize uint64 = 0x20000000 // 512MB
 
 //go:linkname ramStackOffset runtime.ramStackOffset
-var ramStackOffset uint32 = 0x100
+var ramStackOffset uint64 = 0x100
 
-// defined in testing_tamago_arm.s
+// defined in testing_tamago_*.s
 func sys_exit(code int32)
 func sys_write(c *byte)
 func sys_clock_gettime() (ns int64)

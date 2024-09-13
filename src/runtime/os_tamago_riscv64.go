@@ -119,11 +119,7 @@ func signame(sig uint32) string {
 	return ""
 }
 
-//go:nosplit
-func cputicks() int64 {
-	// runtime·nanotime() is a poor approximation of CPU ticks that is enough for the profiler.
-	return nanotime()
-}
+func cputicks() int64
 
 //go:linkname os_sigpipe os.sigpipe
 func os_sigpipe() {

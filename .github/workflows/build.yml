@@ -14,6 +14,9 @@ jobs:
     - name: Compile Go with all.bash
       run: |
         cd src ; ./clean.bash ; ./all.bash
-    - name: Run Go distribution tests under GOOS=tamago
+    - name: Run Go distribution tests under tamago/arm
       run: |
         GO_BUILDER_NAME="tamago" GOOS=tamago GOARCH=arm ./bin/go tool dist test
+    - name: Run Go distribution tests under tamago/riscv64
+      run: |
+        GO_BUILDER_NAME="tamago" GOOS=tamago GOARCH=riscv64 ./bin/go tool dist test

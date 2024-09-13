@@ -10,7 +10,7 @@
 #include "go_tls.h"
 #include "textflag.h"
 
-TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|TOPFRAME,$0
+TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	// create istack out of the bootstack
 	MOV	$runtime·g0(SB), g
 	MOV	$(-64*1024), T0

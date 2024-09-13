@@ -2,20 +2,20 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build arm
+//go:build tamago && arm
 
 #include "go_asm.h"
 #include "textflag.h"
 
-#define CLOCK_REALTIME	0
+#define CLOCK_REALTIME 0
 
 // for EABI, as we don't support OABI
 #define SYS_BASE 0x0
 
-#define SYS_exit (SYS_BASE + 1)
-#define SYS_write (SYS_BASE + 4)
-#define SYS_clock_gettime (SYS_BASE + 263)
-#define SYS_getrandom (SYS_BASE + 384)
+#define SYS_exit		(SYS_BASE + 1)
+#define SYS_write		(SYS_BASE + 4)
+#define SYS_clock_gettime	(SYS_BASE + 263)
+#define SYS_getrandom		(SYS_BASE + 384)
 
 // func sys_clock_gettime() int64
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$12-8

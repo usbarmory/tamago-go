@@ -17,8 +17,26 @@
 #define CSRS(RS,CSR) WORD $(0x2073 + RS<<15 + CSR<<20)
 #define CSRW(RS,CSR) WORD $(0x1073 + RS<<15 + CSR<<20)
 
+#define SYS_mmap 222
+
 // entry point for M privilege level instances
 TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
+	MOV	runtime·testBinary(SB), T0
+	BEQ	T0, ZERO, start
+
+	// when testing bare metal memory is mapped as OS virtual memory
+	MOV	runtime·ramStart(SB), A0
+	MOV	runtime·ramSize(SB), A1
+	MOV	$0x3, A2	// PROT_READ | PROT_WRITE
+	MOV	$0x22, A3	// MAP_PRIVATE | MAP_ANONYMOUS
+	MOV	$0xffffffff, A4
+	MOV	$0, A5
+	MOV	$SYS_mmap, A7
+	ECALL
+
+	JMP	_rt0_riscv64_tamago_start(SB)
+
+start:
 	// Disable interrupts
 	MOV	$0, T0
 	CSRW	(t0, sie)

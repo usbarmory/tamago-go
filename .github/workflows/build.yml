@@ -14,10 +14,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y binfmt-support qemu-user-static
 
-    - name: Compile Go with make.bash
-      run: |
-        cd src ; ./make.bash
-
     - name: Compile Go with all.bash
       run: |
         cd src ; ./clean.bash ; ./all.bash

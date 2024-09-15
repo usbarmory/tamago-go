@@ -15,7 +15,7 @@ import (
 var ramStart uint64 = 0x80000000
 
 //go:linkname ramSize runtime.ramSize
-var ramSize uint64 = 0x10000000 // 256MB
+var ramSize uint64 = 0x20000000 // 512MB
 
 //go:linkname ramStackOffset runtime.ramStackOffset
 var ramStackOffset uint64 = 0x100

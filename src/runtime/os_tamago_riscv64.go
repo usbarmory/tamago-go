@@ -11,8 +11,6 @@ import (
 	"unsafe"
 )
 
-const _PAGESIZE uintptr = 0x1000
-
 // see testing.testBinary
 var testBinary string
 

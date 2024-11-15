@@ -4,5 +4,27 @@
 
 #include "textflag.h"
 
-TEXT _rt0_amd64_tamago(SB),NOSPLIT,$-8
-	JMP	_rt0_amd64(SB)
+#define SYS_mmap 9
+
+TEXT _rt0_amd64_tamago(SB),NOSPLIT,$0
+	MOVW	runtime·testBinary(SB), AX
+	CMPW	AX, $0
+	JE	start
+
+	// when testing bare metal memory is mapped as OS virtual memory
+	MOVQ	runtime·ramStart(SB), DI
+	MOVQ	runtime·ramSize(SB), SI
+	MOVL	$0x3, DX	// PROT_READ | PROT_WRITE
+	MOVL	$0x22, R10	// MAP_PRIVATE | MAP_ANONYMOUS
+	MOVL	$0xffffffff, R8
+	MOVL	$0, R9
+
+	MOVL	$SYS_mmap, AX
+	SYSCALL
+
+	JMP	runtime·rt0_amd64_tamago(SB)
+start:
+	// Disable interrupts
+	CLI
+
+	JMP	runtime·rt0_amd64_tamago(SB)

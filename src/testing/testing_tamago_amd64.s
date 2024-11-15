@@ -19,7 +19,6 @@ TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
 
 	MOVQ	0(SP), AX	// sec
 	MOVQ	8(SP), DX	// nsec
-	MOVQ	R12, SP		// Restore real SP
 	// sec is in AX, nsec in DX
 	// return nsec in AX
 	IMULQ	$1000000000, AX
@@ -30,24 +29,24 @@ TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
 // func sys_exit(code int32)
 TEXT ·sys_exit(SB), $0-4
 	MOVL	code+0(FP), DI
-	MOV	$SYS_exit, AX
+	MOVL	$SYS_exit, AX
 	SYSCALL
 	RET
 
 // func sys_write(c *byte)
 TEXT ·sys_write(SB),NOSPLIT,$0-8
-	MOV	$1, DI		// fd
-	MOV	c+0(FP), SI	// p
-	MOV	$1, DX		// n
-	MOV	$SYS_write, AX
+	MOVQ	$1, DI		// fd
+	MOVQ	c+0(FP), SI	// p
+	MOVL	$1, DX		// n
+	MOVL	$SYS_write, AX
 	SYSCALL
 	RET
 
 // func sys_getrandom(b []byte, n int)
 TEXT ·sys_getrandom(SB), $0-32
-	MOV	b+0(FP), DI
-	MOV	n+24(FP), SI
-	MOV	$0, DX
-	MOV	$SYS_getrandom, AX
+	MOVQ	b+0(FP), DI
+	MOVQ	n+24(FP), SI
+	MOVL	$0, DX
+	MOVL	$SYS_getrandom, AX
 	SYSCALL
 	RET

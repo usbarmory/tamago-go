@@ -30,12 +30,12 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT,$0
 after_eret:
 	// Enter System Mode
 	WORD	$0xe321f0df	// msr CPSR_c, 0xdf
-	B	runtime_start
+	B	start
 
 check_testing:
 	MOVW	runtime·testBinary(SB), R0
 	CMP	$0, R0
-	B.EQ	runtime_start
+	B.EQ	start
 
 	// when testing bare metal memory is mapped as OS virtual memory
 	MOVW	runtime·ramStart(SB), R0
@@ -47,7 +47,7 @@ check_testing:
 	MOVW	$SYS_mmap2, R7
 	SWI	$0
 
-runtime_start:
+start:
 	MOVW	runtime·ramStart(SB), R13
 	MOVW	runtime·ramSize(SB), R1
 	MOVW	runtime·ramStackOffset(SB), R2

@@ -7,6 +7,8 @@
 #include "go_asm.h"
 #include "textflag.h"
 
+#define CLOCK_REALTIME 0
+
 #define SYS_write		1
 #define SYS_exit		60
 #define SYS_clock_gettime	228
@@ -14,16 +16,21 @@
 
 // func sys_clock_gettime() int64
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
+	SUBQ	$16, SP		// Space for results
+
+	MOVL	$CLOCK_REALTIME, DI
+	LEAQ	0(SP), SI
 	MOVQ	$SYS_clock_gettime, AX
 	SYSCALL
 
 	MOVQ	0(SP), AX	// sec
 	MOVQ	8(SP), DX	// nsec
-	// sec is in AX, nsec in DX
-	// return nsec in AX
+	ADDQ	$16, SP
+
 	IMULQ	$1000000000, AX
 	ADDQ	DX, AX
-	MOVQ	AX, ret+0(FP)
+	MOVQ	AX, ns+0(FP)
+
 	RET
 
 // func sys_exit(code int32)

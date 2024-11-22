@@ -6,7 +6,7 @@
 
 #define SYS_mmap 9
 
-TEXT _rt0_amd64_tamago(SB),NOSPLIT,$0
+TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	runtime·testBinary(SB), AX
 	CMPW	AX, $0
 	JE	start
@@ -18,7 +18,6 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT,$0
 	MOVL	$0x22, R10	// MAP_PRIVATE | MAP_ANONYMOUS
 	MOVL	$0xffffffff, R8
 	MOVL	$0, R9
-
 	MOVL	$SYS_mmap, AX
 	SYSCALL
 

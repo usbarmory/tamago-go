@@ -23,6 +23,7 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT,$0
 	SYSCALL
 
 	JMP	runtime·rt0_amd64_tamago(SB)
+
 start:
 	// Disable interrupts
 	CLI

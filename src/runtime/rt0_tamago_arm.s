@@ -11,6 +11,9 @@
 TEXT _rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	runtime·testBinary(SB), R0
 	CMP	$0, R0
+
+	// cpuinit must be provided externally by the linked application for
+	// CPU initialization, it must call _rt0_tamago_start at completion
 	BL.EQ	cpuinit(SB)
 
 	// when testing bare metal memory is mapped as OS virtual memory

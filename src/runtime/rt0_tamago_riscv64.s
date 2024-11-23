@@ -10,6 +10,9 @@
 TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOV	runtime·testBinary(SB), T0
 	BGT	T0, ZERO, testing
+
+	// cpuinit must be provided externally by the linked application for
+	// CPU initialization, it must call _rt0_tamago_start at completion
 	JMP	cpuinit(SB)
 
 testing:

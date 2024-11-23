@@ -10,6 +10,9 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	runtime·testBinary(SB), AX
 	CMPW	AX, $0
 	JA	testing
+
+	// cpuinit must be provided externally by the linked application for
+	// CPU initialization, it must call _rt0_tamago_start at completion
 	JMP	cpuinit(SB)
 
 testing:

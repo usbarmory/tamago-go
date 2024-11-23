@@ -9,8 +9,10 @@
 TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	runtime·testBinary(SB), AX
 	CMPW	AX, $0
-	JE	start
+	JA	testing
+	JMP	cpuinit(SB)
 
+testing:
 	// when testing bare metal memory is mapped as OS virtual memory
 	MOVQ	runtime·ramStart(SB), DI
 	MOVQ	runtime·ramSize(SB), SI
@@ -21,10 +23,7 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVL	$SYS_mmap, AX
 	SYSCALL
 
-	JMP	runtime·rt0_amd64_tamago(SB)
+	JMP	_rt0_tamago_start(SB)
 
-start:
-	// Disable interrupts
-	CLI
-
+TEXT _rt0_tamago_start(SB),NOSPLIT|NOFRAME,$0
 	JMP	runtime·rt0_amd64_tamago(SB)

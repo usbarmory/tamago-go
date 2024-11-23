@@ -14,6 +14,8 @@
 #define SYS_clock_gettime	228
 #define SYS_getrandom		318
 
+TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
+
 // func sys_clock_gettime() int64
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
 	SUBQ	$16, SP		// Space for results

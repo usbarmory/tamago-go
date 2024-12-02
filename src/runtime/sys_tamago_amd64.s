@@ -153,6 +153,18 @@ bad_cpu:
 	CALL	runtime·abort(SB)
 	RET
 
+// GetG returns the pointer to the current G and its P.
+TEXT runtime·GetG(SB),NOSPLIT,$0-16
+	get_tls(CX)
+	MOVQ	g(CX), AX
+	MOVQ	AX, gp+0(FP)
+
+	MOVQ	(g_m)(AX), AX
+	MOVQ	(m_p)(AX), AX
+	MOVQ	AX, pp+8(FP)
+
+	RET
+
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$32
 	ADDQ	$8, DI	// ELF wants to use -8(FS)

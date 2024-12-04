@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && riscv64
+//go:build tamago && amd64
 
 package runtime
 
@@ -11,7 +11,7 @@ var ramStart uint64
 var ramSize uint64
 var ramStackOffset uint64
 
-// defined in asm_riscv64.s
+// defined in asm_amd64.s
 func cputicks() int64
 
 // GetG returns the pointer to the current G and its P.

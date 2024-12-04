@@ -17,6 +17,8 @@
 #define SYS_clock_gettime	(SYS_BASE + 263)
 #define SYS_getrandom		(SYS_BASE + 384)
 
+TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
+
 // func sys_clock_gettime() int64
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$12-8
 	MOVW	$CLOCK_REALTIME, R0

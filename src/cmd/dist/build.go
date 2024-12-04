@@ -1813,6 +1813,7 @@ var cgoEnabled = map[string]bool{
 	"plan9/amd64":     false,
 	"plan9/arm":       false,
 	"solaris/amd64":   true,
+	"tamago/amd64":    false,
 	"tamago/arm":      false,
 	"tamago/riscv64":  false,
 	"windows/386":     true,

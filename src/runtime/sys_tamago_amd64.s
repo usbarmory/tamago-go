@@ -3,12 +3,14 @@
 // license that can be found in the LICENSE file.
 
 //
-// System calls and other sys.stuff for arm, tamago
+// System calls and other sys.stuff for amd64, tamago
 //
 
 #include "go_asm.h"
 #include "go_tls.h"
 #include "textflag.h"
+
+#define IA32_MSR_FS_BASE 0xc0000100
 
 #define SYS_arch_prctl 158
 
@@ -114,18 +116,6 @@ ok:
 	JNE	bad_cpu
 #endif
 
-#ifdef NEED_DARWIN_SUPPORT
-	MOVQ	$commpage64_version, BX
-	CMPW	(BX), $13  // cpu_capabilities64 undefined in versions < 13
-	JL	bad_cpu
-	MOVQ	$commpage64_cpu_capabilities64, BX
-	MOVQ	(BX), BX
-	MOVQ	$NEED_DARWIN_SUPPORT, CX
-	ANDQ	CX, BX
-	CMPQ	BX, CX
-	JNE	bad_cpu
-#endif
-
 	CALL	runtime·check(SB)
 
 	MOVL	24(SP), AX		// copy argc
@@ -167,6 +157,17 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$32
+	MOVW	runtime·testBinary(SB), AX
+	CMPW	AX, $0
+	JA	testing
+
+	MOVQ	$IA32_MSR_FS_BASE, CX
+	MOVQ	$0x0, DX
+	MOVQ	$0xfffffffffffffff8, AX	// -8(FS)
+	WRMSR
+	RET
+
+testing:
 	ADDQ	$8, DI	// ELF wants to use -8(FS)
 	MOVQ	DI, SI
 	MOVQ	$0x1002, DI	// ARCH_SET_FS

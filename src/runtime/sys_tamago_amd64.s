@@ -161,9 +161,10 @@ TEXT runtime·settls(SB),NOSPLIT,$32
 	CMPW	AX, $0
 	JA	testing
 
+	ADDQ	$8, DI	// ELF wants to use -8(FS)
+	MOVQ	DI, AX
 	MOVQ	$IA32_MSR_FS_BASE, CX
 	MOVQ	$0x0, DX
-	MOVQ	$0xfffffffffffffff8, AX	// -8(FS)
 	WRMSR
 	RET
 

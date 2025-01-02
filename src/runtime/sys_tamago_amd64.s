@@ -18,9 +18,9 @@ TEXT runtime·rt0_amd64_tamago(SB),NOSPLIT|NOFRAME|TOPFRAME,$0
 	// create istack out of the bootstack
 	MOVQ	$runtime·g0(SB), DI
 	LEAQ	(-64*1024)(SP), AX
-	MOVQ	BX, g_stackguard0(DI)
-	MOVQ	BX, g_stackguard1(DI)
-	MOVQ	BX, (g_stack+stack_lo)(DI)
+	MOVQ	AX, g_stackguard0(DI)
+	MOVQ	AX, g_stackguard1(DI)
+	MOVQ	AX, (g_stack+stack_lo)(DI)
 	MOVQ	SP, (g_stack+stack_hi)(DI)
 
 	// find out information about the processor we're on

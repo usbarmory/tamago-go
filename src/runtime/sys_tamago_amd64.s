@@ -15,10 +15,9 @@
 #define SYS_arch_prctl 158
 
 TEXT runtime·rt0_amd64_tamago(SB),NOSPLIT|NOFRAME|TOPFRAME,$0
-	// create istack out of the given (operating system) stack.
-	// _cgo_init may update stackguard.
+	// create istack out of the bootstack
 	MOVQ	$runtime·g0(SB), DI
-	LEAQ	(-64*1024)(SP), BX
+	LEAQ	(-64*1024)(SP), AX
 	MOVQ	BX, g_stackguard0(DI)
 	MOVQ	BX, g_stackguard1(DI)
 	MOVQ	BX, (g_stack+stack_lo)(DI)

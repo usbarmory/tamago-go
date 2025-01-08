@@ -6,6 +6,8 @@
 
 package runtime
 
+import "internal/cpu"
+
 // the following variables must be provided externally
 var ramStart uint64
 var ramSize uint64
@@ -27,4 +29,11 @@ func MemRegion() (start uint64, end uint64) {
 // containing the Go runtime executable instructions.
 func TextRegion() (start uint64, end uint64) {
 	return uint64(firstmoduledata.text), uint64(firstmoduledata.etext)
+}
+
+// CPU returns the CPU name given by the vendor.
+// If the CPU name can not be determined an
+// empty string is returned.
+func CPU() string {
+	return cpu.Name()
 }

@@ -53,6 +53,10 @@ func CallOnG0()
 //   * R0: G pointer
 func WakeG()
 
+// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+func Wake(gp uint)
+
 // stubs for unused/unimplemented functionality
 type mOS struct{}
 type sigset struct{}

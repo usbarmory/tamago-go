@@ -35,22 +35,17 @@ func GetRandomData(r []byte) {
 
 // CallOnG0 calls a function (func(off int)) on g0 stack.
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: fn argument (vector table offset)
-//   * R1: fn pointer
-//   * R2: size of stack area reserved for caller registers
-//   * R3: caller program counter
+// The function is meant to be invoked within Go assembly and its arguments
+// must be passed through registers rather than on the frame pointer, see
+// definition in sys_tamago_$GOARCH.s for details.
 func CallOnG0()
 
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: G pointer
+// The function is meant to be invoked within Go assembly and its arguments
+// must be passed through registers rather than on the frame pointer, see
+// definition in sys_tamago_$GOARCH.s for details.
 func WakeG()
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as

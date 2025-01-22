@@ -177,3 +177,76 @@ testing:
 	JLS	2(PC)
 	MOVL	$0xf1, 0xf1  // crash
 	RET
+
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * AX: G pointer
+TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+	MOVQ	(g_timer)(AX), AX
+	CMPQ	AX, $0
+	JE	done
+
+	// g->timer.when = 1
+	MOVQ	$(1 << 32), BX
+	MOVQ	BX, (timer_when)(AX)
+
+	// g->timer.astate &= timerModified
+	// g->timer.state  &= timerModified
+	MOVQ	(timer_astate)(AX), CX
+	ORQ	$const_timerModified<<8|const_timerModified, CX
+	MOVQ	CX, (timer_astate)(AX)
+
+	MOVQ	(timer_ts)(AX), AX
+	CMPQ	AX, $0
+	JE	done
+
+	// g->timer.ts.minWhenModified = 1
+	MOVQ	$(1 << 32), BX
+	MOVQ	BX, (timers_minWhenModified)(AX)
+
+	// len(g->timer.ts.heap)
+	MOVQ	(timers_heap+8)(AX), CX
+	CMPQ	CX, $0
+	JE	done
+
+	// offset to last element
+	SUBQ	$1, CX
+	MOVQ	$(timerWhen__size), DX
+	IMULQ	DX, CX
+
+	MOVQ	(timers_heap)(AX), AX
+	CMPQ	AX, $0
+	JE	done
+
+	// g->timer.ts.heap[len-1]
+	ADDQ	CX, AX
+	JMP	check
+
+prev:
+	SUBQ	$(timerWhen__size), AX
+	CMPQ	AX, $0
+	JE	done
+
+check:
+	// find longest timer as *timers.adjust() might be pending
+	MOVQ	(timerWhen_when)(AX), BX
+	MOVQ	$((1 << 63) - 1), CX // math.MaxInt64
+	CMPQ	CX, BX
+	JNE	prev
+
+	// g->timer.ts.heap[off] = 1
+	MOVQ	$(1 << 32), BX
+	MOVQ	BX, (timerWhen_when)(AX)
+
+done:
+	RET
+
+// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+TEXT runtime·Wake(SB),NOFRAME,$0-8
+	MOVQ	gp+0(FP), AX
+	JMP	runtime·WakeG(SB)

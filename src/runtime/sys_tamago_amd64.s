@@ -247,6 +247,6 @@ done:
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
-TEXT runtime·Wake(SB),NOFRAME,$0-8
+TEXT runtime·Wake(SB),$0-8
 	MOVQ	gp+0(FP), AX
 	JMP	runtime·WakeG(SB)

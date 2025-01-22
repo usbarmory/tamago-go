@@ -120,3 +120,9 @@ check:
 
 done:
 	RET
+
+// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+TEXT runtime·Wake(SB),$0-8
+	MOV	gp+0(FP), T0
+	JMP	runtime·WakeG(SB)

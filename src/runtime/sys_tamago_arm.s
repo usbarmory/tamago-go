@@ -213,6 +213,12 @@ check:
 done:
 	RET
 
+// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+TEXT runtime·Wake(SB),$0-4
+	MOVW	gp+0(FP), R0
+	B	runtime·WakeG(SB)
+
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$0, R0

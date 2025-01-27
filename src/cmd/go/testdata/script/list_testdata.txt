@@ -2,7 +2,7 @@
 # shouldn't be treated as a standard package.
 
 # disabled to allow GOOS=tamago testing
-[GOOS:linux] skip
+skip
 
 go list -f '{{.ImportPath}} {{.Dir}}' testdata
 ! stderr 'found package testdata in multiple modules'

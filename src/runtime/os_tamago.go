@@ -33,13 +33,6 @@ func GetRandomData(r []byte) {
 	getRandomData(r)
 }
 
-// CallOnG0 calls a function (func(off int)) on g0 stack.
-//
-// The function is meant to be invoked within Go assembly and its arguments
-// must be passed through registers rather than on the frame pointer, see
-// definition in sys_tamago_$GOARCH.s for details.
-func CallOnG0()
-
 // WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //

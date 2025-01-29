@@ -11,6 +11,13 @@ var ramStart uint32
 var ramSize uint32
 var ramStackOffset uint32
 
+// CallOnG0 calls a function (func(off int)) on g0 stack.
+//
+// The function is meant to be invoked within Go assembly and its arguments
+// must be passed through registers rather than on the frame pointer, see
+// definition in sys_tamago_arm.s for details.
+func CallOnG0()
+
 // GetG returns the pointer to the current G and its P.
 func GetG() (gp uint32, pp uint32)
 

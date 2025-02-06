@@ -145,23 +145,23 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-8
 //
 //   * R0: G pointer
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
-	MOVW	(g_timer)(R0), R0
-	CMP	$0, R0
+	MOVW	(g_timer)(R0), R3
+	CMP	$0, R3
 	B.EQ	done
 
 	// g->timer.when = 1
 	MOVW	$1, R1
-	MOVW	R1, (timer_when+0)(R0)
+	MOVW	R1, (timer_when+0)(R3)
 	MOVW	$0, R1
-	MOVW	R1, (timer_when+4)(R0)
+	MOVW	R1, (timer_when+4)(R3)
 
 	// g->timer.astate &= timerModified
 	// g->timer.state  &= timerModified
-	MOVW	(timer_astate)(R0), R2
+	MOVW	(timer_astate)(R3), R2
 	ORR	$const_timerModified<<8|const_timerModified, R2, R2
-	MOVW	R2, (timer_astate)(R0)
+	MOVW	R2, (timer_astate)(R3)
 
-	MOVW	(timer_ts)(R0), R0
+	MOVW	(timer_ts)(R3), R0
 	CMP	$0, R0
 	B.EQ	done
 
@@ -178,8 +178,8 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 
 	// offset to last element
 	SUB	$1, R2, R2
-	MOVW	$(timerWhen__size), R3
-	MUL	R3, R2, R2
+	MOVW	$(timerWhen__size), R1
+	MUL	R1, R2, R2
 
 	MOVW	(timers_heap)(R0), R0
 	CMP	$0, R0
@@ -195,13 +195,9 @@ prev:
 	B.EQ	done
 
 check:
-	// find longest timer as *timers.adjust() might be pending
-	MOVW	(timerWhen_when+0)(R0), R1
-	CMP	$0xffffffff, R1 // LS word of math.MaxInt64
-	B.NE	prev
-
-	MOVW	(timerWhen_when+4)(R0), R1
-	CMP	$0x7fffffff, R1 // MS word of math.MaxInt64
+	// find heap entry matching g.timer
+	MOVW	(timerWhen_timer)(R0), R1
+	CMP	R3, R1
 	B.NE	prev
 
 	// g->timer.ts.heap[off] = 1

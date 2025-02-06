@@ -186,21 +186,21 @@ testing:
 //
 //   * AX: G pointer
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
-	MOVQ	(g_timer)(AX), AX
-	CMPQ	AX, $0
+	MOVQ	(g_timer)(AX), DX
+	CMPQ	DX, $0
 	JE	done
 
 	// g->timer.when = 1
 	MOVQ	$(1 << 32), BX
-	MOVQ	BX, (timer_when)(AX)
+	MOVQ	BX, (timer_when)(DX)
 
 	// g->timer.astate &= timerModified
 	// g->timer.state  &= timerModified
-	MOVQ	(timer_astate)(AX), CX
+	MOVQ	(timer_astate)(DX), CX
 	ORQ	$const_timerModified<<8|const_timerModified, CX
-	MOVQ	CX, (timer_astate)(AX)
+	MOVQ	CX, (timer_astate)(DX)
 
-	MOVQ	(timer_ts)(AX), AX
+	MOVQ	(timer_ts)(DX), AX
 	CMPQ	AX, $0
 	JE	done
 
@@ -215,8 +215,8 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 
 	// offset to last element
 	SUBQ	$1, CX
-	MOVQ	$(timerWhen__size), DX
-	IMULQ	DX, CX
+	MOVQ	$(timerWhen__size), BX
+	IMULQ	BX, CX
 
 	MOVQ	(timers_heap)(AX), AX
 	CMPQ	AX, $0
@@ -232,13 +232,12 @@ prev:
 	JE	done
 
 check:
-	// find longest timer as *timers.adjust() might be pending
-	MOVQ	(timerWhen_when)(AX), BX
-	MOVQ	$((1 << 63) - 1), CX // math.MaxInt64
-	CMPQ	CX, BX
+	// find heap entry matching g.timer
+	MOVQ	(timerWhen_timer)(AX), BX
+	CMPQ	BX, DX
 	JNE	prev
 
-	// g->timer.ts.heap[off] = 1
+	// g->timer.ts.heap[off].when = 1
 	MOVQ	$(1 << 32), BX
 	MOVQ	BX, (timerWhen_when)(AX)
 

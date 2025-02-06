@@ -68,20 +68,20 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 //
 //   * T0: G pointer
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
-	MOV	(g_timer)(T0), T0
-	BEQ	T0, ZERO, done
+	MOV	(g_timer)(T0), T3
+	BEQ	T3, ZERO, done
 
 	// g->timer.when = 1
 	MOV	$(1 << 32), T1
-	MOV	T1, (timer_when)(T0)
+	MOV	T1, (timer_when)(T3)
 
 	// g->timer.astate &= timerModified
 	// g->timer.state  &= timerModified
-	MOV	(timer_astate)(T0), T2
+	MOV	(timer_astate)(T3), T2
 	OR	$const_timerModified<<8|const_timerModified, T2, T2
-	MOV	T2, (timer_astate)(T0)
+	MOV	T2, (timer_astate)(T3)
 
-	MOV	(timer_ts)(T0), T0
+	MOV	(timer_ts)(T3), T0
 	BEQ	T0, ZERO, done
 
 	// g->timer.ts.minWhenModified = 1
@@ -94,8 +94,8 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 
 	// offset to last element
 	SUB	$1, T2, T2
-	MOV	$(timerWhen__size), T3
-	MUL	T3, T2, T2
+	MOV	$(timerWhen__size), T1
+	MUL	T1, T2, T2
 
 	MOV	(timers_heap)(T0), T0
 	BEQ	T0, ZERO, done
@@ -109,10 +109,9 @@ prev:
 	BEQ	T0, ZERO, done
 
 check:
-	// find longest timer as *timers.adjust() might be pending
-	MOV	(timerWhen_when)(T0), T1
-	MOV	$((1 << 63) - 1), T2 // math.MaxInt64
-	BNE	T2, T1, prev
+	// find heap entry matching g.timer
+	MOV	(timerWhen_timer)(T0), T1
+	BNE	T3, T1, prev
 
 	// g->timer.ts.heap[off] = 1
 	MOV	$(1 << 32), T1

@@ -2174,7 +2174,7 @@ func TestFilePermissions(t *testing.T) {
 				if test.mode&0444 == 0 {
 					t.Skip("write-only files not supported on " + runtime.GOOS)
 				}
-			case "wasip1":
+			case "wasip1", "tamago":
 				t.Skip("file permissions not supported on " + runtime.GOOS)
 			}
 			testMaybeRooted(t, func(t *testing.T, r *Root) {
@@ -2954,7 +2954,7 @@ func TestUserCacheDir(t *testing.T) {
 
 func TestUserCacheDirXDGConfigDirEnvVar(t *testing.T) {
 	switch runtime.GOOS {
-	case "windows", "darwin", "plan9":
+	case "windows", "darwin", "plan9", "tamago":
 		t.Skip("$XDG_CACHE_HOME is effective only on Unix systems")
 	}
 
@@ -3005,7 +3005,7 @@ func TestUserConfigDir(t *testing.T) {
 
 func TestUserConfigDirXDGConfigDirEnvVar(t *testing.T) {
 	switch runtime.GOOS {
-	case "windows", "darwin", "plan9":
+	case "windows", "darwin", "plan9", "tamago":
 		t.Skip("$XDG_CONFIG_HOME is effective only on Unix systems")
 	}
 

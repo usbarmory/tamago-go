@@ -53,11 +53,7 @@ func TestGenerate(t *testing.T) {
 }
 
 func generate(t *testing.T, filename string, write bool) {
-	if !testenv.HasSrc() {
-		// Tests run in a limited file system and we do not
-		// provide access to every source file.
-		t.Skipf("skipping on %s/%s, missing full GOROOT", runtime.GOOS, runtime.GOARCH)
-	}
+	testenv.MustHaveSource(t)
 
 	// parse src (cmd/compile/internal/types2)
 	srcFilename := filepath.FromSlash(runtime.GOROOT() + srcDir + filename)

@@ -52,7 +52,7 @@ const PathMax = 256
 //		err = errno
 //	}
 //
-// Errno values can be tested against error values using errors.Is.
+// Errno values can be tested against error values using [errors.Is].
 // For example:
 //
 //	_, _, err := syscall.Syscall(...)
@@ -92,7 +92,7 @@ func (e Errno) Timeout() bool {
 }
 
 // A Signal is a number describing a process signal.
-// It implements the os.Signal interface.
+// It implements the [os.Signal] interface.
 type Signal int
 
 const (

@@ -920,11 +920,7 @@ func TestStdlibLowercase(t *testing.T) {
 
 // TestFindImports tests that findImports works.  See #43249.
 func TestFindImports(t *testing.T) {
-	if !testenv.HasSrc() {
-		// Tests run in a limited file system and we do not
-		// provide access to every source file.
-		t.Skipf("skipping on %s/%s, missing full GOROOT", runtime.GOOS, runtime.GOARCH)
-	}
+	testenv.MustHaveSource(t)
 
 	imports, err := findImports("go/build")
 	if err != nil {

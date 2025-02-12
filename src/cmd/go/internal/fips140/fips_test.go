@@ -20,6 +20,7 @@ import (
 var update = flag.Bool("update", false, "update GOROOT/lib/fips140/fips140.sum")
 
 func TestSums(t *testing.T) {
+	testenv.MustHaveSource(t)
 	lib := filepath.Join(testenv.GOROOT(t), "lib/fips140")
 	file := filepath.Join(lib, "fips140.sum")
 	sums, err := os.ReadFile(file)

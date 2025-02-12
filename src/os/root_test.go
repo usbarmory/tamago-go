@@ -69,6 +69,9 @@ func makefs(t *testing.T, fs []string) string {
 			if runtime.GOOS == "plan9" {
 				t.Skip("symlinks not supported on " + runtime.GOOS)
 			}
+			if runtime.GOOS == "tamago" {
+				t.Skip("symlinks not supported on " + runtime.GOOS)
+			}
 			ent = base
 		}
 		if err := os.MkdirAll(path.Join(root, path.Dir(base)), 0o777); err != nil {
@@ -1604,7 +1607,7 @@ func TestRootRenameAfterOpen(t *testing.T) {
 	switch runtime.GOOS {
 	case "windows":
 		t.Skip("renaming open files not supported on " + runtime.GOOS)
-	case "js", "plan9":
+	case "js", "plan9", "tamago":
 		t.Skip("openat not supported on " + runtime.GOOS)
 	case "wasip1":
 		if os.Getenv("GOWASIRUNTIME") == "wazero" {
@@ -1733,7 +1736,7 @@ func TestRootConcurrentClose(t *testing.T) {
 				first = false
 			}
 			f.Close()
-			if runtime.GOARCH == "wasm" {
+			if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
 				// TODO(go.dev/issue/71134) can lead to goroutine starvation.
 				runtime.Gosched()
 			}

@@ -28,3 +28,9 @@ func MemRegion() (start uint64, end uint64) {
 func TextRegion() (start uint64, end uint64) {
 	return uint64(firstmoduledata.text), uint64(firstmoduledata.etext)
 }
+
+// DataRegion returns the start and end addresses of the physical RAM
+// containing the Go runtime global symbols.
+func DataRegion() (start uint64, end uint64) {
+	return uint64(firstmoduledata.data), uint64(firstmoduledata.enoptrbss)
+}

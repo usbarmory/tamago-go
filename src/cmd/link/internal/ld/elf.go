@@ -901,6 +901,31 @@ func elfwritegobuildid(out *OutBuf) int {
 	return int(sh.Size)
 }
 
+const (
+	ELF_NOTE_PVH_TAG = 0x12
+)
+
+var ELF_NOTE_PVH_NAME = []byte("Xen\x00")
+
+func elfpvh(sh *ElfShdr, startva uint64, resoff uint64) int {
+	n := len(ELF_NOTE_PVH_NAME) + 8
+	return elfnote(sh, startva, resoff, n)
+}
+
+func elfwritepvh(ctxt *Link) int {
+	sh := elfwritenotehdr(ctxt.Out, ".note.go.pvh", uint32(len(ELF_NOTE_PVH_NAME)), 8, ELF_NOTE_PVH_TAG)
+	if sh == nil {
+		return 0
+	}
+
+	ctxt.Out.Write(ELF_NOTE_PVH_NAME)
+	var entry = make([]byte, 8)
+	binary.LittleEndian.PutUint64(entry, uint64(Entryvalue(ctxt)))
+	ctxt.Out.Write(entry)
+
+	return int(sh.Size)
+}
+
 // Go specific notes
 const (
 	ELF_NOTE_GOPKGLIST_TAG = 1
@@ -1467,6 +1492,9 @@ func (ctxt *Link) doelf() {
 	if *flagBuildid != "" {
 		shstrtabAddstring(".note.go.buildid")
 	}
+	if buildcfg.GOOS == "tamago" {
+		shstrtabAddstring(".note.go.pvh")
+	}
 	shstrtabAddstring(".elfdata")
 	shstrtabAddstring(".rodata")
 	// See the comment about data.rel.ro.FOO section names in data.go.
@@ -2015,6 +2043,12 @@ func asmbElf(ctxt *Link) {
 		phsh(getpnote(), sh)
 	}
 
+	if buildcfg.GOOS == "tamago" {
+		sh := elfshname(".note.go.pvh")
+		resoff -= int64(elfpvh(sh, uint64(startva), uint64(resoff)))
+		phsh(getpnote(), sh)
+	}
+
 	// Additions to the reserved area must be above this line.
 
 	elfphload(&Segtext)
@@ -2384,6 +2418,9 @@ elfobj:
 		}
 		if *flagBuildid != "" {
 			a += int64(elfwritegobuildid(ctxt.Out))
+		}
+		if buildcfg.GOOS == "tamago" {
+			a += int64(elfwritepvh(ctxt))
 		}
 	}
 	if *flagRace && ctxt.IsNetbsd() {

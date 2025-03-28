@@ -963,6 +963,31 @@ func elfwritegobuildid(out *OutBuf) int {
 	return int(sh.Size)
 }
 
+const (
+	ELF_NOTE_PVH_TAG = 0x12
+)
+
+var ELF_NOTE_PVH_NAME = []byte("Xen\x00")
+
+func elfpvh(sh *ElfShdr, startva uint64, resoff uint64) int {
+	n := len(ELF_NOTE_PVH_NAME) + 8
+	return elfnote(sh, startva, resoff, n)
+}
+
+func elfwritepvh(ctxt *Link) int {
+	sh := elfwritenotehdr(ctxt.Out, ".note.go.pvh", uint32(len(ELF_NOTE_PVH_NAME)), 8, ELF_NOTE_PVH_TAG)
+	if sh == nil {
+		return 0
+	}
+
+	ctxt.Out.Write(ELF_NOTE_PVH_NAME)
+	var entry = make([]byte, 8)
+	binary.LittleEndian.PutUint64(entry, uint64(Entryvalue(ctxt)))
+	ctxt.Out.Write(entry)
+
+	return int(sh.Size)
+}
+
 // Go specific notes
 const (
 	ELF_NOTE_GOPKGLIST_TAG = 1
@@ -1460,6 +1485,75 @@ func addgonote(ctxt *Link, sectionName string, tag uint32, desc []byte) {
 func (ctxt *Link) doelf() {
 	ldr := ctxt.loader
 
+	/* predefine strings we need for section headers */
+
+	addshstr := func(s string) int {
+		off := len(elfshstrdat)
+		elfshstrdat = append(elfshstrdat, s...)
+		elfshstrdat = append(elfshstrdat, 0)
+		return off
+	}
+
+	shstrtabAddstring := func(s string) {
+		off := addshstr(s)
+		elfsetstring(ctxt, 0, s, int(off))
+	}
+
+	shstrtabAddstring("")
+	shstrtabAddstring(".text")
+	shstrtabAddstring(".noptrdata")
+	shstrtabAddstring(".data")
+	shstrtabAddstring(".bss")
+	shstrtabAddstring(".noptrbss")
+	shstrtabAddstring(".go.fuzzcntrs")
+	shstrtabAddstring(".go.buildinfo")
+	shstrtabAddstring(".go.fipsinfo")
+	if ctxt.IsMIPS() {
+		shstrtabAddstring(".MIPS.abiflags")
+		shstrtabAddstring(".gnu.attributes")
+	}
+
+	// generate .tbss section for dynamic internal linker or external
+	// linking, so that various binutils could correctly calculate
+	// PT_TLS size. See https://golang.org/issue/5200.
+	if !*FlagD || ctxt.IsExternal() {
+		shstrtabAddstring(".tbss")
+	}
+	if ctxt.IsNetbsd() {
+		shstrtabAddstring(".note.netbsd.ident")
+		if *flagRace {
+			shstrtabAddstring(".note.netbsd.pax")
+		}
+	}
+	if ctxt.IsOpenbsd() {
+		shstrtabAddstring(".note.openbsd.ident")
+	}
+	if ctxt.IsFreebsd() {
+		shstrtabAddstring(".note.tag")
+	}
+	if len(buildinfo) > 0 {
+		shstrtabAddstring(".note.gnu.build-id")
+	}
+	if *flagBuildid != "" {
+		shstrtabAddstring(".note.go.buildid")
+	}
+	if buildcfg.GOOS == "tamago" {
+		shstrtabAddstring(".note.go.pvh")
+	}
+	shstrtabAddstring(".elfdata")
+	shstrtabAddstring(".rodata")
+	// See the comment about data.rel.ro.FOO section names in data.go.
+	relro_prefix := ""
+	if ctxt.UseRelro() {
+		shstrtabAddstring(".data.rel.ro")
+		relro_prefix = ".data.rel.ro"
+	}
+	shstrtabAddstring(relro_prefix + ".typelink")
+	shstrtabAddstring(relro_prefix + ".itablink")
+	shstrtabAddstring(relro_prefix + ".gosymtab")
+	shstrtabAddstring(relro_prefix + ".gopclntab")
+
+>>>>>>> f898cf27df (add PVH ELF note on GOOS=tamago targets)
 	if ctxt.IsExternal() {
 		*FlagD = true
 	}
@@ -1911,6 +2005,12 @@ func asmbElf(ctxt *Link) {
 		phsh(getpnote(), sh)
 	}
 
+	if buildcfg.GOOS == "tamago" {
+		sh := elfshname(".note.go.pvh")
+		resoff -= int64(elfpvh(sh, uint64(startva), uint64(resoff)))
+		phsh(getpnote(), sh)
+	}
+
 	// Additions to the reserved area must be above this line.
 
 	elfphload(&Segtext)
@@ -2299,6 +2399,9 @@ elfobj:
 		}
 		if *flagBuildid != "" {
 			a += int64(elfwritegobuildid(ctxt.Out))
+		}
+		if buildcfg.GOOS == "tamago" {
+			a += int64(elfwritepvh(ctxt))
 		}
 	}
 	if *flagRace && ctxt.IsNetbsd() {

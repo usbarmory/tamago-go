@@ -6,7 +6,9 @@
 
 package runtime
 
-import _ "unsafe" // for go:linkname
+import (
+	"math"
+)
 
 // tamago has no support for threads yet. There is no preemption. (adapted from lock_js.go)
 
@@ -162,5 +164,9 @@ func checkTimeouts() {
 //
 //go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
+	if pollUntil == math.MaxInt64 {
+		Halt()
+	}
+
 	return nil, false
 }

@@ -45,6 +45,9 @@ func WakeG()
 // soon as possible.
 func Wake(gp uint)
 
+// Halt suspends execution until an interrupt is received.
+func Halt()
+
 // stubs for unused/unimplemented functionality
 type mOS struct{}
 type sigset struct{}

@@ -215,6 +215,10 @@ TEXT runtime·Wake(SB),$0-4
 	MOVW	gp+0(FP), R0
 	B	runtime·WakeG(SB)
 
+TEXT runtime·Halt(SB),$0
+	WORD	$0xe320f003 // wfi
+	RET
+
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$0, R0

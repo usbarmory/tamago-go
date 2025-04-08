@@ -6,7 +6,9 @@
 
 package runtime
 
-import "internal/cpu"
+import (
+	"internal/cpu"
+)
 
 // the following variables must be provided externally
 var ramStart uint64
@@ -43,3 +45,4 @@ func DataRegion() (start uint64, end uint64) {
 func CPU() string {
 	return cpu.Name()
 }
+

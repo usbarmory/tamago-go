@@ -125,3 +125,7 @@ done:
 TEXT runtime·Wake(SB),$0-8
 	MOV	gp+0(FP), T0
 	JMP	runtime·WakeG(SB)
+
+TEXT runtime·Halt(SB),$0
+	WORD $0x10500073 // wfi
+	RET

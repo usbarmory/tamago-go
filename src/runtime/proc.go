@@ -3537,6 +3537,9 @@ top:
 	// If a callback returned and no other goroutine is awake,
 	// then wake event handler goroutine which pauses execution
 	// until a callback was triggered.
+	//
+	// tamago only:
+	// halt until an interrupt is received if pollUntil is forever
 	gp, otherReady := beforeIdle(now, pollUntil)
 	if gp != nil {
 		trace := traceAcquire()

@@ -152,11 +152,6 @@ func checkTimeouts() {
 }
 
 // beforeIdle gets called by the scheduler if no goroutine is awake.
-// If we are not already handling an event, then we pause for an async event.
-// If an event handler returned, we resume it and it will pause the execution.
-// beforeIdle either returns the specific goroutine to schedule next or
-// indicates with otherReady that some goroutine became ready.
-// TODO(drchase): need to understand if write barriers are really okay in this context.
 //
 //go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {

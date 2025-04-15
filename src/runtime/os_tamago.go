@@ -45,9 +45,6 @@ func WakeG()
 // soon as possible.
 func Wake(gp uint)
 
-// Halt suspends execution until an interrupt is received.
-func Halt()
-
 // stubs for unused/unimplemented functionality
 type mOS struct{}
 type sigset struct{}
@@ -172,6 +169,10 @@ func usleep_no_g(usec uint32) {
 // Exit can be provided externally by the linked application to provide an
 // implementation for runtime.exit.
 var Exit func(int32)
+
+// Idle can be provided externally by the linked application to provide an
+// implementation for CPU idle time management (see beforeIdle()).
+var Idle func(until int64)
 
 func exit(code int32) {
 	if Exit != nil {

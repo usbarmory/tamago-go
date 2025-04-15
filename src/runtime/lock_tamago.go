@@ -155,10 +155,8 @@ func checkTimeouts() {
 //
 //go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
-	// we have nothing to do forever
-	if pollUntil == 1<<63 - 1 {
-		// halt until an interrupt is received
-		Halt()
+	if Idle != nil {
+		Idle(pollUntil)
 	}
 
 	return nil, false

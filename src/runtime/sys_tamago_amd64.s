@@ -249,7 +249,3 @@ done:
 TEXT runtime·Wake(SB),$0-8
 	MOVQ	gp+0(FP), AX
 	JMP	runtime·WakeG(SB)
-
-TEXT runtime·Halt(SB),$0
-	HLT
-	RET

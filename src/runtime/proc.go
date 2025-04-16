@@ -3450,7 +3450,7 @@ top:
 	// until a callback was triggered.
 	//
 	// tamago only:
-	// halt until an interrupt is received if pollUntil is forever
+	// invoke application callback for idle logic (e.g. cpu halt)
 	gp, otherReady := beforeIdle(now, pollUntil)
 	if gp != nil {
 		trace := traceAcquire()

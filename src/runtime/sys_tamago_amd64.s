@@ -121,9 +121,10 @@ ok:
 	MOVL	AX, 0(SP)
 	MOVQ	32(SP), AX		// copy argv
 	MOVQ	AX, 8(SP)
-	CALL	runtime·hwinit(SB)
+	CALL	runtime·hwinit0(SB)
 	CALL	runtime·osinit(SB)
 	CALL	runtime·schedinit(SB)
+	CALL	runtime·hwinit1(SB)
 
 	// create a new goroutine to start program
 	MOVQ	$runtime·mainPC(SB), AX		// entry

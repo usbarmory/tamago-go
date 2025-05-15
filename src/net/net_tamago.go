@@ -17,7 +17,8 @@ import (
 
 // SocketFunc must be set externally by the application on GOOS=tamago to
 // provide the network socket implementation. The returned interface must match
-// the requested socket and be either net.Conn, net.PacketConn or net.Listen.
+// the requested socket and be either [net.Conn], [net.PacketConn] or
+// [net.Listen].
 var SocketFunc func(ctx context.Context, net string, family, sotype int, laddr, raddr Addr) (interface{}, error)
 
 // Network file descriptor.

@@ -31,11 +31,12 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	R13, (g_stack+stack_hi)(g)
 
 	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
-	BL	runtime·hwinit(SB)
+	BL	runtime·hwinit0(SB)
 	BL	runtime·check(SB)
 	BL	runtime·checkgoarm(SB)
 	BL	runtime·osinit(SB)
 	BL	runtime·schedinit(SB)
+	BL	runtime·hwinit1(SB)
 
 	// create a new goroutine to start program
 	SUB	$8, R13

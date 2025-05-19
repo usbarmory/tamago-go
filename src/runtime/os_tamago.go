@@ -18,7 +18,8 @@ var testBinary string
 var Bloc uintptr
 
 // the following functions must be provided externally
-func hwinit()
+func hwinit0()
+func hwinit1()
 func printk(byte)
 func getRandomData([]byte)
 func initRNG()

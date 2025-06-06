@@ -2231,6 +2231,8 @@ func TestFilePermissions(t *testing.T) {
 }
 
 func TestOpenFileCreateExclDanglingSymlink(t *testing.T) {
+	testenv.MustHaveSymlink(t)
+
 	testMaybeRooted(t, func(t *testing.T, r *Root) {
 		const link = "link"
 		if err := Symlink("does_not_exist", link); err != nil {

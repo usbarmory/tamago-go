@@ -7,9 +7,14 @@
 package runtime
 
 import (
+	"internal/abi"
 	"internal/runtime/atomic"
 	"unsafe"
 )
+
+type mOS struct {
+	waitsemacount uint32
+}
 
 // see testing.testBinary
 var testBinary string
@@ -47,7 +52,6 @@ func WakeG()
 func Wake(gp uint)
 
 // stubs for unused/unimplemented functionality
-type mOS struct{}
 type sigset struct{}
 type gsignalStack struct{}
 
@@ -56,7 +60,6 @@ func sigsave(p *sigset)              {}
 func msigrestore(sigmask sigset)     {}
 func clearSignalHandlers()           {}
 func sigblock(exiting bool)          {}
-func minit()                         {}
 func unminit()                       {}
 func mdestroy(mp *m)                 {}
 func setProcessCPUProfiler(hz int32) {}
@@ -65,11 +68,24 @@ func initsig(preinit bool)           {}
 func osyield()                       {}
 func osyield_no_g()                  {}
 
+// Task can be set externally to provide an implementation for HW/OS threading.
+//
+// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
+// [runtime.SetNumCPU]).
+var Task func(sp, mp, gp, fn unsafe.Pointer)
+
+// ProcID can be set externally to provide the process identifier.
+var ProcID func() uint64
+
 // May run with m.p==nil, so write barriers are not allowed.
 //
 //go:nowritebarrier
 func newosproc(mp *m) {
-	throw("newosproc: not implemented")
+	if Task != nil {
+		Task(unsafe.Pointer(mp.g0.stack.hi), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
+	} else {
+		throw("newosproc: not implemented")
+	}
 }
 
 // Called to initialize a new m (including the bootstrap m).
@@ -77,6 +93,11 @@ func newosproc(mp *m) {
 func mpreinit(mp *m) {
 	mp.gsignal = malg(32 * 1024)
 	mp.gsignal.m = mp
+}
+
+// SetNumCPU sets the number of logical CPUs usable by the current process.
+func SetNumCPU(n int) {
+	ncpu = int32(n)
 }
 
 func osinit() {
@@ -167,12 +188,12 @@ func usleep_no_g(usec uint32) {
 	usleep(usec)
 }
 
-// Exit can be provided externally by the linked application to provide an
-// implementation for runtime.exit.
+// Exit can be set externally to provide an implementation for runtime
+// termination (see runtime.exit).
 var Exit func(int32)
 
-// Idle can be provided externally by the linked application to provide an
-// implementation for CPU idle time management (see beforeIdle()).
+// Idle can be set externally to provide an implementation for CPU idle time
+// management (see runtime.beforeIdle).
 var Idle func(until int64)
 
 func exit(code int32) {
@@ -192,10 +213,60 @@ func exitThread(wait *atomic.Uint32) {
 	throw("exitThread: not implemented")
 }
 
+//go:nosplit
+func semacreate(mp *m) {
+}
+
+//go:nosplit
+func semasleep(ns int64) int {
+	gp := getg()
+	addr := &gp.m.waitsemacount
+
+	v := uint32(0)
+
+	if ns >= 0 {
+		deadline := nanotime() + ns
+
+		for {
+			if deadline-nanotime() <= 0 {
+				return -1 // timeout or interrupted
+			}
+			if v = atomic.Load(addr); v <= 0 {
+				continue
+			}
+			if atomic.Cas(addr, v, v-1) {
+				return 0
+			}
+		}
+	}
+
+	for {
+		if v = atomic.Load(addr); v <= 0 {
+			// interrupted; try again (c.f. lock_sema.go)
+			continue
+		}
+		if atomic.Cas(addr, v, v-1) {
+			return 0
+		}
+	}
+}
+
+//go:nosplit
+func semawakeup(mp *m) {
+	atomic.Xadd(&mp.waitsemacount, 1)
+}
+
 const preemptMSupported = false
 
-func preemptM(mp *m) {
-	// No threads, so nothing to do.
+func preemptM(mp *m) {}
+
+func minit() {
+	if ProcID == nil {
+		return
+	}
+
+	gp := getg()
+	gp.m.procid = ProcID()
 }
 
 // Stubs so tests can link correctly. These should never be called.

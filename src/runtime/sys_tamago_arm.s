@@ -223,7 +223,7 @@ TEXT runtime·Wake(SB),$0-5
 	MOVW	gp+0(FP), R0
 	CALL	runtime·WakeG(SB)
 	EOR	$1, R0
-	MOVW	R0, ret+4(FP)
+	MOVB	R0, ret+4(FP)
 	RET
 
 // never called (cgo not supported)

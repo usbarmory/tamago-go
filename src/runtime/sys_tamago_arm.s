@@ -145,10 +145,52 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-8
 // (rather than on the frame pointer):
 //
 //   * R0: G pointer
+//
+// The function return values are passed through the following registers:
+// (rather than on the frame pointer):
+//
+//   * R0: success (0), failure (1)
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOVW	(g_timer)(R0), R3
 	CMP	$0, R3
-	B.EQ	done
+	B.EQ	fail
+
+	MOVW	(timer_ts)(R3), R0
+	CMP	$0, R0
+	B.EQ	fail
+
+	// len(g->timer.ts.heap)
+	MOVW	(timers_heap+4)(R0), R2
+	CMP	$0, R2
+	B.EQ	fail
+
+	// offset to last element
+	SUB	$1, R2, R2
+	MOVW	$(timerWhen__size), R1
+	MUL	R1, R2, R2
+
+	MOVW	(timers_heap)(R0), R0
+	CMP	$0, R0
+	B.EQ	fail
+
+	// g->timer.ts.heap[len-1]
+	ADD	R2, R0, R0
+	B	check
+prev:
+	SUB	$(timerWhen__size), R0
+	CMP	$0, R0
+	B.EQ	fail
+check:
+	// find heap entry matching g.timer
+	MOVW	(timerWhen_timer)(R0), R1
+	CMP	R3, R1
+	B.NE	prev
+
+	// g->timer.ts.heap[off] = 1
+	MOVW	$1, R1
+	MOVW	R1, (timerWhen_when+0)(R0)
+	MOVW	$0, R1
+	MOVW	R1, (timerWhen_when+4)(R0)
 
 	// g->timer.when = 1
 	MOVW	$1, R1
@@ -162,59 +204,27 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	ORR	$const_timerModified<<8|const_timerModified, R2, R2
 	MOVW	R2, (timer_astate)(R3)
 
-	MOVW	(timer_ts)(R3), R0
-	CMP	$0, R0
-	B.EQ	done
-
 	// g->timer.ts.minWhenModified = 1
+	MOVW	(timer_ts)(R3), R0
 	MOVW	$1, R1
 	MOVW	R1, (timers_minWhenModified+0)(R0)
 	MOVW	$0, R1
 	MOVW	R1, (timers_minWhenModified+4)(R0)
 
-	// len(g->timer.ts.heap)
-	MOVW	(timers_heap+4)(R0), R2
-	CMP	$0, R2
-	B.EQ	done
-
-	// offset to last element
-	SUB	$1, R2, R2
-	MOVW	$(timerWhen__size), R1
-	MUL	R1, R2, R2
-
-	MOVW	(timers_heap)(R0), R0
-	CMP	$0, R0
-	B.EQ	done
-
-	// g->timer.ts.heap[len-1]
-	ADD	R2, R0, R0
-	B	check
-
-prev:
-	SUB	$(timerWhen__size), R0
-	CMP	$0, R0
-	B.EQ	done
-
-check:
-	// find heap entry matching g.timer
-	MOVW	(timerWhen_timer)(R0), R1
-	CMP	R3, R1
-	B.NE	prev
-
-	// g->timer.ts.heap[off] = 1
-	MOVW	$1, R1
-	MOVW	R1, (timerWhen_when+0)(R0)
-	MOVW	$0, R1
-	MOVW	R1, (timerWhen_when+4)(R0)
-
-done:
+	MOVW	$0, R0
+	RET
+fail:
+	MOVW	$1, R0
 	RET
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
-TEXT runtime·Wake(SB),$0-4
+TEXT runtime·Wake(SB),$0-5
 	MOVW	gp+0(FP), R0
-	B	runtime·WakeG(SB)
+	CALL	runtime·WakeG(SB)
+	EOR	$1, R0
+	MOVW	R0, ret+4(FP)
+	RET
 
 // never called (cgo not supported)
 TEXT runtime·read_tls_fallback(SB),NOSPLIT|NOFRAME,$0

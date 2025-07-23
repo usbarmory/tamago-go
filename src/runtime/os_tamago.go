@@ -48,8 +48,8 @@ func GetRandomData(r []byte) {
 func WakeG()
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
-func Wake(gp uint)
+// soon as possible, reporting whether the modification is successful.
+func Wake(gp uint) bool
 
 // stubs for unused/unimplemented functionality
 type sigset struct{}

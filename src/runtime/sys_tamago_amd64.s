@@ -186,10 +186,50 @@ testing:
 // (rather than on the frame pointer):
 //
 //   * AX: G pointer
+//
+// The function return values are passed through the following registers:
+// (rather than on the frame pointer):
+//
+//   * AX: success (0), failure (1)
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOVQ	(g_timer)(AX), DX
 	CMPQ	DX, $0
-	JE	done
+	JE	fail
+
+	MOVQ	(timer_ts)(DX), AX
+	CMPQ	AX, $0
+	JE	fail
+
+	// len(g->timer.ts.heap)
+	MOVQ	(timers_heap+8)(AX), CX
+	CMPQ	CX, $0
+	JE	fail
+
+	// offset to last element
+	SUBQ	$1, CX
+	MOVQ	$(timerWhen__size), BX
+	IMULQ	BX, CX
+
+	MOVQ	(timers_heap)(AX), AX
+	CMPQ	AX, $0
+	JE	fail
+
+	// g->timer.ts.heap[len-1]
+	ADDQ	CX, AX
+	JMP	check
+prev:
+	SUBQ	$(timerWhen__size), AX
+	CMPQ	AX, $0
+	JE	fail
+check:
+	// find heap entry matching g.timer
+	MOVQ	(timerWhen_timer)(AX), BX
+	CMPQ	BX, DX
+	JNE	prev
+
+	// g->timer.ts.heap[off].when = 1
+	MOVQ	$(1 << 32), BX
+	MOVQ	BX, (timerWhen_when)(AX)
 
 	// g->timer.when = 1
 	MOVQ	$(1 << 32), BX
@@ -201,52 +241,22 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	ORQ	$const_timerModified<<8|const_timerModified, CX
 	MOVQ	CX, (timer_astate)(DX)
 
-	MOVQ	(timer_ts)(DX), AX
-	CMPQ	AX, $0
-	JE	done
-
 	// g->timer.ts.minWhenModified = 1
+	MOVQ	(timer_ts)(DX), AX
 	MOVQ	$(1 << 32), BX
 	MOVQ	BX, (timers_minWhenModified)(AX)
 
-	// len(g->timer.ts.heap)
-	MOVQ	(timers_heap+8)(AX), CX
-	CMPQ	CX, $0
-	JE	done
-
-	// offset to last element
-	SUBQ	$1, CX
-	MOVQ	$(timerWhen__size), BX
-	IMULQ	BX, CX
-
-	MOVQ	(timers_heap)(AX), AX
-	CMPQ	AX, $0
-	JE	done
-
-	// g->timer.ts.heap[len-1]
-	ADDQ	CX, AX
-	JMP	check
-
-prev:
-	SUBQ	$(timerWhen__size), AX
-	CMPQ	AX, $0
-	JE	done
-
-check:
-	// find heap entry matching g.timer
-	MOVQ	(timerWhen_timer)(AX), BX
-	CMPQ	BX, DX
-	JNE	prev
-
-	// g->timer.ts.heap[off].when = 1
-	MOVQ	$(1 << 32), BX
-	MOVQ	BX, (timerWhen_when)(AX)
-
-done:
+	MOVQ	$0, AX
+	RET
+fail:
+	MOVQ	$1, AX
 	RET
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
-TEXT runtime·Wake(SB),$0-8
+TEXT runtime·Wake(SB),$0-9
 	MOVQ	gp+0(FP), AX
-	JMP	runtime·WakeG(SB)
+	CALL	runtime·WakeG(SB)
+	XORQ	$1, AX
+	MOVQ	AX, ret+8(FP)
+	RET

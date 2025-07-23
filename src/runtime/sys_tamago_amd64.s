@@ -258,5 +258,5 @@ TEXT runtime·Wake(SB),$0-9
 	MOVQ	gp+0(FP), AX
 	CALL	runtime·WakeG(SB)
 	XORQ	$1, AX
-	MOVQ	AX, ret+8(FP)
+	MOVB	AX, ret+8(FP)
 	RET

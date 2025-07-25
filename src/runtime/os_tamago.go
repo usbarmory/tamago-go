@@ -81,11 +81,13 @@ var ProcID func() uint64
 //
 //go:nowritebarrier
 func newosproc(mp *m) {
-	if Task != nil {
-		Task(unsafe.Pointer(mp.g0.stack.hi), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
-	} else {
+	if Task == nil {
 		throw("newosproc: not implemented")
 	}
+
+	stackSize := uintptr(8192 * 1024 )
+	stack := sysAlloc(stackSize, &memstats.stacks_sys)
+	Task(unsafe.Pointer(uintptr(stack)+stackSize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
 }
 
 // Called to initialize a new m (including the bootstrap m).

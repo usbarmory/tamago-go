@@ -18,8 +18,8 @@ func GOMAXPROCS(n int) int {
 		n = 1 // WebAssembly has no threads yet, so only one CPU is possible.
 	}
 
-	if GOOS == "tamago" && n > 1 && int32(n) > ncpu {
-		n = 1
+	if GOOS == "tamago" && int32(n) > ncpu {
+		n = int(ncpu)
 	}
 
 	lock(&sched.lock)

@@ -85,7 +85,7 @@ func newosproc(mp *m) {
 		throw("newosproc: not implemented")
 	}
 
-	stackSize := uintptr(8192 * 1024 )
+	stackSize := uintptr(8192 * 1024)
 	stack := sysAlloc(stackSize, &memstats.stacks_sys)
 	Task(unsafe.Pointer(uintptr(stack)+stackSize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
 }

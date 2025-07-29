@@ -18,7 +18,7 @@ func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
 
 	sched.idleTime.Add(nanotime() - idleStart)
 
-	// always return otherReady to ensure that no P is ever dropped
+	// always return otherReady to ensure that no M is ever dropped
 	return nil, true
 }
 

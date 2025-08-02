@@ -77,6 +77,8 @@ var Task func(sp, mp, gp, fn unsafe.Pointer)
 // ProcID can be set externally to provide the process identifier.
 var ProcID func() uint64
 
+const stacksize = 8192 * 1024 // 8192KB
+
 // May run with m.p==nil, so write barriers are not allowed.
 //
 //go:nowritebarrier
@@ -85,9 +87,13 @@ func newosproc(mp *m) {
 		throw("newosproc: not implemented")
 	}
 
-	stackSize := uintptr(8192 * 1024)
-	stack := sysAlloc(stackSize, &memstats.stacks_sys)
-	Task(unsafe.Pointer(uintptr(stack)+stackSize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
+	stack := sysAlloc(stacksize, &memstats.stacks_sys)
+	if stack == nil {
+		writeErrStr(failallocatestack)
+		exit(1)
+	}
+
+	Task(unsafe.Pointer(uintptr(stack)+stacksize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
 }
 
 // Called to initialize a new m (including the bootstrap m).

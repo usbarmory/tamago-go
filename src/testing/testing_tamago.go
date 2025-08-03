@@ -8,7 +8,27 @@ package testing
 
 import (
 	"runtime"
-	_ "unsafe"
+	"unsafe"
+)
+
+// multithreading test
+const ncpu = 4
+
+// adapted from runtime/os_linux.go
+const (
+	_CLONE_VM      = 0x100
+	_CLONE_FS      = 0x200
+	_CLONE_FILES   = 0x400
+	_CLONE_SIGHAND = 0x800
+	_CLONE_THREAD  = 0x10000
+	_CLONE_SYSVSEM = 0x40000
+
+	cloneFlags = _CLONE_VM | /* share memory */
+		_CLONE_FS | /* share cwd, etc */
+		_CLONE_FILES | /* share fd table */
+		_CLONE_SIGHAND | /* share sig handler table */
+		_CLONE_SYSVSEM | /* share SysV semaphore undo lists (see issue #20763) */
+		_CLONE_THREAD /* revisit - okay for now */
 )
 
 //go:linkname ramStart runtime.ramStart
@@ -21,10 +41,13 @@ var ramSize uint64 = 0x20000000 // 512MB
 var ramStackOffset uint64 = 0x100
 
 // defined in testing_tamago_*.s
-func sys_exit(code int32)
+func sys_exit_group(code int32)
 func sys_write(c *byte)
 func sys_clock_gettime() (ns int64)
 func sys_getrandom(b []byte, n int)
+
+//go:noescape
+func clone(flags int32, stk, mp, gp, fn unsafe.Pointer) int32
 
 //go:linkname nanotime1 runtime.nanotime1
 func nanotime1() int64 {
@@ -53,7 +76,16 @@ func hwinit0() {
 	runtime.Bloc = uintptr(ramStart)
 }
 
+func task(sp, mp, gp, fn unsafe.Pointer) {
+	clone(cloneFlags, sp, mp, gp, fn)
+}
+
 //go:linkname hwinit1 runtime.hwinit1
 func hwinit1() {
-	runtime.Exit = sys_exit
+	runtime.Exit = sys_exit_group
+}
+
+func init() {
+	runtime.Task = task
+	runtime.SetNumCPU(ncpu)
 }

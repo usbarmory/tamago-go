@@ -180,7 +180,9 @@ func main() {
 	// Those can arrange for main.main to run in the main thread
 	// by calling runtime.LockOSThread during initialization
 	// to preserve the lock.
-	lockOSThread()
+	if GOOS != "tamago" {
+		lockOSThread()
+	}
 
 	if mp != &m0 {
 		throw("runtime.main not on m0")
@@ -5335,8 +5337,7 @@ func Breakpoint() {
 //
 //go:nosplit
 func dolockOSThread() {
-	if GOARCH == "wasm" ||
-	   GOOS == "tamago" { // no OS under tamago
+	if GOARCH == "wasm" {
 		return // no threads on wasm yet
 	}
 	gp := getg()
@@ -5424,6 +5425,9 @@ func UnlockOSThread() {
 
 //go:nosplit
 func unlockOSThread() {
+	if GOOS == "tamago" {
+		return // no OS under tamago
+	}
 	gp := getg()
 	if gp.m.lockedInt == 0 {
 		systemstack(badunlockosthread)

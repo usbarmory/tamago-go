@@ -28,9 +28,6 @@ func TestProfBuf(t *testing.T) {
 		}
 	}
 	readBlock := func(t *testing.T, b *ProfBuf, data []uint64, tags []unsafe.Pointer) func() {
-		if GOOS == "tamago" {
-			t.Skipf("%s has no threads by default", GOOS)
-		}
 		c := make(chan int)
 		go func() {
 			eof := data == nil

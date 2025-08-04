@@ -11,7 +11,6 @@ import (
 	"math"
 	"math/rand"
 	"reflect"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -1567,10 +1566,6 @@ func testEncodeDecode(t *testing.T, in, out any) {
 }
 
 func TestLargeSlice(t *testing.T) {
-	if runtime.GOOS == "tamago" {
-		t.Skip("test requires significant memory")
-	}
-
 	t.Run("byte", func(t *testing.T) {
 		if unsafe.Sizeof(uintptr(0)) > 4 {
 			t.Parallel() // Only run in parallel in a large address space

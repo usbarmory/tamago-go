@@ -11,9 +11,6 @@ import (
 	"unsafe"
 )
 
-// multithreading test
-const ncpu = 4
-
 // adapted from runtime/os_linux.go
 const (
 	_CLONE_VM      = 0x100
@@ -87,5 +84,4 @@ func hwinit1() {
 
 func init() {
 	runtime.Task = task
-	runtime.SetNumCPU(ncpu)
 }

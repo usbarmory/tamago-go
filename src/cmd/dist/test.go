@@ -1558,7 +1558,7 @@ func (t *tester) runPending(nextTest *distTest) {
 // because cmd/dist can not import internal packages during bootstrap.
 func (t *tester) hasParallelism() bool {
 	switch goos {
-	case "js", "wasip1", "tamago":
+	case "js", "wasip1":
 		return false
 	}
 	return true

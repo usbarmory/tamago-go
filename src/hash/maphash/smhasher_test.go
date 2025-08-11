@@ -132,10 +132,6 @@ func TestSmhasherAppendedZeros(t *testing.T) {
 
 // All 0-3 byte strings have distinct hashes.
 func TestSmhasherSmallKeys(t *testing.T) {
-	if runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
-	}
-
 	testenv.ParallelOn64Bit(t)
 	h := newHashSet()
 	var b [3]byte
@@ -173,8 +169,8 @@ func TestSmhasherZeros(t *testing.T) {
 
 // Strings with up to two nonzero bytes all have distinct hashes.
 func TestSmhasherTwoNonzero(t *testing.T) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -246,8 +242,8 @@ func TestSmhasherCyclic(t *testing.T) {
 
 // Test strings with only a few bits set
 func TestSmhasherSparse(t *testing.T) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -286,8 +282,8 @@ func setbits(h *hashSet, b []byte, i int, k int) {
 // Test all possible combinations of n blocks from the set s.
 // "permutation" is a bad name here, but it is what Smhasher uses.
 func TestSmhasherPermutation(t *testing.T) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -354,8 +350,8 @@ func (k *bytesKey) name() string {
 
 // Flipping a single bit of a key should flip each output bit with 50% probability.
 func TestSmhasherAvalanche(t *testing.T) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -429,8 +425,8 @@ func TestSmhasherWindowed(t *testing.T) {
 	windowed(t, &bytesKey{make([]byte, 128)})
 }
 func windowed(t *testing.T, k key) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skip("Too slow on " + runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")

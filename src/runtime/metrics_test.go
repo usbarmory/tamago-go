@@ -868,8 +868,8 @@ func TestSchedPauseMetrics(t *testing.T) {
 		{
 			name: "runtime.GOMAXPROCS",
 			fn: func(t *testing.T) {
-				if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-					t.Skip("GOMAXPROCS >1 not supported on " + runtime.GOOS)
+				if runtime.GOARCH == "wasm" {
+					t.Skip("GOMAXPROCS >1 not supported on wasm")
 				}
 
 				n := runtime.GOMAXPROCS(0)

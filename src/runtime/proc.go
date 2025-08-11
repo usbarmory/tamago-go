@@ -181,7 +181,9 @@ func main() {
 	// Those can arrange for main.main to run in the main thread
 	// by calling runtime.LockOSThread during initialization
 	// to preserve the lock.
-	lockOSThread()
+	if GOOS != "tamago" {
+		lockOSThread()
+	}
 
 	if mp != &m0 {
 		throw("runtime.main not on m0")
@@ -2861,7 +2863,7 @@ func newm(fn func(), pp *p, id int64) {
 	mp := allocm(pp, fn, id)
 	mp.nextp.set(pp)
 	mp.sigmask = initSigmask
-	if gp := getg(); gp != nil && gp.m != nil && (gp.m.lockedExt != 0 || gp.m.incgo) && GOOS != "plan9" {
+	if gp := getg(); gp != nil && gp.m != nil && (gp.m.lockedExt != 0 || gp.m.incgo) && (GOOS != "plan9" && GOOS != "tamago") {
 		// We're on a locked M or a thread that may have been
 		// started by C. The kernel state of this thread may
 		// be strange (the user may have locked it for that
@@ -2925,7 +2927,7 @@ func newm1(mp *m) {
 // The calling thread must itself be in a known-good state.
 func startTemplateThread() {
 	if GOARCH == "wasm" || // no threads on wasm yet
-	   GOOS == "tamago" {
+	   GOOS == "tamago" { // no OS under tamago
 		return
 	}
 
@@ -4475,8 +4477,7 @@ func gdestroy(gp *g) {
 
 	dropg()
 
-	if GOARCH == "wasm" || // no threads yet on wasm
-	   GOOS == "tamago" {
+	if GOARCH == "wasm" { // no threads yet on wasm
 		gfput(pp, gp)
 		return
 	}
@@ -5442,8 +5443,7 @@ func Breakpoint() {
 //
 //go:nosplit
 func dolockOSThread() {
-	if GOARCH == "wasm" ||
-	   GOOS == "tamago" {
+	if GOARCH == "wasm" {
 		return // no threads on wasm yet
 	}
 	gp := getg()
@@ -5495,8 +5495,7 @@ func lockOSThread() {
 //
 //go:nosplit
 func dounlockOSThread() {
-	if GOARCH == "wasm" ||
-	   GOOS == "tamago" {
+	if GOARCH == "wasm" {
 		return // no threads on wasm yet
 	}
 	gp := getg()
@@ -5532,6 +5531,9 @@ func UnlockOSThread() {
 
 //go:nosplit
 func unlockOSThread() {
+	if GOOS == "tamago" {
+		return // no OS under tamago
+	}
 	gp := getg()
 	if gp.m.lockedInt == 0 {
 		systemstack(badunlockosthread)

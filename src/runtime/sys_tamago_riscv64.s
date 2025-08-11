@@ -68,9 +68,44 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 // (rather than on the frame pointer):
 //
 //   * T0: G pointer
+//
+// The function return values are passed through the following registers:
+// (rather than on the frame pointer):
+//
+//   * T0: success (0), failure (1)
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	MOV	(g_timer)(T0), T3
-	BEQ	T3, ZERO, done
+	BEQ	T3, ZERO, fail
+
+	MOV	(timer_ts)(T3), T0
+	BEQ	T0, ZERO, fail
+
+	// len(g->timer.ts.heap)
+	MOV	(timers_heap+8)(T0), T2
+	BEQ	T2, ZERO, fail
+
+	// offset to last element
+	SUB	$1, T2, T2
+	MOV	$(timerWhen__size), T1
+	MUL	T1, T2, T2
+
+	MOV	(timers_heap)(T0), T0
+	BEQ	T0, ZERO, fail
+
+	// g->timer.ts.heap[len-1]
+	ADD	T2, T0, T0
+	JMP	check
+prev:
+	SUB	$(timerWhen__size), T0
+	BEQ	T0, ZERO, fail
+check:
+	// find heap entry matching g.timer
+	MOV	(timerWhen_timer)(T0), T1
+	BNE	T3, T1, prev
+
+	// g->timer.ts.heap[off] = 1
+	MOV	$(1 << 32), T1
+	MOV	T1, (timerWhen_when)(T0)
 
 	// g->timer.when = 1
 	MOV	$(1 << 32), T1
@@ -82,47 +117,22 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	OR	$const_timerModified<<8|const_timerModified, T2, T2
 	MOV	T2, (timer_astate)(T3)
 
-	MOV	(timer_ts)(T3), T0
-	BEQ	T0, ZERO, done
-
 	// g->timer.ts.minWhenModified = 1
+	MOV	(timer_ts)(T3), T0
 	MOV	$(1 << 32), T1
 	MOV	T1, (timers_minWhenModified)(T0)
 
-	// len(g->timer.ts.heap)
-	MOV	(timers_heap+8)(T0), T2
-	BEQ	T2, ZERO, done
-
-	// offset to last element
-	SUB	$1, T2, T2
-	MOV	$(timerWhen__size), T1
-	MUL	T1, T2, T2
-
-	MOV	(timers_heap)(T0), T0
-	BEQ	T0, ZERO, done
-
-	// g->timer.ts.heap[len-1]
-	ADD	T2, T0, T0
-	JMP	check
-
-prev:
-	SUB	$(timerWhen__size), T0
-	BEQ	T0, ZERO, done
-
-check:
-	// find heap entry matching g.timer
-	MOV	(timerWhen_timer)(T0), T1
-	BNE	T3, T1, prev
-
-	// g->timer.ts.heap[off] = 1
-	MOV	$(1 << 32), T1
-	MOV	T1, (timerWhen_when)(T0)
-
-done:
+	MOV	$0, T0
+	RET
+fail:
+	MOV	$1, T0
 	RET
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
-TEXT runtime·Wake(SB),$0-8
+TEXT runtime·Wake(SB),$0-9
 	MOV	gp+0(FP), T0
-	JMP	runtime·WakeG(SB)
+	CALL	runtime·WakeG(SB)
+	XOR	$1, T0
+	MOV	T0, ret+8(FP)
+	RET

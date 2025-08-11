@@ -141,7 +141,7 @@ func TestSmhasherAppendedZeros(t *testing.T) {
 
 // All 0-3 byte strings have distinct hashes.
 func TestSmhasherSmallKeys(t *testing.T) {
-	if race.Enabled || GOOS == "tamago" {
+	if race.Enabled {
 		t.Skip("Too long for race mode")
 	}
 	testenv.ParallelOn64Bit(t)
@@ -181,8 +181,8 @@ func TestSmhasherZeros(t *testing.T) {
 
 // Strings with up to two nonzero bytes all have distinct hashes.
 func TestSmhasherTwoNonzero(t *testing.T) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skip("Too slow on " + GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -260,8 +260,8 @@ func TestSmhasherCyclic(t *testing.T) {
 
 // Test strings with only a few bits set
 func TestSmhasherSparse(t *testing.T) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skip("Too slow on " + GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -299,8 +299,8 @@ func setbits(h *HashSet, b []byte, i int, k int) {
 // Test all possible combinations of n blocks from the set s.
 // "permutation" is a bad name here, but it is what Smhasher uses.
 func TestSmhasherPermutation(t *testing.T) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skip("Too slow on " + GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -470,8 +470,8 @@ func (k *IfaceKey) name() string {
 
 // Flipping a single bit of a key should flip each output bit with 50% probability.
 func TestSmhasherAvalanche(t *testing.T) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skip("Too slow on " + GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
@@ -560,8 +560,8 @@ func TestSmhasherWindowed(t *testing.T) {
 	windowed(t, h, &BytesKey{make([]byte, 128)})
 }
 func windowed(t *testing.T, h *HashSet, k Key) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skip("Too slow on " + GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("Too slow on wasm")
 	}
 	if PtrSize == 4 {
 		// This test tends to be flaky on 32-bit systems.

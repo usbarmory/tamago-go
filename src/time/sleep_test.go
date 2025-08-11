@@ -606,7 +606,7 @@ func TestOverflowSleep(t *testing.T) {
 // the timers mutex held, deadlocking a ticker.Stop in a defer.
 func TestIssue5745(t *testing.T) {
 	if runtime.GOOS == "tamago" {
-		t.Skip("skipping on single-threaded platform")
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
 	}
 
 	ticker := NewTicker(Hour)

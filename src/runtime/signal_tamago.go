@@ -9,5 +9,4 @@ type sigTabT struct {
 	name  string
 }
 
-var sigtable = [...]sigTabT{
-}
+var sigtable = [...]sigTabT{}

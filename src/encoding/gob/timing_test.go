@@ -129,9 +129,6 @@ func TestCountDecodeMallocs(t *testing.T) {
 			t.Fatal("decode:", err)
 		}
 	})
-	if runtime.GOOS == "tamago" && allocs == 5 {
-		return
-	}
 	if allocs != 3 {
 		t.Fatalf("mallocs per decode of type Bench: %v; wanted 3\n", allocs)
 	}

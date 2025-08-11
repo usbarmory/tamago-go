@@ -59,14 +59,15 @@ func TestTracebackInlined(t *testing.T) {
 		check(t, r, "runtime_test.ttiSimple3(...)", "runtime_test.ttiSimple2(...)", "runtime_test.ttiSimple1()")
 	})
 
-	// tamago does not yet handle signals under testing
-	if runtime.GOOS != "tamago" {
-		t.Run("sigpanic", func(t *testing.T) {
-			// Check that sigpanic from an inlined function prints correctly
-			r := ttiSigpanic1()
-			check(t, r, "runtime_test.ttiSigpanic1.func1()", "panic", "runtime_test.ttiSigpanic3(...)", "runtime_test.ttiSigpanic2(...)", "runtime_test.ttiSigpanic1()")
-		})
-	}
+	t.Run("sigpanic", func(t *testing.T) {
+		if runtime.GOOS == "tamago" {
+			t.Skip(runtime.GOOS + " does not yet handle signals under testing")
+		}
+
+		// Check that sigpanic from an inlined function prints correctly
+		r := ttiSigpanic1()
+		check(t, r, "runtime_test.ttiSigpanic1.func1()", "panic", "runtime_test.ttiSigpanic3(...)", "runtime_test.ttiSigpanic2(...)", "runtime_test.ttiSigpanic1()")
+	})
 
 	t.Run("wrapper", func(t *testing.T) {
 		// Check that a method inlined into a wrapper prints correctly

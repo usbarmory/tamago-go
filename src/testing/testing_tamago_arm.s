@@ -14,6 +14,8 @@
 
 #define SYS_exit		(SYS_BASE + 1)
 #define SYS_write		(SYS_BASE + 4)
+#define SYS_clone		(SYS_BASE + 120)
+#define SYS_exit_group		(SYS_BASE + 248)
 #define SYS_clock_gettime	(SYS_BASE + 263)
 #define SYS_getrandom		(SYS_BASE + 384)
 
@@ -40,10 +42,10 @@ TEXT ·sys_clock_gettime(SB),NOSPLIT,$12-8
 
 	RET
 
-// func sys_exit(code int32)
-TEXT ·sys_exit(SB), $0-4
+// func sys_exit_group(code int32)
+TEXT ·sys_exit_group(SB), $0-4
 	MOVW	code+0(FP), R0
-	MOVW	$SYS_exit, R7
+	MOVW	$SYS_exit_group, R7
 	SWI	$0
 	RET
 
@@ -64,3 +66,75 @@ TEXT ·sys_getrandom(SB), $0-16
 	MOVW	$SYS_getrandom, R7
 	SWI	$0
 	RET
+
+// int32 clone(int32 flags, void *stack, M *mp, G *gp, void (*fn)(void));
+// adapted from runtime/sys_linux_arm.s
+TEXT ·clone(SB),NOSPLIT,$0
+	MOVW	flags+0(FP), R0
+	MOVW	stk+4(FP), R1
+	MOVW	$0, R2	// parent tid ptr
+	MOVW	$0, R3	// tls_val
+	MOVW	$0, R4	// child tid ptr
+	MOVW	$0, R5
+
+	// Copy mp, gp, fn off parent stack for use by child.
+	MOVW	$-16(R1), R1
+	MOVW	mp+8(FP), R6
+	MOVW	R6, 0(R1)
+	MOVW	gp+12(FP), R6
+	MOVW	R6, 4(R1)
+	MOVW	fn+16(FP), R6
+	MOVW	R6, 8(R1)
+	MOVW	$1234, R6
+	MOVW	R6, 12(R1)
+
+	MOVW	$SYS_clone, R7
+	SWI	$0
+
+	// In parent, return.
+	CMP	$0, R0
+	BEQ	3(PC)
+	MOVW	R0, ret+20(FP)
+	RET
+
+	// Paranoia: check that SP is as we expect. Use R13 to avoid linker 'fixup'
+	NOP	R13	// tell vet SP/R13 changed - stop checking offsets
+	MOVW	12(R13), R0
+	MOVW	$1234, R1
+	CMP	R0, R1
+	BEQ	2(PC)
+	BL	runtime·abort(SB)
+
+	MOVW	0(R13), R8    // m
+	MOVW	4(R13), R0    // g
+
+	CMP	$0, R8
+	BEQ	nog
+	CMP	$0, R0
+	BEQ	nog
+
+	MOVW	R0, g
+	MOVW	R8, (24)(g) // g_m(g)
+
+	// paranoia; check they are not nil
+	MOVW	0(R8), R0
+	MOVW	0(g), R0
+
+	BL	runtime·emptyfunc(SB)	// fault if stack check is wrong
+
+nog:
+	// Call fn
+	MOVW	8(R13), R0
+	MOVW	$16(R13), R13
+	BL	(R0)
+
+	// It shouldn't return. If it does, exit that thread.
+	SUB	$16, R13 // restore the stack pointer to avoid memory corruption
+	MOVW	$0, R0
+	MOVW	R0, 4(R13)
+
+	MOVW	$SYS_exit, R7
+	SWI	$0
+	MOVW	$1234, R0
+	MOVW	$1005, R1
+	MOVW	R0, (R1)

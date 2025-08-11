@@ -948,8 +948,8 @@ func TestStealOrder(t *testing.T) {
 }
 
 func TestLockOSThreadNesting(t *testing.T) {
-	if runtime.GOARCH == "wasm" || runtime.GOOS == "tamago" {
-		t.Skipf("no threads on %s yet", runtime.GOOS)
+	if runtime.GOARCH == "wasm" {
+		t.Skip("no threads on wasm yet")
 	}
 
 	go func() {

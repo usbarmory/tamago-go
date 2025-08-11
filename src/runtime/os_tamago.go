@@ -217,7 +217,7 @@ func exit(code int32) {
 }
 
 func exitThread(wait *atomic.Uint32) {
-	return // TODO
+	return
 }
 
 //go:nosplit

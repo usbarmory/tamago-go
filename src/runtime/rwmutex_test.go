@@ -48,8 +48,8 @@ func doTestParallelReaders(numReaders int) {
 }
 
 func TestParallelRWMutexReaders(t *testing.T) {
-	if GOARCH == "wasm" || GOOS == "tamago" {
-		t.Skipf("%s has no threads yet", GOOS)
+	if GOARCH == "wasm" {
+		t.Skip("wasm has no threads yet")
 	}
 	defer GOMAXPROCS(GOMAXPROCS(-1))
 	// If runtime triggers a forced GC during this test then it will deadlock,

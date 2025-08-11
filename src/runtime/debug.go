@@ -14,7 +14,7 @@ import (
 // the value of [runtime.NumCPU]. If n < 1, it does not change the current setting.
 // This call will go away when the scheduler improves.
 func GOMAXPROCS(n int) int {
-	if (GOARCH == "wasm" || GOOS == "tamago") && n > 1 {
+	if GOARCH == "wasm" && n > 1 {
 		n = 1 // WebAssembly has no threads yet, so only one CPU is possible.
 	}
 

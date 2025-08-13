@@ -87,7 +87,7 @@ func newosproc(mp *m) {
 		throw("newosproc: not implemented")
 	}
 
-	stack := sysAlloc(stacksize, &memstats.stacks_sys)
+	stack := sysAlloc(stacksize, &memstats.stacks_sys, "HW thread stack")
 	if stack == nil {
 		writeErrStr(failallocatestack)
 		exit(1)
@@ -103,9 +103,15 @@ func mpreinit(mp *m) {
 	mp.gsignal.m = mp
 }
 
+var ncpu int32
+
 // SetNumCPU sets the number of logical CPUs usable by the current process.
 func SetNumCPU(n int) {
 	ncpu = int32(n)
+}
+
+func getCPUCount() int32 {
+	return ncpu
 }
 
 func osinit() {

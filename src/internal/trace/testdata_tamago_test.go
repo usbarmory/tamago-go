@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-//go:embed order.go internal/oldtrace/*
+//go:embed order.go internal/tracev1/*
 var src embed.FS
 
 //go:embed testdata/*

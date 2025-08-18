@@ -12,7 +12,6 @@ import (
 	"internal/testenv"
 	"io"
 	"os"
-	"runtime"
 	"sync"
 	"testing"
 )
@@ -160,9 +159,6 @@ func TestAllocations(t *testing.T) {
 		Read(buf)
 		sink ^= buf[0]
 	}))
-	if runtime.GOOS == "tamago" && n == 1 {
-		return
-	}
 	if n > 0 {
 		t.Errorf("allocs = %d, want 0", n)
 	}

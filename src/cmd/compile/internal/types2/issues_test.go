@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"internal/testenv"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -630,6 +631,10 @@ func TestIssue55030(t *testing.T) {
 	// If valid is not set, making that signature is expected to panic.
 	makeSig := func(typ Type, valid bool) {
 		if !valid {
+			if runtime.GOOS == "tamago" {
+				t.Skip(runtime.GOOS + " does not yet handle signals under testing")
+			}
+
 			defer func() {
 				if recover() == nil {
 					panic("NewSignatureType panic expected")

@@ -146,18 +146,19 @@ func (fs *fsys) dirlookup(dp *inode, name string) (de *dirent, index int, err er
 
 // dirlink adds to the directory dp an entry for name pointing at the inode ip.
 // If dp already contains an entry for name, that entry is overwritten.
-func (fs *fsys) dirlink(dp *inode, name string, ip *inode) {
+func (fs *fsys) dirlink(dp *inode, name string, ip *inode) (overwritten bool) {
 	fs.mtime(dp)
 	fs.atime(ip)
 	ip.Nlink++
 	for i := range dp.dir {
 		if dp.dir[i].name == name {
 			dp.dir[i] = dirent{name, ip}
-			return
+			return true
 		}
 	}
 	dp.dir = append(dp.dir, dirent{name, ip})
 	dp.dirSize()
+	return
 }
 
 func (dp *inode) dirSize() {
@@ -474,7 +475,7 @@ func (f *fsysFile) pwriteLocked(b []byte, offset int64) (int, error) {
 		return f.dev.Pwrite(b, offset)
 	}
 	if offset > f.inode.Size {
-		f.inode.data = append(f.inode.data, make([]byte, offset - f.inode.Size)...)
+		f.inode.data = append(f.inode.data, make([]byte, offset-f.inode.Size)...)
 		f.inode.Size += offset
 	}
 	f.fsys.mtime(f.inode)
@@ -692,11 +693,20 @@ func Rename(from, to string) error {
 	if err != nil {
 		return err
 	}
-	fs.dirlink(tdp, telem, fde.inode)
+
+	overwritten := fs.dirlink(tdp, telem, fde.inode)
 	fde.inode.Nlink--
-	*fde = fdp.dir[len(fdp.dir)-1]
-	fdp.dir = fdp.dir[:len(fdp.dir)-1]
+
+	if !overwritten {
+		*fde = fdp.dir[len(fdp.dir)-2]
+		fdp.dir = append(fdp.dir[:len(fdp.dir)-2], fdp.dir[len(fdp.dir)-1:]...)
+	} else {
+		*fde = fdp.dir[len(fdp.dir)-1]
+		fdp.dir = fdp.dir[:len(fdp.dir)-1]
+	}
+
 	fdp.dirSize()
+
 	return nil
 }
 

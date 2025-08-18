@@ -103,20 +103,14 @@ func mpreinit(mp *m) {
 	mp.gsignal.m = mp
 }
 
-var ncpu int32
-
-// SetNumCPU sets the number of logical CPUs usable by the current process.
-func SetNumCPU(n int) {
-	ncpu = int32(n)
-}
-
 func getCPUCount() int32 {
-	return ncpu
+	return numCPUStartup
 }
 
 func osinit() {
-	ncpu = 1
 	physPageSize = 4096
+	numCPUStartup = 1
+	sched.customGOMAXPROCS = true
 
 	if Bloc != 0 {
 		bloc = Bloc

@@ -66,10 +66,7 @@ func makefs(t *testing.T, fs []string) string {
 			if runtime.GOOS == "wasip1" && path.IsAbs(link) {
 				t.Skip("absolute link targets not supported on " + runtime.GOOS)
 			}
-			if runtime.GOOS == "plan9" {
-				t.Skip("symlinks not supported on " + runtime.GOOS)
-			}
-			if runtime.GOOS == "tamago" {
+			if runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
 				t.Skip("symlinks not supported on " + runtime.GOOS)
 			}
 			ent = base
@@ -467,7 +464,7 @@ func TestRootChmod(t *testing.T) {
 func TestRootChtimes(t *testing.T) {
 	// Don't check atimes if the fs is mounted noatime,
 	// or on Plan 9 which does not permit changing atimes to arbitrary values.
-	checkAtimes := !hasNoatime() && runtime.GOOS != "plan9"
+	checkAtimes := !hasNoatime() && runtime.GOOS != "plan9" && runtime.GOOS != "tamago"
 	for _, test := range rootTestCases {
 		test.run(t, func(t *testing.T, target string, root *os.Root) {
 			if target != "" {
@@ -491,7 +488,7 @@ func TestRootChtimes(t *testing.T) {
 				mtime: time.Time{},
 			}} {
 				switch runtime.GOOS {
-				case "js", "plan9":
+				case "js", "plan9", "tamago":
 					times.atime = times.atime.Truncate(1 * time.Second)
 					times.mtime = times.mtime.Truncate(1 * time.Second)
 				case "illumos":
@@ -1504,9 +1501,9 @@ func TestRootConsistencyLink(t *testing.T) {
 }
 
 func testRootConsistencyMove(t *testing.T, rename bool) {
-	if runtime.GOOS == "plan9" {
+	if runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
 		// This test depends on moving files between directories.
-		t.Skip("Plan 9 does not support cross-directory renames")
+		t.Skip(runtime.GOOS + " does not support cross-directory renames")
 	}
 	// Run this test in two directions:
 	// Renaming the test path to a known-good path (from),

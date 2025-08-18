@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"flag"
 	"internal/diff"
+	"internal/testenv"
 	"os"
 	"testing"
 )
@@ -15,6 +16,7 @@ import (
 var generateFlag = flag.Bool("generate", false, "generate files")
 
 func Test(t *testing.T) {
+	testenv.MustHaveSource(t)
 	for _, arch := range arches {
 		t.Run(arch.Name, func(t *testing.T) {
 			file, data := generate(arch)

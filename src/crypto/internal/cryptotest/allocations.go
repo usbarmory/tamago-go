@@ -32,6 +32,11 @@ func SkipTestAllocations(t *testing.T) {
 		t.Skip("skipping allocations test on plan9")
 	}
 
+	// The tamago crypto/rand allocates.
+	if runtime.GOOS == "tamago" {
+		t.Skip("skipping allocations test on tamago")
+	}
+
 	// s390x deviates from other assembly implementations and is very hard to
 	// test due to the lack of LUCI builders. See #67307.
 	if runtime.GOARCH == "s390x" {

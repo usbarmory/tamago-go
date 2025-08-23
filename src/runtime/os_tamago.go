@@ -19,9 +19,6 @@ type mOS struct {
 // see testing.testBinary
 var testBinary string
 
-// Bloc allows to override the heap memory start address
-var Bloc uintptr
-
 // the following functions must be provided externally
 func hwinit0()
 func hwinit1()
@@ -32,6 +29,29 @@ func initRNG()
 // the following functions must be provided externally
 // (but are already stubbed somewhere else in the runtime)
 //func nanotime1() int64
+
+// the following functions can be provided externally
+var (
+	// Bloc allows to override the heap memory start address
+	Bloc uintptr
+
+	// Exit can be set externally to provide an implementation for runtime
+	// termination (see runtime.exit).
+	Exit func(int32)
+
+	// Idle can be set externally to provide an implementation for CPU idle time
+	// management (see runtime.beforeIdle).
+	Idle func(until int64)
+
+	// ProcID can be set externally to provide the process identifier.
+	ProcID func() uint64
+
+	// Task can be set externally to provide an implementation for HW/OS threading.
+	//
+	// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
+	// [runtime.SetNumCPU]).
+	Task func(sp, mp, gp, fn unsafe.Pointer)
+)
 
 // GetRandomData generates len(r) random bytes from the random source provided
 // externally by the linked application.
@@ -68,15 +88,6 @@ func initsig(preinit bool)           {}
 func osyield()                       {}
 func osyield_no_g()                  {}
 
-// Task can be set externally to provide an implementation for HW/OS threading.
-//
-// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
-// [runtime.SetNumCPU]).
-var Task func(sp, mp, gp, fn unsafe.Pointer)
-
-// ProcID can be set externally to provide the process identifier.
-var ProcID func() uint64
-
 const stacksize = 8192 * 1024 // 8192KB
 
 // May run with m.p==nil, so write barriers are not allowed.
@@ -110,7 +121,6 @@ func getCPUCount() int32 {
 func osinit() {
 	physPageSize = 4096
 	numCPUStartup = 1
-	sched.customGOMAXPROCS = true
 
 	if Bloc != 0 {
 		bloc = Bloc
@@ -195,14 +205,6 @@ func usleep(us uint32) {
 func usleep_no_g(usec uint32) {
 	usleep(usec)
 }
-
-// Exit can be set externally to provide an implementation for runtime
-// termination (see runtime.exit).
-var Exit func(int32)
-
-// Idle can be set externally to provide an implementation for CPU idle time
-// management (see runtime.beforeIdle).
-var Idle func(until int64)
 
 func exit(code int32) {
 	if Exit != nil {

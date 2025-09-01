@@ -19,7 +19,12 @@
 TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
 
 // func sys_clock_gettime() int64
-TEXT ·sys_clock_gettime(SB),NOSPLIT,$24-8
+TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
+	MOVD	RSP, R20
+	MOVD	RSP, R1
+	SUB	$16, R1
+	BIC	$15, R1	// Align for C code
+
 	MOVW	$CLOCK_REALTIME, R0
 	MOVD	$SYS_clock_gettime, R8
 	SVC
@@ -110,7 +115,7 @@ good:
 	// TODO: setup TLS.
 
 	// In child, set up new stack
-	MOVD	R10, 48(R11) // FIXME
+	MOVD	R10, 48(R11) // g_m(R11)
 	MOVD	R11, g
 	//CALL	runtime·stackcheck(SB)
 

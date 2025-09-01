@@ -79,7 +79,7 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	BEQ	fail
 
 	// len(g->timer.ts.heap)
-	MOVD	(timers_heap+4)(R0), R2
+	MOVD	(timers_heap+8)(R0), R2
 	CMP	$0, R2
 	BEQ	fail
 

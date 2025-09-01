@@ -48,12 +48,12 @@ TEXT runtime·rt0_arm64_tamago(SB),NOSPLIT|NOFRAME,$0
 	UNDEF
 
 // GetG returns the pointer to the current G and its P.
-TEXT runtime·GetG(SB),NOSPLIT,$0-8
+TEXT runtime·GetG(SB),NOSPLIT,$0-16
 	MOVD	g, gp+0(FP)
 
 	MOVD	(g_m)(g), R0
 	MOVD	(m_p)(R0), R0
-	MOVD	R0, pp+4(FP)
+	MOVD	R0, pp+8(FP)
 
 	RET
 
@@ -132,11 +132,11 @@ fail:
 
 // Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
-TEXT runtime·Wake(SB),$0-5
+TEXT runtime·Wake(SB),$0-9
 	MOVD	gp+0(FP), R0
 	CALL	runtime·WakeG(SB)
 	EOR	$1, R0
-	MOVB	R0, ret+4(FP)
+	MOVB	R0, ret+8(FP)
 	RET
 
 // never called (cgo not supported)

@@ -22,8 +22,10 @@ TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8
 	MOVD	RSP, R20
 	MOVD	RSP, R1
+
 	SUB	$16, R1
 	BIC	$15, R1	// Align for C code
+	MOVD	R1, RSP
 
 	MOVW	$CLOCK_REALTIME, R0
 	MOVD	$SYS_clock_gettime, R8

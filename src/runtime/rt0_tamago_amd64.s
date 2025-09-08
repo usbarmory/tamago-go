@@ -7,8 +7,8 @@
 #define SYS_mmap 9
 
 TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
-	MOVW	runtime·testBinary(SB), AX
-	CMPW	AX, $0
+	MOVL	runtime·testBinary(SB), AX
+	CMPL	AX, $0
 	JA	testing
 
 	// cpuinit must be provided externally by the linked application for

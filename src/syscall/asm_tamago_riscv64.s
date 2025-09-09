@@ -6,7 +6,7 @@
 #include "funcdata.h"
 
 //
-// System calls for arm,tamago
+// System calls for riscv64,tamago
 //
 
 // func Syscall(syscall uintptr, a1, a2, a3 uintptr) (r1, r2, err uintptr);

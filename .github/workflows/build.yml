@@ -21,6 +21,9 @@ jobs:
     - name: Run Go distribution tests under tamago/arm
       run: |
         GO_BUILDER_NAME=tamago GOOS=tamago GOARCH=arm ./bin/go tool dist test
+    - name: Run Go distribution tests under tamago/arm64
+      run: |
+        GO_BUILDER_NAME=tamago GOOS=tamago GOARCH=arm64 ./bin/go tool dist test
     - name: Run Go distribution tests under tamago/riscv64
       run: |
         GO_BUILDER_NAME=tamago GOOS=tamago GOARCH=riscv64 ./bin/go tool dist test

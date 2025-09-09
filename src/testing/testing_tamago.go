@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && (amd64 || arm || riscv64)
+//go:build tamago && (amd64 || arm || arm64 || riscv64)
 
 package testing
 

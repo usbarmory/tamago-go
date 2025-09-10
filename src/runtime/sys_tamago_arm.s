@@ -128,7 +128,7 @@ noswitch:
 	MOVW	R0, argframe+0(FP)
 	B	(R1)
 
-// GetG returns the pointer to the current G and its P.
+// func GetG() (gp uint, pp uint)
 TEXT runtime·GetG(SB),NOSPLIT,$0-8
 	MOVW	g, gp+0(FP)
 
@@ -217,8 +217,7 @@ fail:
 	MOVW	$1, R0
 	RET
 
-// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// func Wake(gp uint) bool
 TEXT runtime·Wake(SB),$0-5
 	MOVW	gp+0(FP), R0
 	CALL	runtime·WakeG(SB)

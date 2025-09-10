@@ -18,9 +18,6 @@ var ramStackOffset uint32
 // definition in sys_tamago_arm.s for details.
 func CallOnG0()
 
-// GetG returns the pointer to the current G and its P.
-func GetG() (gp uint32, pp uint32)
-
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint32, end uint32) {

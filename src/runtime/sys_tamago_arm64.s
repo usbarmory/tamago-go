@@ -47,7 +47,7 @@ TEXT runtime·rt0_arm64_tamago(SB),NOSPLIT|NOFRAME,$0
 	BL	runtime·mstart(SB)
 	UNDEF
 
-// GetG returns the pointer to the current G and its P.
+// func GetG() (gp uint, pp uint)
 TEXT runtime·GetG(SB),NOSPLIT,$0-16
 	MOVD	g, gp+0(FP)
 
@@ -130,8 +130,7 @@ fail:
 	MOVD	$1, R0
 	RET
 
-// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// func Wake(gp uint) bool
 TEXT runtime·Wake(SB),$0-9
 	MOVD	gp+0(FP), R0
 	CALL	runtime·WakeG(SB)

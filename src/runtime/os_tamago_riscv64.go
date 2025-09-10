@@ -14,9 +14,6 @@ var ramStackOffset uint64
 // defined in asm_riscv64.s
 func cputicks() int64
 
-// GetG returns the pointer to the current G and its P.
-func GetG() (gp uint64, pp uint64)
-
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint64, end uint64) {

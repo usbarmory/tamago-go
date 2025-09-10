@@ -143,7 +143,7 @@ bad_cpu:
 	CALL	runtime·abort(SB)
 	RET
 
-// GetG returns the pointer to the current G and its P.
+// func GetG() (gp uint, pp uint)
 TEXT runtime·GetG(SB),NOSPLIT,$0-16
 	get_tls(CX)
 	MOVQ	g(CX), AX
@@ -179,19 +179,7 @@ testing:
 	MOVL	$0xf1, 0xf1  // crash
 	RET
 
-// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
-//
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * AX: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * AX: success (0), failure (1)
-TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+TEXT runtime·findTimer<>(SB),NOSPLIT|NOFRAME,$0-0
 	MOVQ	(g_timer)(AX), DX
 	CMPQ	DX, $0
 	JE	fail
@@ -227,6 +215,30 @@ check:
 	CMPQ	BX, DX
 	JNE	prev
 
+	MOVQ	$0, BX
+	RET
+fail:
+	MOVQ	$1, BX
+	RET
+
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * AX: G pointer
+//
+// The function return values are passed through the following registers:
+// (rather than on the frame pointer):
+//
+//   * AX: success (0), failure (1)
+TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+	CALL	runtime·findTimer<>(SB)
+
+	CMPQ	BX, $0
+	JNE	fail
+
 	// g->timer.ts.heap[off].when = 1
 	MOVQ	$(1 << 32), BX
 	MOVQ	BX, (timerWhen_when)(AX)
@@ -252,11 +264,18 @@ fail:
 	MOVQ	$1, AX
 	RET
 
-// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// func Wake(gp uint) bool
 TEXT runtime·Wake(SB),$0-9
 	MOVQ	gp+0(FP), AX
 	CALL	runtime·WakeG(SB)
 	XORQ	$1, AX
 	MOVB	AX, ret+8(FP)
+	RET
+
+// func Asleep(gp uint) bool
+TEXT runtime·Asleep(SB),$0-9
+	MOVQ	gp+0(FP), AX
+	CALL	runtime·findTimer<>(SB)
+	XORQ	$1, BX
+	MOVB	BX, ret+8(FP)
 	RET

@@ -51,7 +51,7 @@ TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	WORD $0 // crash if reached
 	RET
 
-// GetG returns the pointer to the current G and its P.
+// func GetG() (gp uint, pp uint)
 TEXT runtime·GetG(SB),NOSPLIT,$0-16
 	MOV	g, gp+0(FP)
 
@@ -128,8 +128,7 @@ fail:
 	MOV	$1, T0
 	RET
 
-// Wake modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// func Wake(gp uint) bool
 TEXT runtime·Wake(SB),$0-9
 	MOV	gp+0(FP), T0
 	CALL	runtime·WakeG(SB)

@@ -436,7 +436,7 @@ func (opts *goTest) buildArgs(t *tester) (build, run, pkgs, testFlags []string, 
 	}
 	var tags []string
 	if goos == "tamago" {
-		tags = append(tags, "fakenet")
+		tags = append(tags, "fakenet", "user_"+gohostos)
 	}
 	if t.iOS() {
 		tags = append(tags, "lldb")

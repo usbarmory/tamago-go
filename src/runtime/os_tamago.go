@@ -16,7 +16,7 @@ type mOS struct {
 	waitsemacount uint32
 }
 
-// see testing.testBinary
+// see runtime·settls
 var testBinary string
 
 // the following functions must be provided externally

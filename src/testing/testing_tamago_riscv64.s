@@ -7,16 +7,32 @@
 #include "go_asm.h"
 #include "textflag.h"
 
-#define CLOCK_REALTIME 0
-
 #define SYS_write		64
 #define SYS_exit		93
 #define SYS_exit_group		94
 #define SYS_clock_gettime	113
 #define SYS_clone		220
+#define SYS_mmap		222
 #define SYS_getrandom		278
 
-TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
+#define CLOCK_REALTIME 0
+
+TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
+	MOV	runtime·ramStart(SB), A0
+	MOV	runtime·ramSize(SB), A1
+	MOV	$0x3, A2	// PROT_READ | PROT_WRITE
+	MOV	$0x22, A3	// MAP_PRIVATE | MAP_ANONYMOUS
+	MOV	$0xffffffff, A4
+	MOV	$0, A5
+	MOV	$SYS_mmap, A7
+	ECALL
+
+	MOV	runtime·ramStart(SB), X2
+	MOV	runtime·ramSize(SB), T1
+	MOV	runtime·ramStackOffset(SB), T2
+	ADD	T1, X2
+	SUB	T2, X2
+	JMP	runtime·rt0_riscv64_tamago(SB)
 
 // func sys_clock_gettime() int64
 TEXT ·sys_clock_gettime(SB),NOSPLIT,$40-8

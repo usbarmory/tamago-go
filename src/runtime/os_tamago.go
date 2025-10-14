@@ -37,7 +37,7 @@ var (
 
 	// Exit can be set externally to provide an implementation for runtime
 	// termination (see runtime.exit).
-	Exit func(int32)
+	Exit func(code int32)
 
 	// Idle can be set externally to provide an implementation for CPU idle time
 	// management (see runtime.beforeIdle).

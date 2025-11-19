@@ -11,13 +11,6 @@ var ramStart uint64
 var ramSize uint64
 var ramStackOffset uint64
 
-// CallOnG0 calls a function (func(off int)) on g0 stack.
-//
-// The function is meant to be invoked within Go assembly and its arguments
-// must be passed through registers rather than on the frame pointer, see
-// definition in sys_tamago_arm.s for details.
-func CallOnG0()
-
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint64, end uint64) {

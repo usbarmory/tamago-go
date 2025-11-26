@@ -104,11 +104,11 @@ check:
 	BNE	T3, T1, prev
 
 	// g->timer.ts.heap[off] = 1
-	MOV	$(1 << 32), T1
+	MOV	$1, T1
 	MOV	T1, (timerWhen_when)(T0)
 
 	// g->timer.when = 1
-	MOV	$(1 << 32), T1
+	MOV	$1, T1
 	MOV	T1, (timer_when)(T3)
 
 	// g->timer.astate &= timerModified
@@ -119,7 +119,7 @@ check:
 
 	// g->timer.ts.minWhenModified = 1
 	MOV	(timer_ts)(T3), T0
-	MOV	$(1 << 32), T1
+	MOV	$1, T1
 	MOV	T1, (timers_minWhenModified)(T0)
 
 	MOV	$0, T0

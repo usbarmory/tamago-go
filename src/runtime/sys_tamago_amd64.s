@@ -240,11 +240,11 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 	JNE	fail
 
 	// g->timer.ts.heap[off].when = 1
-	MOVQ	$(1 << 32), BX
+	MOVQ	$1, BX
 	MOVQ	BX, (timerWhen_when)(AX)
 
 	// g->timer.when = 1
-	MOVQ	$(1 << 32), BX
+	MOVQ	$1, BX
 	MOVQ	BX, (timer_when)(DX)
 
 	// g->timer.astate &= timerModified
@@ -255,7 +255,7 @@ TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
 
 	// g->timer.ts.minWhenModified = 1
 	MOVQ	(timer_ts)(DX), AX
-	MOVQ	$(1 << 32), BX
+	MOVQ	$1, BX
 	MOVQ	BX, (timers_minWhenModified)(AX)
 
 	MOVQ	$0, AX

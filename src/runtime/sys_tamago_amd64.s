@@ -180,6 +180,9 @@ testing:
 	RET
 
 TEXT runtime·findTimer<>(SB),NOSPLIT|NOFRAME,$0-0
+	CMPQ	AX, $0
+	JE	fail
+
 	MOVQ	(g_timer)(AX), DX
 	CMPQ	DX, $0
 	JE	fail

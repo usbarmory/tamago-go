@@ -233,7 +233,7 @@ var errorstr = [...]string{
 	ENOENT:          "No such file or directory",
 	ESRCH:           "No such process",
 	EINTR:           "Interrupted system call",
-	EIO:             "I/O error",
+	EIO:             "input/output error",
 	ENXIO:           "No such device or address",
 	E2BIG:           "Argument list too long",
 	ENOEXEC:         "Exec format error",

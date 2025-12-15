@@ -70,6 +70,9 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 //
 //   * R0: success (0), failure (1)
 TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+	CMP	$0, R0
+	BEQ	fail
+
 	MOVD	(g_timer)(R0), R3
 	CMP	$0, R3
 	BEQ	fail

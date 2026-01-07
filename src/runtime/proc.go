@@ -888,9 +888,16 @@ func schedinit() {
 	ticks.init() // run as early as possible
 	moduledataverify()
 	stackinit()
-	randinit() // must run before mallocinit, AlgInit, mcommoninit
+
+	if randomizeHeapBase {
+		randinit() // must run before mallocinit
+	}
 	mallocinit()
-	cpuinit(godebug) // must run before AlgInit
+	if! randomizeHeapBase {
+		randinit() // must run before alginit, mcommoninit
+	}
+
+	cpuinit(godebug) // must run before alginit
 	maps.AlgInit()   // maps, hash, rand must not be used before this call
 	mcommoninit(gp.m, -1)
 	modulesinit()   // provides activeModules

@@ -8,8 +8,8 @@ package syscall
 
 import (
 	errorspkg "errors"
-	"internal/itoa"
 	"internal/oserror"
+	"internal/strconv"
 	"sync"
 	"unsafe"
 )
@@ -66,7 +66,7 @@ func (e Errno) Error() string {
 			return s
 		}
 	}
-	return "errno " + itoa.Itoa(int(e))
+	return "errno " + strconv.Itoa(int(e))
 }
 
 func (e Errno) Is(target error) bool {
@@ -116,7 +116,7 @@ func (s Signal) String() string {
 			return str
 		}
 	}
-	return "signal " + itoa.Itoa(int(s))
+	return "signal " + strconv.Itoa(int(s))
 }
 
 var signals = [...]string{}

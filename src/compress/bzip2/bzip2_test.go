@@ -32,6 +32,10 @@ func mustDecodeHex(s string) []byte {
 }
 
 func mustLoadFile(f string) []byte {
+	entries, _ := os.ReadDir("/")
+	fmt.Printf("A: %+v\n", entries)
+
+
 	if strings.HasSuffix(f, ".base64") {
 		tf, err := obscuretestdata.DecodeToTempFile(f)
 		if err != nil {
@@ -40,7 +44,7 @@ func mustLoadFile(f string) []byte {
 		f = tf
 	}
 
-	b, err := testdata.ReadFile(f)
+	b, err := os.ReadFile(f)
 	if err != nil {
 		panic(err)
 	}
@@ -230,12 +234,6 @@ func TestZeroRead(t *testing.T) {
 	}
 }
 
-var (
-	digits = mustLoadFile("testdata/e.txt.bz2")
-	newton = mustLoadFile("testdata/Isaac.Newton-Opticks.txt.bz2")
-	random = mustLoadFile("testdata/random.data.bz2")
-)
-
 func benchmarkDecode(b *testing.B, compressed []byte) {
 	// Determine the uncompressed size of testfile.
 	uncompressedSize, err := io.Copy(io.Discard, NewReader(bytes.NewReader(compressed)))
@@ -253,6 +251,14 @@ func benchmarkDecode(b *testing.B, compressed []byte) {
 	}
 }
 
-func BenchmarkDecodeDigits(b *testing.B) { benchmarkDecode(b, digits) }
-func BenchmarkDecodeNewton(b *testing.B) { benchmarkDecode(b, newton) }
-func BenchmarkDecodeRand(b *testing.B)   { benchmarkDecode(b, random) }
+func BenchmarkDecodeDigits(b *testing.B) {
+	benchmarkDecode(b, mustLoadFile("testdata/e.txt.bz2"))
+}
+
+func BenchmarkDecodeNewton(b *testing.B) {
+	benchmarkDecode(b, mustLoadFile("testdata/Isaac.Newton-Opticks.txt.bz2"))
+}
+
+func BenchmarkDecodeRand(b *testing.B) {
+	benchmarkDecode(b, mustLoadFile("testdata/random.data.bz2"))
+}

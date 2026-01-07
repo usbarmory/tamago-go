@@ -1068,7 +1068,7 @@ func TestDialContext(t *testing.T) {
 	switch runtime.GOOS {
 	case "plan9":
 		t.Skipf("not supported on %s", runtime.GOOS)
-	case "js", "wasip1":
+	case "js", "wasip1", "tamago":
 		t.Skipf("skipping: fake net does not support Dialer.ControlContext")
 	}
 

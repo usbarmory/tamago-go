@@ -22,7 +22,7 @@ func MustHaveSyscallEvents(t *testing.T) {
 // has real syscall events available.
 func HasSyscallEvents() bool {
 	switch runtime.GOOS {
-	case "js", "wasip1":
+	case "js", "wasip1", "tamago":
 		// js and wasip1 emulate system calls by blocking on channels
 		// while yielding back to the environment. They never actually
 		// call entersyscall/exitsyscall.

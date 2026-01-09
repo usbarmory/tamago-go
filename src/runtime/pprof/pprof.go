@@ -923,7 +923,7 @@ func profileWriter(w io.Writer) {
 	b := newProfileBuilder(w)
 	var err error
 	for {
-		if runtime.GOOS == "darwin" || runtime.GOOS == "ios" {
+		if runtime.GOOS == "darwin" || runtime.GOOS == "ios" || runtime.GOOS == "tamago" {
 			// see runtime_pprof_readProfile
 			time.Sleep(100 * time.Millisecond)
 		}

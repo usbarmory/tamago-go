@@ -278,6 +278,11 @@ func (fs *fsys) open(name string, openmode int, mode uint32) (fileImpl, error) {
 			}
 			ip.data = nil
 		}
+		if openmode&(O_DIRECTORY) == O_DIRECTORY {
+			if ip.Mode&S_IFMT != S_IFDIR {
+				return nil, ENOTDIR
+			}
+		}
 		if ip.Mode&S_IFMT == S_IFCHR {
 			if ip.Rdev < 0 || ip.Rdev >= int64(len(fs.dev)) || fs.dev[ip.Rdev] == nil {
 				return nil, ENODEV
@@ -350,7 +355,7 @@ func ReadDirent(fd int, buf []byte) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
 	if f.inode.Mode&S_IFMT != S_IFDIR {
-		return 0, EINVAL
+		return 0, ENOTDIR
 	}
 	n, err := f.preadLocked(buf, f.offset)
 	f.offset += int64(n)

@@ -8,6 +8,7 @@ package simd_test
 
 import (
 	"fmt"
+	"runtime"
 	"simd/archsimd"
 	"testing"
 )
@@ -184,7 +185,14 @@ func dupe(m [][]int32) [][]int32 {
 }
 
 func init() {
-	bigMatrix = make([][]int32, BIG, BIG)
+	size := BIG
+
+	if runtime.GOOS == "tamago" {
+		// virtual memory is limited
+		size = size / 100
+	}
+
+	bigMatrix = make([][]int32, size, size)
 	fill(bigMatrix)
 	nineMatrix = make([][]int32, 9, 9)
 	fill(nineMatrix)

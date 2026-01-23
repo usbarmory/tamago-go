@@ -157,8 +157,8 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$32
-	MOVW	runtime·testBinary(SB), AX
-	CMPW	AX, $0
+	MOVQ	runtime·testBinary(SB), AX
+	CMPQ	AX, $0
 	JA	testing
 
 	ADDQ	$8, DI	// ELF wants to use -8(FS)

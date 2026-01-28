@@ -6,11 +6,6 @@
 
 package runtime
 
-// the following variables must be provided externally
-var ramStart uint64
-var ramSize uint64
-var ramStackOffset uint64
-
 // defined in asm_riscv64.s
 func cputicks() int64
 

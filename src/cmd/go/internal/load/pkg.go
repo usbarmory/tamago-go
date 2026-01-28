@@ -36,6 +36,7 @@ import (
 	"cmd/go/internal/cfg"
 	"cmd/go/internal/fips140"
 	"cmd/go/internal/fsys"
+	"cmd/go/internal/goos"
 	"cmd/go/internal/gover"
 	"cmd/go/internal/imports"
 	"cmd/go/internal/modfetch"
@@ -403,7 +404,7 @@ func (p *Package) copyBuild(opts PackageOpts, pp *build.Package) {
 	p.BinaryOnly = pp.BinaryOnly
 
 	// TODO? Target
-	p.Goroot = pp.Goroot || fips140.Snapshot() && str.HasFilePathPrefix(p.Dir, fips140.Dir())
+	p.Goroot = pp.Goroot || fips140.Snapshot() && str.HasFilePathPrefix(p.Dir, fips140.Dir()) || str.HasFilePathPrefix(p.Dir, goos.Dir())
 	p.Standard = p.Goroot && p.ImportPath != "" && search.IsStandardImportPath(p.ImportPath)
 	p.GoFiles = pp.GoFiles
 	p.CgoFiles = pp.CgoFiles
@@ -899,6 +900,9 @@ func loadPackageData(ld *modload.Loader, ctx context.Context, path, parentPath, 
 	r := resolvedImportCache.Do(importKey, func() resolvedImport {
 		var r resolvedImport
 		if newPath, dir, ok := fips140.ResolveImport(path); ok {
+			r.path = newPath
+			r.dir = dir
+		} else if newPath, dir, ok := goos.ResolveImport(path); ok {
 			r.path = newPath
 			r.dir = dir
 		} else if cfg.ModulesEnabled {

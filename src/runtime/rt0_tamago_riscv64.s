@@ -14,9 +14,4 @@ TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 
 // entry point for S/U privilege level instances
 TEXT _rt0_tamago_start(SB),NOSPLIT|NOFRAME,$0
-	MOV	runtime·ramStart(SB), X2
-	MOV	runtime·ramSize(SB), T1
-	MOV	runtime·ramStackOffset(SB), T2
-	ADD	T1, X2
-	SUB	T2, X2
 	JMP	runtime·rt0_riscv64_tamago(SB)

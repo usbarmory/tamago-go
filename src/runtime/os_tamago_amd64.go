@@ -10,11 +10,6 @@ import (
 	"internal/cpu"
 )
 
-// the following variables must be provided externally
-var ramStart uint64
-var ramSize uint64
-var ramStackOffset uint64
-
 // defined in asm_amd64.s
 func cputicks() int64
 

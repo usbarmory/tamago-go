@@ -6,11 +6,6 @@
 
 package runtime
 
-// the following variables must be provided externally
-var ramStart uint32
-var ramSize uint32
-var ramStackOffset uint32
-
 // CallOnG0 calls a function (func(off int)) on g0 stack.
 //
 // The function is meant to be invoked within Go assembly and its arguments

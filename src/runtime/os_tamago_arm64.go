@@ -6,11 +6,6 @@
 
 package runtime
 
-// the following variables must be provided externally
-var ramStart uint64
-var ramSize uint64
-var ramStackOffset uint64
-
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint64, end uint64) {

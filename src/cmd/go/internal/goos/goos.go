@@ -117,7 +117,7 @@ func ResolveImport(imp string) (newPath, dir string, ok bool) {
 	} else {
 		sub = "." + imp[len(goos):]
 	}
-	newPath = path.Join(goos, version, sub)
-	dir = filepath.Join(Dir(), version, sub)
+	newPath = path.Join(goos, sub)
+	dir = filepath.Join(Dir(), sub)
 	return newPath, dir, true
 }

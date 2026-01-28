@@ -4,6 +4,7 @@
 
 //go:build !user_linux
 
+#include "go_asm.h"
 #include "textflag.h"
 
 TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
@@ -12,9 +13,4 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	JMP	cpuinit(SB)
 
 TEXT _rt0_tamago_start(SB),NOSPLIT|NOFRAME,$0
-	MOVQ	runtime·ramStart(SB), SP
-	MOVQ	runtime·ramSize(SB), AX
-	MOVQ	runtime·ramStackOffset(SB), BX
-	ADDQ	AX, SP
-	SUBQ	BX, SP
 	JMP	runtime·rt0_amd64_tamago(SB)

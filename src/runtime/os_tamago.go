@@ -9,6 +9,7 @@ package runtime
 import (
 	"internal/abi"
 	"internal/runtime/atomic"
+	"runtime/goos"
 	"unsafe"
 )
 
@@ -19,44 +20,51 @@ type mOS struct {
 // see runtime·settls
 var testBinary string
 
-// the following functions must be provided externally
-func hwinit0()
-func hwinit1()
-func printk(byte)
-func getRandomData([]byte)
-func initRNG()
+var (
+	ramStart       = goos.RamStart
+	ramSize        = goos.RamSize
+	ramStackOffset = goos.RamStackOffset
+)
 
-// the following functions must be provided externally
-// (but are already stubbed somewhere else in the runtime)
-//func nanotime1() int64
-
-// the following functions can be provided externally
+// the following variables can be provided externally
 var (
 	// Bloc allows to override the heap memory start address
-	Bloc uintptr
+	Bloc func() uintptr = goos.Bloc
 
 	// Exit can be set externally to provide an implementation for runtime
 	// termination (see runtime.exit).
-	Exit func(code int32)
+	Exit func(code int32) = goos.Exit
 
 	// Idle can be set externally to provide an implementation for CPU idle time
 	// management (see runtime.beforeIdle).
-	Idle func(until int64)
+	Idle func(until int64) = goos.Idle
 
 	// ProcID can be set externally to provide the process identifier.
-	ProcID func() uint64
+	ProcID func() uint64 = goos.ProcID
 
 	// Task can be set externally to provide an implementation for HW/OS threading.
 	//
 	// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
 	// [runtime.SetNumCPU]).
-	Task func(sp, mp, gp, fn unsafe.Pointer)
+	Task func(sp, mp, gp, fn unsafe.Pointer) = goos.Task
 )
+
+func hwinit0() {
+	goos.Hwinit0()
+}
+
+func hwinit1() {
+	goos.Hwinit1()
+}
+
+func nanotime1() int64 {
+	return goos.Nanotime()
+}
 
 // GetRandomData generates len(r) random bytes from the random source provided
 // externally by the linked application.
 func GetRandomData(r []byte) {
-	getRandomData(r)
+	goos.GetRandomData(r)
 }
 
 // GetG returns the pointer to the current G and its P.
@@ -125,8 +133,8 @@ func osinit() {
 	physPageSize = 4096
 	numCPUStartup = 1
 
-	if Bloc != 0 {
-		bloc = Bloc
+	if b := Bloc(); b != 0 {
+		bloc = b
 		blocMax = bloc
 	} else {
 		initBloc()
@@ -134,8 +142,8 @@ func osinit() {
 }
 
 func readRandom(r []byte) int {
-	initRNG()
-	getRandomData(r)
+	goos.InitRNG()
+	goos.GetRandomData(r)
 	return len(r)
 }
 
@@ -177,7 +185,7 @@ func write1(fd uintptr, buf unsafe.Pointer, count int32) int32 {
 
 	for i := uintptr(0); i < c; i++ {
 		p := (*byte)(unsafe.Pointer(uintptr(buf) + i))
-		printk(*p)
+		goos.Printk(*p)
 	}
 
 	return int32(c)

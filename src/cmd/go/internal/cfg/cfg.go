@@ -484,6 +484,7 @@ var (
 	GOINSECURE                  = Getenv("GOINSECURE")
 	GOVCS                       = Getenv("GOVCS")
 	GOAUTH, GOAUTHChanged       = EnvOrAndChanged("GOAUTH", "netrc")
+	GOOSPKG                     = Getenv("GOOSPKG")
 )
 
 // EnvOrAndChanged returns the environment variable value

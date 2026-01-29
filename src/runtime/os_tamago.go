@@ -21,17 +21,9 @@ type mOS struct {
 var testBinary string
 
 var (
-	ramStart       = goos.RamStart
-	ramSize        = goos.RamSize
-	ramStackOffset = goos.RamStackOffset
-)
-
-var (
-	// Task can be set externally to provide an implementation for HW/OS threading.
-	//
-	// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
-	// [runtime.SetNumCPU]).
-	Task func(sp, mp, gp, fn unsafe.Pointer) = goos.Task
+	ramStart       uint = goos.RamStart
+	ramSize        uint = goos.RamSize
+	ramStackOffset uint = goos.RamStackOffset
 )
 
 func hwinit0() {
@@ -90,7 +82,7 @@ const stacksize = 8192 * 1024 // 8192KB
 //
 //go:nowritebarrier
 func newosproc(mp *m) {
-	if Task == nil {
+	if goos.Task == nil {
 		throw("newosproc: not implemented")
 	}
 
@@ -100,7 +92,7 @@ func newosproc(mp *m) {
 		exit(1)
 	}
 
-	Task(unsafe.Pointer(uintptr(stack)+stacksize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
+	goos.Task(unsafe.Pointer(uintptr(stack)+stacksize), unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(abi.FuncPCABI0(mstart)))
 }
 
 // Called to initialize a new m (including the bootstrap m).
@@ -118,8 +110,8 @@ func osinit() {
 	physPageSize = 4096
 	numCPUStartup = 1
 
-	if b := goos.Bloc(); b != 0 {
-		bloc = b
+	if goos.Bloc != 0 {
+		bloc = goos.Bloc
 		blocMax = bloc
 	} else {
 		initBloc()
@@ -203,7 +195,9 @@ func usleep_no_g(usec uint32) {
 }
 
 func exit(code int32) {
-	goos.Exit(code)
+	if goos.Exit != nil {
+		goos.Exit(code)
+	}
 
 	print("exit with code ", code, " halting\n")
 
@@ -264,6 +258,10 @@ const preemptMSupported = false
 func preemptM(mp *m) {}
 
 func minit() {
+	if goos.ProcID == nil {
+		return
+	}
+
 	gp := getg()
 	gp.m.procid = goos.ProcID()
 }

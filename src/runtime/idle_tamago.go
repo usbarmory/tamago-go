@@ -16,7 +16,9 @@ import (
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
 	idleStart := nanotime()
 
-	goos.Idle(pollUntil)
+	if goos.Idle != nil {
+		goos.Idle(pollUntil)
+	}
 
 	sched.idleTime.Add(nanotime() - idleStart)
 

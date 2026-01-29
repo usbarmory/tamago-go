@@ -26,22 +26,7 @@ var (
 	ramStackOffset = goos.RamStackOffset
 )
 
-// the following variables can be provided externally
 var (
-	// Bloc allows to override the heap memory start address
-	Bloc func() uintptr = goos.Bloc
-
-	// Exit can be set externally to provide an implementation for runtime
-	// termination (see runtime.exit).
-	Exit func(code int32) = goos.Exit
-
-	// Idle can be set externally to provide an implementation for CPU idle time
-	// management (see runtime.beforeIdle).
-	Idle func(until int64) = goos.Idle
-
-	// ProcID can be set externally to provide the process identifier.
-	ProcID func() uint64 = goos.ProcID
-
 	// Task can be set externally to provide an implementation for HW/OS threading.
 	//
 	// The call takes effect only when [runtime.NumCPU] is greater than 1 (see
@@ -133,7 +118,7 @@ func osinit() {
 	physPageSize = 4096
 	numCPUStartup = 1
 
-	if b := Bloc(); b != 0 {
+	if b := goos.Bloc(); b != 0 {
 		bloc = b
 		blocMax = bloc
 	} else {
@@ -218,9 +203,7 @@ func usleep_no_g(usec uint32) {
 }
 
 func exit(code int32) {
-	if Exit != nil {
-		Exit(code)
-	}
+	goos.Exit(code)
 
 	print("exit with code ", code, " halting\n")
 
@@ -281,12 +264,8 @@ const preemptMSupported = false
 func preemptM(mp *m) {}
 
 func minit() {
-	if ProcID == nil {
-		return
-	}
-
 	gp := getg()
-	gp.m.procid = ProcID()
+	gp.m.procid = goos.ProcID()
 }
 
 // Stubs so tests can link correctly. These should never be called.

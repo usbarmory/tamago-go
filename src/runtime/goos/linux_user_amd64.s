@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && amd64 && user_linux
+//go:build tamago && amd64
 
 #include "go_asm.h"
 #include "textflag.h"
@@ -17,9 +17,9 @@
 
 #define CLOCK_REALTIME 0
 
-TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
-	MOVQ	runtime·ramStart(SB), DI
-	MOVQ	runtime·ramSize(SB), SI
+TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
+	MOVQ	·RamStart(SB), DI
+	MOVQ	·RamSize(SB), SI
 	MOVL	$0x3, DX	// PROT_READ | PROT_WRITE
 	MOVL	$0x22, R10	// MAP_PRIVATE | MAP_ANONYMOUS
 	MOVL	$0xffffffff, R8
@@ -27,9 +27,9 @@ TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVL	$SYS_mmap, AX
 	SYSCALL
 
-	MOVQ	runtime·ramStart(SB), SP
-	MOVQ	runtime·ramSize(SB), AX
-	MOVQ	runtime·ramStackOffset(SB), BX
+	MOVQ	·RamStart(SB), SP
+	MOVQ	·RamSize(SB), AX
+	MOVQ	·RamStackOffset(SB), BX
 	ADDQ	AX, SP
 	SUBQ	BX, SP
 	JMP	runtime·rt0_amd64_tamago(SB)

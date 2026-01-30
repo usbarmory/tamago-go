@@ -30,6 +30,10 @@ func Init() {
 	initDone = true
 	initVersion()
 	initDir()
+
+	if cfg.Goos == "tamago" && cfg.GOOSPKG == "" {
+		base.Fatalf("go: cannot use GOOS %s with empty GOOSPKG", cfg.Goos)
+	}
 }
 
 var initDone bool

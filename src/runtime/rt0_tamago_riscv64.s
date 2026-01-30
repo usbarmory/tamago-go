@@ -8,9 +8,9 @@
 
 // entry point for M privilege level instances
 TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
-	// cpuinit must be provided externally by the linked application for
+	// CPUInit must be provided externally by the linked application for
 	// CPU initialization, it must call _rt0_tamago_start at completion
-	JMP	cpuinit(SB)
+	JMP	runtime∕goos·CPUInit(SB)
 
 // entry point for S/U privilege level instances
 TEXT _rt0_tamago_start(SB),NOSPLIT|NOFRAME,$0

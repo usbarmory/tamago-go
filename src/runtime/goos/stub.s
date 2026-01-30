@@ -4,5 +4,5 @@
 
 #include "textflag.h"
 
-TEXT cpuinit(SB),NOSPLIT|NOFRAME,$0
+TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
 	RET

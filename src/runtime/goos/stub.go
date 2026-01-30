@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build !tamago
+
 // Package goos describes required, as well as optional, runtime
 // functions/variables for custom GOOS implementations as supported by the
 // GOOSPKG variable.
@@ -47,29 +49,41 @@ var (
 	RamStackOffset uint
 )
 
-// CPUInit (see stub.s) handles immediate startup CPU initialization as it
-// represents the first instruction set executed.
-func CPUinit()
+// CPUInit handles immediate startup CPU initialization as it represents the
+// first instruction set executed.
+func CPUinit() {}
 
 // Hwinit0 takes care of the lower level initialization triggered before
 // runtime setup (pre World start).
-func Hwinit0()
+//
+// It must be defined using Go's Assembler to retain Go's commitment to
+// backward compatibility, otherwise extreme care must be taken as the lack of
+// World start does not allow memory allocation.
+func Hwinit0() {}
 
 // InitRNG initializes random number generation.
-func InitRNG()
+func InitRNG() {}
 
 // GetRandomData generates len(b) random bytes and writes them into b.
-func GetRandomData(b []byte)
+func GetRandomData(b []byte) {}
 
 // Nanotime returns the system time in nanoseconds.
-func Nanotime() int64
+//
+// Before [Hwinit1] it must be defined using Go's Assembler to retain Go's
+// commitment to backward compatibility, otherwise extreme care must be taken
+// as the lack of World start does not allow memory allocation.
+func Nanotime() int64 { return 0 }
 
 // Printk handles character printing to standard output.
-func Printk(c byte)
+//
+// Before [Hwinit1] it must be defined using Go's Assembler to retain Go's
+// commitment to backward compatibility, otherwise extreme care must be taken
+// as the lack of World start does not allow memory allocation.
+func Printk(c byte) {}
 
 // Hwinit1 takes care of the lower level initialization triggered early in
 // runtime setup (post World start).
-func Hwinit1()
+func Hwinit1() {}
 
 // Optional variables/functions.
 var (

@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !user_linux
-
-#include "go_asm.h"
 #include "textflag.h"
 
 TEXT _rt0_amd64_tamago(SB),NOSPLIT|NOFRAME,$0

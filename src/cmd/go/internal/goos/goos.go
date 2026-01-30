@@ -31,9 +31,16 @@ func Init() {
 	initVersion()
 	initDir()
 
-	if cfg.Goos == "tamago" && cfg.GOOSPKG == "" {
-		base.Fatalf("go: cannot use GOOS %s with empty GOOSPKG", cfg.Goos)
+	if cfg.Goos != "tamago" || cfg.GOOSPKG != "" {
+		return
 	}
+
+	// fallback to Linux userspace goos defined in GOROOT/src/runtime/goos
+	if os.Getenv("GOHOSTOS") == "linux" && (cfg.Goarch == "amd64" || cfg.Goarch == "arm" || cfg.Goarch == "arm64" || cfg.Goarch == "riscv64") {
+		return
+	}
+
+	base.Fatalf("go: cannot use GOOS %s with empty GOOSPKG on %s/%s", cfg.Goos, os.Getenv("GOHOSTOS"), cfg.Goarch)
 }
 
 var initDone bool
@@ -45,7 +52,7 @@ func checkInit() {
 	}
 }
 
-var name    string
+var name string
 var version string
 
 func initVersion() {
@@ -62,7 +69,7 @@ func initVersion() {
 	}
 
 	if _, err := os.Stat(cfg.GOOSPKG); err != nil {
-		base.Fatalf("go: unknown GOOSPKG %q, %v",cfg.GOOSPKG, err)
+		base.Fatalf("go: unknown GOOSPKG %q, %v", cfg.GOOSPKG, err)
 	}
 
 	dir = filepath.Join(cfg.GOOSPKG, "goos")

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && arm && user_linux
+//go:build tamago && arm
 
 #include "go_asm.h"
 #include "textflag.h"
@@ -20,9 +20,9 @@
 
 #define CLOCK_REALTIME 0
 
-TEXT _rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
-	MOVW	runtime·ramStart(SB), R0
-	MOVW	runtime·ramSize(SB), R1
+TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
+	MOVW	·RamStart(SB), R0
+	MOVW	·RamSize(SB), R1
 	MOVW	$0x3, R2	// PROT_READ | PROT_WRITE
 	MOVW	$0x22, R3	// MAP_PRIVATE | MAP_ANONYMOUS
 	MOVW	$0xffffffff, R4
@@ -30,9 +30,9 @@ TEXT _rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$SYS_mmap2, R7
 	SWI	$0
 
-	MOVW	runtime·ramStart(SB), R13
-	MOVW	runtime·ramSize(SB), R1
-	MOVW	runtime·ramStackOffset(SB), R2
+	MOVW	·RamStart(SB), R13
+	MOVW	·RamSize(SB), R1
+	MOVW	·RamStackOffset(SB), R2
 	ADD	R1, R13
 	SUB	R2, R13
 	B	runtime·rt0_arm_tamago(SB)

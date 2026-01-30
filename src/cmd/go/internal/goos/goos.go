@@ -14,7 +14,6 @@ import (
 
 	"cmd/go/internal/base"
 	"cmd/go/internal/cfg"
-	"cmd/go/internal/fsys"
 	"cmd/go/internal/modfetch"
 	"cmd/go/internal/str"
 
@@ -29,14 +28,8 @@ func Init() {
 		return
 	}
 	initDone = true
-	if cfg.Goos != "tamago" {
-		return
-	}
 	initVersion()
 	initDir()
-	if Dir() != "" {
-		fsys.Bind(Dir(), filepath.Join(cfg.GOROOT, "src/runtime/goos"))
-	}
 }
 
 var initDone bool

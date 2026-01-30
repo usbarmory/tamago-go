@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && riscv64 && user_linux
+//go:build tamago && riscv64
 
 #include "go_asm.h"
 #include "textflag.h"
@@ -17,9 +17,9 @@
 
 #define CLOCK_REALTIME 0
 
-TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
-	MOV	runtime·ramStart(SB), A0
-	MOV	runtime·ramSize(SB), A1
+TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
+	MOV	·RamStart(SB), A0
+	MOV	·RamSize(SB), A1
 	MOV	$0x3, A2	// PROT_READ | PROT_WRITE
 	MOV	$0x22, A3	// MAP_PRIVATE | MAP_ANONYMOUS
 	MOV	$0xffffffff, A4
@@ -27,9 +27,9 @@ TEXT _rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	MOV	$SYS_mmap, A7
 	ECALL
 
-	MOV	runtime·ramStart(SB), X2
-	MOV	runtime·ramSize(SB), T1
-	MOV	runtime·ramStackOffset(SB), T2
+	MOV	·RamStart(SB), X2
+	MOV	·RamSize(SB), T1
+	MOV	·RamStackOffset(SB), T2
 	ADD	T1, X2
 	SUB	T2, X2
 	JMP	runtime·rt0_riscv64_tamago(SB)

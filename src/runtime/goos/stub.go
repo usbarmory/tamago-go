@@ -47,9 +47,8 @@ var (
 	RamStackOffset uint
 )
 
-// CPUInit, which must be linked as `cpuinit` (see stub.s) handles immediate
-// startup CPU initialization as it represents the first instruction set
-// executed.
+// CPUInit (see stub.s) handles immediate startup CPU initialization as it
+// represents the first instruction set executed.
 func CPUinit()
 
 // Hwinit0 takes care of the lower level initialization triggered before

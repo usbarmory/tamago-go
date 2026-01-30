@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && (amd64 || arm || arm64 || riscv64) && user_linux
+//go:build tamago && (amd64 || arm || arm64 || riscv64)
 
-package testing
+// Package goos provides support for using `GOOS=tamago` in Linux user
+// space.
+package goos
 
 import (
-	"runtime"
 	"unsafe"
 )
 
@@ -28,16 +29,24 @@ const (
 		_CLONE_THREAD /* revisit - okay for now */
 )
 
-//go:linkname ramStart runtime.ramStart
-var ramStart uint64 = 0x80000000
+var (
+	RamStart       uint = 0x80000000
+	RamSize        uint = 0x20000000 // 512MB
+	RamStackOffset uint = 0x100
 
-//go:linkname ramSize runtime.ramSize
-var ramSize uint64 = 0x20000000 // 512MB
+	Bloc   = uintptr(RamStart)
+	Exit   = sys_exit_group
+	Idle   func(until int64)
+	ProcID func() uint64
 
-//go:linkname ramStackOffset runtime.ramStackOffset
-var ramStackOffset uint64 = 0x100
+	Hwinit0  = func() {}
+	InitRNG  = func() {}
+	Nanotime = sys_clock_gettime
+	Hwinit1  = func() {}
+)
 
-// defined in testing_tamago_*.s
+// defined in linux_user*.s
+func CPUInit()
 func sys_exit_group(code int32)
 func sys_write(c *byte)
 func sys_clock_gettime() (ns int64)
@@ -46,42 +55,18 @@ func sys_getrandom(b []byte, n int)
 //go:noescape
 func clone(flags int32, stk, mp, gp, fn unsafe.Pointer) int32
 
-//go:linkname nanotime1 runtime.nanotime1
-func nanotime1() int64 {
-	return sys_clock_gettime()
-}
-
-//go:linkname initRNG runtime.initRNG
-func initRNG() {}
-
-//go:linkname getRandomData runtime.getRandomData
-func getRandomData(b []byte) {
+func GetRandomData(b []byte) {
 	sys_getrandom(b, len(b))
 }
 
 // preallocated memory to avoid malloc during panic
 var a [1]byte
 
-//go:linkname printk runtime.printk
-func printk(c byte) {
+func Printk(c byte) {
 	a[0] = c
 	sys_write(&a[0])
 }
 
-//go:linkname hwinit0 runtime.hwinit0
-func hwinit0() {
-	runtime.Bloc = uintptr(ramStart)
-}
-
-func task(sp, mp, gp, fn unsafe.Pointer) {
+var Task = func(sp, mp, gp, fn unsafe.Pointer) {
 	clone(cloneFlags, sp, mp, gp, fn)
-}
-
-//go:linkname hwinit1 runtime.hwinit1
-func hwinit1() {
-	runtime.Exit = sys_exit_group
-}
-
-func init() {
-	runtime.Task = task
 }

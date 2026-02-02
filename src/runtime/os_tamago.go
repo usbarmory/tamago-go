@@ -17,9 +17,6 @@ type mOS struct {
 	waitsemacount uint32
 }
 
-// see runtime·settls
-var testBinary string
-
 var (
 	ramStart       uint = goos.RamStart
 	ramSize        uint = goos.RamSize

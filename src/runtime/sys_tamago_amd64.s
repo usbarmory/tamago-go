@@ -157,9 +157,10 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 
 // This is needed by asm_amd64.s
 TEXT runtime·settls(SB),NOSPLIT,$32
-	MOVQ	runtime·testBinary(SB), AX
+	MOVW	CS, AX
+	ANDW	$3, AX // CPL
 	CMPQ	AX, $0
-	JA	testing
+	JNE	application
 
 	ADDQ	$8, DI	// ELF wants to use -8(FS)
 	MOVQ	DI, AX
@@ -168,7 +169,7 @@ TEXT runtime·settls(SB),NOSPLIT,$32
 	WRMSR
 	RET
 
-testing:
+application:
 	ADDQ	$8, DI	// ELF wants to use -8(FS)
 	MOVQ	DI, SI
 	MOVQ	$0x1002, DI	// ARCH_SET_FS

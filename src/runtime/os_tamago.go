@@ -17,12 +17,6 @@ type mOS struct {
 	waitsemacount uint32
 }
 
-var (
-	ramStart       uint = goos.RamStart
-	ramSize        uint = goos.RamSize
-	ramStackOffset uint = goos.RamStackOffset
-)
-
 func hwinit0() {
 	goos.Hwinit0()
 }

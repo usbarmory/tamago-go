@@ -108,6 +108,7 @@ import (
 	"internal/runtime/gc"
 	"internal/runtime/math"
 	"internal/runtime/sys"
+	goospkg "runtime/goos"
 	"unsafe"
 )
 
@@ -666,7 +667,7 @@ func mallocinit() {
 		// memory. To keep heapArenas size as low as possible we
 		// allocate the exact number needed to fill available RAM.
 		if goos.IsTamago == 1 {
-			heapArenaCount = uintptr(ramSize)/heapArenaBytes
+			heapArenaCount = uintptr(goospkg.RamSize)/heapArenaBytes
 		}
 
 		arenaMetaSize := heapArenaCount * unsafe.Sizeof(heapArena{})

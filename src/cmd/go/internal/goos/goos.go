@@ -77,8 +77,8 @@ func initVersion() {
 	return
 }
 
-// Dir reports the directory containing the runtime/internal/goos source code.
-// If GOOSPKG is empty, Dir returns GOROOT/src/runtime/internal/goos.
+// Dir reports the directory containing the runtime/goos source code.
+// If GOOSPKG is empty, Dir returns GOROOT/src/runtime/goos.
 // Otherwise Dir ensures that the snapshot has been unpacked into the
 // module cache and then returns the directory in the module cache
 // corresponding to the runtime/goos directory.

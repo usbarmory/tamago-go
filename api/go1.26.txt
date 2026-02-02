@@ -173,6 +173,21 @@ pkg reflect, type Type interface, Fields() iter.Seq[StructField] #66631
 pkg reflect, type Type interface, Ins() iter.Seq[Type] #66631
 pkg reflect, type Type interface, Methods() iter.Seq[Method] #66631
 pkg reflect, type Type interface, Outs() iter.Seq[Type] #66631
+pkg runtime/goos, func CPUinit() #73608
+pkg runtime/goos, func GetRandomData([]uint8) #73608
+pkg runtime/goos, func Hwinit0() #73608
+pkg runtime/goos, func Hwinit1() #73608
+pkg runtime/goos, func InitRNG() #73608
+pkg runtime/goos, func Nanotime() int64 #73608
+pkg runtime/goos, func Printk(uint8) #73608
+pkg runtime/goos, var Bloc uintptr #73608
+pkg runtime/goos, var Exit func(int32) #73608
+pkg runtime/goos, var Idle func(int64) #73608
+pkg runtime/goos, var ProcID func() uint64 #73608
+pkg runtime/goos, var RamSize uint #73608
+pkg runtime/goos, var RamStackOffset uint #73608
+pkg runtime/goos, var RamStart uint #73608
+pkg runtime/goos, var Task func(unsafe.Pointer, unsafe.Pointer, unsafe.Pointer, unsafe.Pointer) #73608
 pkg testing, method (*B) ArtifactDir() string #71287
 pkg testing, method (*F) ArtifactDir() string #71287
 pkg testing, method (*T) ArtifactDir() string #71287

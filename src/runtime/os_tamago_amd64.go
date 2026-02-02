@@ -8,6 +8,7 @@ package runtime
 
 import (
 	"internal/cpu"
+	"runtime/goos"
 )
 
 // defined in asm_amd64.s
@@ -16,7 +17,7 @@ func cputicks() int64
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint64, end uint64) {
-	return uint64(ramStart), uint64(ramStart + ramSize)
+	return uint64(goos.RamStart), uint64(goos.RamStart + goos.RamSize)
 }
 
 // TextRegion returns the start and end addresses of the physical RAM

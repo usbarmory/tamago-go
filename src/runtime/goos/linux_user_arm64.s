@@ -27,12 +27,14 @@ TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
 	MOVW	$SYS_mmap, R8
 	SVC
 
+	// set stack pointer
 	MOVD	·RamStart(SB), R1
 	MOVD	R1, RSP
 	MOVD	·RamSize(SB), R1
 	MOVD	·RamStackOffset(SB), R2
 	ADD	R1, RSP
 	SUB	R2, RSP
+
 	B	runtime·rt0_arm64_tamago(SB)
 
 // func sys_clock_gettime() int64

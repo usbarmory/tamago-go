@@ -6,6 +6,8 @@
 
 package runtime
 
+import "runtime/goos"
+
 // CallOnG0 calls a function (func(off int)) on g0 stack.
 //
 // The function is meant to be invoked within Go assembly and its arguments
@@ -16,7 +18,7 @@ func CallOnG0()
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint32, end uint32) {
-	return uint32(ramStart), uint32(ramStart + ramSize)
+	return uint32(goos.RamStart), uint32(goos.RamStart + goos.RamSize)
 }
 
 // TextRegion returns the start and end addresses of the physical RAM

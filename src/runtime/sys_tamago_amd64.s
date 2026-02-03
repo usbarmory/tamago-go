@@ -214,6 +214,12 @@ prev:
 	CMPQ	AX, $0
 	JE	fail
 check:
+	// sanity check
+	MOVQ	·firstmoduledata(SB), BX
+	MOVQ	$(moduledata_etext)(BX), BX
+	CMPQ	AX, BX
+	JLT	fail
+
 	// find heap entry matching g.timer
 	MOVQ	(timerWhen_timer)(AX), BX
 	CMPQ	BX, DX

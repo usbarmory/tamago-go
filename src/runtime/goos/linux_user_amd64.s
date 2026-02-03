@@ -27,11 +27,13 @@ TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
 	MOVL	$SYS_mmap, AX
 	SYSCALL
 
+	// set stack pointer
 	MOVQ	·RamStart(SB), SP
 	MOVQ	·RamSize(SB), AX
 	MOVQ	·RamStackOffset(SB), BX
 	ADDQ	AX, SP
 	SUBQ	BX, SP
+
 	JMP	runtime·rt0_amd64_tamago(SB)
 
 // func sys_clock_gettime() int64

@@ -27,11 +27,13 @@ TEXT ·CPUInit(SB),NOSPLIT|NOFRAME,$0
 	MOV	$SYS_mmap, A7
 	ECALL
 
+	// set stack pointer
 	MOV	·RamStart(SB), X2
 	MOV	·RamSize(SB), T1
 	MOV	·RamStackOffset(SB), T2
 	ADD	T1, X2
 	SUB	T2, X2
+
 	JMP	runtime·rt0_riscv64_tamago(SB)
 
 // func sys_clock_gettime() int64

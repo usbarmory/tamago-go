@@ -9,6 +9,7 @@ package sanitizers_test
 import (
 	"internal/platform"
 	"internal/testenv"
+	"os"
 	"strings"
 	"testing"
 )
@@ -91,6 +92,11 @@ func mustHaveLSAN(t *testing.T) *config {
 
 	if !compilerRequiredLsanVersion(goos, goarch) {
 		t.Skipf("skipping on %s/%s: too old version of compiler", goos, goarch)
+	}
+
+	// skip tests if user previously disabled ASAN, which is known to fail on Linux (issue 74476)
+	if os.Getenv("ASAN_OPTIONS") == "detect_leaks=0" {
+		t.Skipf("skipping on %s/%s; ASAN leak detection disabled by environment variable", goos, goarch)
 	}
 
 	requireOvercommit(t)

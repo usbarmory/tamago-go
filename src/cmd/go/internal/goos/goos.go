@@ -2,7 +2,27 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package goos implements an experiment to support Go proposal #73608.
+// Package goos implements support for the GOOSPKG build setting (see Go
+// proposal #73608).
+//
+// The GOOSPKG build setting controls which copy of the runtime/goos source
+// code to use. The default is obviously GOROOT/src/runtime/goos, but different
+// implementations can be substituted into the build instead.
+//
+// This package provides the logic needed by the rest of the go command
+// to implement the overlay.
+//
+// [Init] must be called to initialize the GOOSPKG logic. It may fail and call
+// base.Fatalf.
+//
+// When GOOSPKG is empty GOROOT/src/runtime/goos is imported as expected to
+// resolve [runtime/goos].
+//
+// When GOOSPKG is set it defines a module, or filesystem path, as source
+// location for [runtime/goos].
+//
+// ResolveImport is called to resolve the [runtime/goos] import, in a manner
+// similar to fips140 snapshot logic (see GOROOT/src/cmd/go/internal/fips140).
 package goos
 
 import (

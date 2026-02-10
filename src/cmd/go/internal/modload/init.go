@@ -25,7 +25,6 @@ import (
 	"cmd/go/internal/cfg"
 	"cmd/go/internal/fips140"
 	"cmd/go/internal/fsys"
-	"cmd/go/internal/goos"
 	"cmd/go/internal/gover"
 	"cmd/go/internal/lockedfile"
 	"cmd/go/internal/modfetch"
@@ -348,7 +347,6 @@ func BinDir(loaderstate *State) string {
 func (loaderstate *State) InitWorkfile() {
 	// Initialize fsys early because we need overlay to read go.work file.
 	fips140.Init()
-	goos.Init()
 
 	if err := fsys.Init(); err != nil {
 		base.Fatal(err)
@@ -478,7 +476,6 @@ func Init(loaderstate *State) {
 	loaderstate.initialized = true
 
 	fips140.Init()
-	goos.Init()
 
 	// Keep in sync with WillBeEnabled. We perform extra validation here, and
 	// there are lots of diagnostics and side effects, so we can't use

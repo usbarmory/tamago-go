@@ -116,7 +116,6 @@ import (
 	"cmd/go/internal/cfg"
 	"cmd/go/internal/fips140"
 	"cmd/go/internal/fsys"
-	"cmd/go/internal/goos"
 	"cmd/go/internal/gover"
 	"cmd/go/internal/imports"
 	"cmd/go/internal/modfetch"
@@ -1960,9 +1959,6 @@ func (pld *packageLoader) pkgTest(ld *Loader, ctx context.Context, pkg *loadPkg,
 // path when imported from the standard-library package at parentPath.
 func (pld *packageLoader) stdVendor(ld *Loader, parentPath, path string) string {
 	if p, _, ok := fips140.ResolveImport(path); ok {
-		return p
-	}
-	if p, _, ok := goos.ResolveImport(path); ok {
 		return p
 	}
 	if search.IsStandardImportPath(path) {

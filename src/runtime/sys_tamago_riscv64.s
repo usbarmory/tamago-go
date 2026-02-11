@@ -30,9 +30,6 @@ TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 
 	CALL	runtime·hwinit0(SB)
 	CALL	runtime·check(SB)
-
-	// args are already prepared
-	CALL	runtime·args(SB)
 	CALL	runtime·osinit(SB)
 	CALL	runtime·schedinit(SB)
 	CALL	runtime·hwinit1(SB)

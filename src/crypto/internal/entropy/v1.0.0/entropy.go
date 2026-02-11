@@ -8,8 +8,6 @@ package entropy
 import (
 	"crypto/internal/fips140deps/time"
 	"errors"
-	"sync/atomic"
-	"unsafe"
 )
 
 // Version returns the version of the entropy source.
@@ -19,10 +17,6 @@ import (
 func Version() string {
 	return "v1.0.0"
 }
-
-// ScratchBuffer is a large buffer that will be written to using atomics, to
-// generate noise from memory access timings. Its contents do not matter.
-type ScratchBuffer [1 << 25]byte
 
 // Seed returns a 384-bit seed with full entropy.
 //
@@ -106,17 +100,6 @@ func newSource(memory *ScratchBuffer) *source {
 		lcgState: uint32(time.HighPrecisionNow()),
 		previous: time.HighPrecisionNow(),
 	}
-}
-
-// touchMemory performs a write to memory at the given index.
-//
-// The memory slice is passed in and may be shared across sources e.g. to avoid
-// the significant (~500µs) cost of zeroing a new allocation on every [Seed] call.
-func touchMemory(memory *ScratchBuffer, idx uint32) {
-	idx = idx / 4 * 4 // align to 32 bits
-	u32 := (*uint32)(unsafe.Pointer(&memory[idx]))
-	last := atomic.LoadUint32(u32)
-	atomic.SwapUint32(u32, last+13)
 }
 
 func (s *source) Sample() uint8 {

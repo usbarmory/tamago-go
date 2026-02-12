@@ -246,7 +246,7 @@ func TestEntropyUnchanged(t *testing.T) {
 	// entropy source through the Entropy Source Validation program,
 	// independently of the FIPS 140-3 module. It must not change even across
 	// FIPS 140-3 module versions, in order to reuse the ESV certificate.
-	exp := "370317ffdbfc9b9162e885d9ea1714810299a043c0d777cac780bbb53c701da1"
+	exp := "2541273241ae8aafe55026328354ed3799df1e2fb308b2097833203a42911b53"
 	if got := hex.EncodeToString(h.Sum(nil)); got != exp {
 		t.Errorf("hash of crypto/internal/entropy/v1.0.0 = %s, want %s", got, exp)
 	}

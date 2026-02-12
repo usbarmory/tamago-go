@@ -9,7 +9,7 @@
 // that does not support FIPS 140-3 mode, but as the BSS variable doesn't cost
 // much, don't bother.)
 //
-//go:build !wasm
+//go:build !wasm && !tamago
 
 package drbg
 

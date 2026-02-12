@@ -1,19 +1,15 @@
-// Copyright 2026 The Go Authors. All rights reserved.
+// Copyright 2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Entropy generation in FIPS 140-3 mode uses a scratch buffer in the BSS
-// section (see below), which usually doesn't cost much, except on Wasm, due to
-// the way the linear memory works. FIPS 140-3 mode is not supported on Wasm, so
-// we just use a build tag to exclude it. (Could also exclude other platforms
-// that does not support FIPS 140-3 mode, but as the BSS variable doesn't cost
-// much, don't bother.)
-//
-//go:build !wasm && !tamago
+//go:build tamago
 
 package drbg
 
-import entropy "crypto/internal/entropy/v1.0.0"
+import (
+	entropy "crypto/internal/entropy/v1.0.0"
+	"sync"
+)
 
 // memory is a scratch buffer that is accessed between samples by the entropy
 // source to expose it to memory access timings.
@@ -22,14 +18,18 @@ import entropy "crypto/internal/entropy/v1.0.0"
 // cost of zeroing a new allocation every time. The entropy source accesses it
 // using atomics (and doesn't care about its contents).
 //
-// It should end up in the .noptrbss section, and become backed by physical pages
-// at first use. This ensures that programs that do not use the FIPS 140-3 module
-// do not incur any memory use or initialization penalties.
-var memory entropy.ScratchBuffer
+// In GOOS=tamago it is dynamically allocated at first use to prevent
+// allocation in the .noptrbss section, which would cause overhead on ELF to
+// binary conversions.
+var getMemory = sync.OnceValue(func() *entropy.ScratchBuffer {
+	return new(entropy.ScratchBuffer)
+})
 
 func getEntropy() *[SeedSize]byte {
+	memory := getMemory()
+
 	var retries int
-	seed, err := entropy.Seed(&memory)
+	seed, err := entropy.Seed(memory)
 	for err != nil {
 		// The CPU jitter-based SP 800-90B entropy source has a non-negligible
 		// chance of failing the startup health tests.
@@ -40,7 +40,7 @@ func getEntropy() *[SeedSize]byte {
 		if retries++; retries > 100 {
 			panic("fips140/drbg: failed to obtain initial entropy")
 		}
-		seed, err = entropy.Seed(&memory)
+		seed, err = entropy.Seed(memory)
 	}
 	return &seed
 }

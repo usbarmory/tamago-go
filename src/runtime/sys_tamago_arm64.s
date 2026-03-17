@@ -57,19 +57,7 @@ TEXT runtime·GetG(SB),NOSPLIT,$0-16
 
 	RET
 
-// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
-//
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * R0: success (0), failure (1)
-TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
+TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	CMP	$0, R0
 	BEQ	fail
 
@@ -107,6 +95,30 @@ check:
 	MOVD	(timerWhen_timer)(R0), R1
 	CMP	R3, R1
 	BNE	prev
+
+	MOVD	$0, R1
+	RET
+fail:
+	MOVD	$1, R1
+	RET
+
+// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// soon as possible.
+//
+// The function arguments must be passed through the following registers
+// (rather than on the frame pointer):
+//
+//   * R0: G pointer
+//
+// The function return values are passed through the following registers:
+// (rather than on the frame pointer):
+//
+//   * R0: success (0), failure (1)
+TEXT runtime·WakeG(SB),NOSPLIT,$0-0
+	CALL	runtime·findTimer(SB)
+
+	CMP	$0, R1
+	BNE	fail
 
 	// g->timer.ts.heap[off] = 1
 	MOVD	$1, R1

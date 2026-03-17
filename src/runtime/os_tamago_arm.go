@@ -33,12 +33,7 @@ func DataRegion() (start uint32, end uint32) {
 	return uint32(firstmoduledata.data), uint32(firstmoduledata.enoptrbss)
 }
 
-func checkgoarm() {
-	if goarm < 5 || goarm > 7 {
-		print("runtime: tamago requires ARMv5 through ARMv7. Recompile using GOARM=5, GOARM=6 or GOARM=7.\n")
-		exit(1)
-	}
-}
+func checkgoarm() {}
 
 //go:nosplit
 func cputicks() int64 {

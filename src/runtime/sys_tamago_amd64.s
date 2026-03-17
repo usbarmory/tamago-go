@@ -180,7 +180,7 @@ application:
 	MOVL	$0xf1, 0xf1  // crash
 	RET
 
-TEXT runtime·findTimer<>(SB),NOSPLIT|NOFRAME,$0-0
+TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	CMPQ	AX, $0
 	JE	fail
 
@@ -243,8 +243,8 @@ fail:
 // (rather than on the frame pointer):
 //
 //   * AX: success (0), failure (1)
-TEXT runtime·WakeG(SB),NOSPLIT|NOFRAME,$0-0
-	CALL	runtime·findTimer<>(SB)
+TEXT runtime·WakeG(SB),NOSPLIT,$0-0
+	CALL	runtime·findTimer(SB)
 
 	CMPQ	BX, $0
 	JNE	fail
@@ -285,7 +285,7 @@ TEXT runtime·Wake(SB),$0-9
 // func Asleep(gp uint) bool
 TEXT runtime·Asleep(SB),$0-9
 	MOVQ	gp+0(FP), AX
-	CALL	runtime·findTimer<>(SB)
+	CALL	runtime·findTimer(SB)
 	XORQ	$1, BX
 	MOVB	BX, ret+8(FP)
 	RET

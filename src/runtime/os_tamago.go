@@ -50,6 +50,11 @@ func WakeG()
 // soon as possible, reporting whether the modification is successful.
 func Wake(gp uint) bool
 
+//go:linkname getgp os/signal.getgp
+func getgp() (gp uintptr) {
+	return uintptr(unsafe.Pointer(getg()))
+}
+
 // stubs for unused/unimplemented functionality
 type sigset struct{}
 type gsignalStack struct{}

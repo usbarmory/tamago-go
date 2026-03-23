@@ -377,7 +377,7 @@ func TestPageAllocAllocToCache(t *testing.T) {
 	}
 	// Disable these tests on iOS since we have a small address space.
 	// See #46860.
-	if PageAlloc64Bit != 0 && goos.IsIos == 0 {
+	if PageAlloc64Bit != 0 && goos.IsIos == 0 && goos.IsTamago == 0 {
 		const chunkIdxBigJump = 0x100000 // chunk index offset which translates to O(TiB)
 
 		// This test is similar to the one with the same name for

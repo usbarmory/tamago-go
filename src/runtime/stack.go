@@ -12,6 +12,7 @@ import (
 	"internal/goos"
 	"internal/runtime/atomic"
 	"internal/runtime/gc"
+	goos_overlay "runtime/goos"
 	"internal/runtime/sys"
 	"math/bits"
 	"unsafe"
@@ -72,7 +73,7 @@ const (
 	// to each stack below the usual guard area for OS-specific
 	// purposes like signal handling. Used on Windows, Plan 9,
 	// and iOS because they do not use a separate stack.
-	stackSystem = goos.IsWindows*4096 + goos.IsPlan9*512 + goos.IsIos*goarch.IsArm64*1024
+	stackSystem = goos.IsWindows*4096 + goos.IsPlan9*512 + goos.IsIos*goarch.IsArm64*1024 + goos.IsTamago*goos_overlay.StackSystem
 
 	// The minimum size of stack used by Go code
 	stackMin = 2048

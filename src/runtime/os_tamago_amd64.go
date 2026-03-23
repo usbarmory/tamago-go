@@ -41,4 +41,6 @@ func CPU() string {
 
 // Asleep returns whether the goroutine holds a cached timer for time.Sleep
 // (g.timer) and is therefore suitable as [Wake] or [WakeG] target.
+//
+// Deprecated: use [os/signal.Waiting] instead.
 func Asleep(gp uint) bool

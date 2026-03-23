@@ -29,6 +29,17 @@ const (
 		_CLONE_THREAD /* revisit - okay for now */
 )
 
+const (
+	bits = 32 << (^uint(0) >> 63) / 8
+
+	ArenaBaseOffset     = 0
+	HeapAddrBits        = (8-bits)*3 + bits*5 // 32-bit:32 64-bit:40
+	LogHeapArenaBytes   = (2+20)
+	LogPallocChunkPages = 9
+	MinPhysPageSize     = 4096
+	StackSystem         = 0
+)
+
 var (
 	RamStart       uint = 0x80000000
 	RamSize        uint = 0x20000000 // 512MB

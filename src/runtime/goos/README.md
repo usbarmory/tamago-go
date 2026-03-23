@@ -18,6 +18,7 @@ This package is a stub and is only used for documentation purposes, applications
 
 ## Index
 
+- [Constants](<#constants>)
 - [Variables](<#variables>)
 - [func CPUinit\(\)](<#CPUinit>)
 - [func GetRandomData\(b \[\]byte\)](<#GetRandomData>)
@@ -27,6 +28,38 @@ This package is a stub and is only used for documentation purposes, applications
 - [func Nanotime\(\) int64](<#Nanotime>)
 - [func Printk\(c byte\)](<#Printk>)
 
+
+## Constants
+
+<a name="ArenaBaseOffset"></a>Required constants.
+
+```go
+const (
+    // ArenaBaseOffset is the pointer value that corresponds to index 0 in
+    // the heap arena map (see runtime.arenaBaseOffset).
+    ArenaBaseOffset = 0
+
+    // HeapAddrBits is the number of bits in a heap address (see
+    // runtime.heapAddrBits).
+    HeapAddrBits = 40
+
+    // LogHeapArenaBytes is the size of a runtime heap arena in log_2
+    // bytes (see runtime.logHeapArenaBytes).
+    LogHeapArenaBytes = (2 + 20)
+
+    // LogPallocChunkPages is the size of a runtime bitmap chunk in log_2
+    // bytes (see runtime.logPallocChunkPages).
+    LogPallocChunkPages = 9
+
+    // MinPhysPageSize is a lower-bound on the physical page size (see
+    // runtime.minPhysPageSize).
+    MinPhysPageSize = 4096
+
+    // StackSystem is a number of additional bytes to add to each stack
+    // below the usual guard area.
+    StackSystem = 0
+)
+```
 
 ## Variables
 
@@ -78,7 +111,7 @@ var (
 ```
 
 <a name="CPUinit"></a>
-## func [CPUinit](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L54>)
+## func [CPUinit](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L81>)
 
 ```go
 func CPUinit()
@@ -87,7 +120,7 @@ func CPUinit()
 CPUInit handles immediate startup CPU initialization as it represents the first instruction set executed.
 
 <a name="GetRandomData"></a>
-## func [GetRandomData](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L68>)
+## func [GetRandomData](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L95>)
 
 ```go
 func GetRandomData(b []byte)
@@ -96,7 +129,7 @@ func GetRandomData(b []byte)
 GetRandomData generates len\(b\) random bytes and writes them into b.
 
 <a name="Hwinit0"></a>
-## func [Hwinit0](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L62>)
+## func [Hwinit0](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L89>)
 
 ```go
 func Hwinit0()
@@ -107,7 +140,7 @@ Hwinit0 takes care of the lower level initialization triggered before runtime se
 It must be defined using Go's Assembler to retain Go's commitment to backward compatibility, otherwise extreme care must be taken as the lack of World start does not allow memory allocation.
 
 <a name="Hwinit1"></a>
-## func [Hwinit1](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L86>)
+## func [Hwinit1](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L113>)
 
 ```go
 func Hwinit1()
@@ -116,7 +149,7 @@ func Hwinit1()
 Hwinit1 takes care of the lower level initialization triggered early in runtime setup \(post World start\).
 
 <a name="InitRNG"></a>
-## func [InitRNG](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L65>)
+## func [InitRNG](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L92>)
 
 ```go
 func InitRNG()
@@ -125,7 +158,7 @@ func InitRNG()
 InitRNG initializes random number generation.
 
 <a name="Nanotime"></a>
-## func [Nanotime](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L75>)
+## func [Nanotime](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L102>)
 
 ```go
 func Nanotime() int64
@@ -136,7 +169,7 @@ Nanotime returns the system time in nanoseconds.
 Before [Hwinit1](<#Hwinit1>) it must be defined using Go's Assembler to retain Go's commitment to backward compatibility, otherwise extreme care must be taken as the lack of World start does not allow memory allocation.
 
 <a name="Printk"></a>
-## func [Printk](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L82>)
+## func [Printk](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L109>)
 
 ```go
 func Printk(c byte)

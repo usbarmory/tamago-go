@@ -180,6 +180,18 @@ pkg runtime/goos, func Hwinit1() #73608
 pkg runtime/goos, func InitRNG() #73608
 pkg runtime/goos, func Nanotime() int64 #73608
 pkg runtime/goos, func Printk(uint8) #73608
+pkg runtime/goos, const ArenaBaseOffset = 0 #73608
+pkg runtime/goos, const ArenaBaseOffset ideal-int #73608
+pkg runtime/goos, const HeapAddrBits = 32 #73608
+pkg runtime/goos, const HeapAddrBits ideal-int #73608
+pkg runtime/goos, const LogHeapArenaBytes = 22 #73608
+pkg runtime/goos, const LogHeapArenaBytes ideal-int #73608
+pkg runtime/goos, const LogPallocChunkPages = 9 #73608
+pkg runtime/goos, const LogPallocChunkPages ideal-int #73608
+pkg runtime/goos, const MinPhysPageSize = 4096 #73608
+pkg runtime/goos, const MinPhysPageSize ideal-int #73608
+pkg runtime/goos, const StackSystem = 0 #73608
+pkg runtime/goos, const StackSystem ideal-int #73608
 pkg runtime/goos, var Bloc uintptr #73608
 pkg runtime/goos, var Exit func(int32) #73608
 pkg runtime/goos, var Idle func(int64) #73608

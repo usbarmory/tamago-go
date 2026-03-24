@@ -182,7 +182,7 @@ pkg runtime/goos, func Nanotime() int64 #73608
 pkg runtime/goos, func Printk(uint8) #73608
 pkg runtime/goos, const ArenaBaseOffset = 0 #73608
 pkg runtime/goos, const ArenaBaseOffset ideal-int #73608
-pkg runtime/goos, const HeapAddrBits = 32 #73608
+pkg runtime/goos, const HeapAddrBits = 40 #73608
 pkg runtime/goos, const HeapAddrBits ideal-int #73608
 pkg runtime/goos, const LogHeapArenaBytes = 22 #73608
 pkg runtime/goos, const LogHeapArenaBytes ideal-int #73608

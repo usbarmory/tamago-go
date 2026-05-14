@@ -49,6 +49,7 @@ var (
 	Exit   = sys_exit_group
 	Idle   func(until int64)
 	ProcID func() uint64
+	Wake   func(uint64)
 
 	Hwinit0  = func() {}
 	InitRNG  = func() {}

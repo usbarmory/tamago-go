@@ -9,6 +9,7 @@ package runtime
 import (
 	"internal/abi"
 	"internal/runtime/atomic"
+	"internal/runtime/math"
 	"runtime/goos"
 	"unsafe"
 )
@@ -221,34 +222,36 @@ func semacreate(mp *m) {
 
 //go:nosplit
 func semasleep(ns int64) int {
+	var deadline int64
+	var v uint32
+
 	gp := getg()
 	addr := &gp.m.waitsemacount
 
-	v := uint32(0)
+	if v = atomic.Load(addr); v > 0 && atomic.Cas(addr, v, v-1) {
+		return 0
+	}
 
 	if ns >= 0 {
-		deadline := nanotime() + ns
-
-		for {
-			if deadline-nanotime() <= 0 {
-				return -1 // timeout or interrupted
-			}
-			if v = atomic.Load(addr); v <= 0 {
-				continue
-			}
-			if atomic.Cas(addr, v, v-1) {
-				return 0
-			}
-		}
+		deadline = nanotime() + ns
+	} else {
+		deadline = math.MaxInt64
 	}
 
 	for {
-		if v = atomic.Load(addr); v <= 0 {
-			// interrupted; try again (c.f. lock_sema.go)
+		if v = atomic.Load(addr); v > 0 {
+			if atomic.Cas(addr, v, v-1) {
+				return 0
+			}
 			continue
 		}
-		if atomic.Cas(addr, v, v-1) {
-			return 0
+		if ns >= 0 {
+			if deadline-nanotime() <= 0 {
+				return -1
+			}
+		}
+		if goos.Idle != nil {
+			goos.Idle(deadline)
 		}
 	}
 }
@@ -256,6 +259,10 @@ func semasleep(ns int64) int {
 //go:nosplit
 func semawakeup(mp *m) {
 	atomic.Xadd(&mp.waitsemacount, 1)
+
+	if goos.Wake != nil {
+		goos.Wake(mp.procid)
+	}
 }
 
 const preemptMSupported = false

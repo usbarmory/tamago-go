@@ -14,13 +14,13 @@ import (
 //
 //go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
-	idleStart := nanotime()
-
 	if goos.Idle != nil {
 		goos.Idle(pollUntil)
 	}
 
-	sched.idleTime.Add(nanotime() - idleStart)
+	if now > 0 {
+		sched.idleTime.Add(nanotime() - now)
+	}
 
 	// always return otherReady to ensure that no M is ever dropped
 	return nil, true

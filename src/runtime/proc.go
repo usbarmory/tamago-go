@@ -15,6 +15,7 @@ import (
 	"internal/runtime/sys"
 	"internal/strconv"
 	"internal/stringslite"
+	goos_overlay "runtime/goos"
 	"unsafe"
 )
 
@@ -2007,6 +2008,11 @@ func mexit(osStack bool) {
 		sched.nmfreed++
 		checkdead()
 		unlock(&sched.lock)
+
+		if goos_overlay.Exit != nil {
+			goos_overlay.Exit(0)
+		}
+
 		mPark()
 		throw("locked m0 woke up")
 	}
@@ -2875,6 +2881,43 @@ func newm(fn func(), pp *p, id int64) {
 	// ensuring that anything added to allm is guaranteed to eventually
 	// start.
 	acquirem()
+
+	// On custom GOOS, to simplify SMP implementation requirements, Ms are
+	// never dropped and mapped 1:1 to Ps. Therefore when a threading
+	// implementation is detect we ensure an M count that never exceeds
+	// GOMAXPROCS.
+	if goos_overlay.Task != nil && (id >= int64(gomaxprocs) || id < 0) && pp != nil {
+		if fn != nil {
+			// Caller incremented sched.nmspinning expecting a
+			// spinning M to materialize. Since we're not creating
+			// one, undo the increment.
+			if sched.nmspinning.Add(-1) < 0 {
+				throw("newm: negative nmspinning")
+			}
+		}
+
+		// Drain pp's local runq into the global runq, pidleput
+		// requires an empty runq, and pp may have G's queued (e.g.,
+		// from STW where pp comes directly from procresize with its
+		// full state). Any M that later acquires pp via findRunnable
+		// will pull these G's from the global runq.
+		for {
+			gp, _ := runqget(pp)
+			if gp == nil {
+				break
+			}
+			lock(&sched.lock)
+			globrunqput(gp)
+			unlock(&sched.lock)
+		}
+
+		lock(&sched.lock)
+		pidleput(pp, 0)
+		unlock(&sched.lock)
+
+		releasem(getg().m)
+		return
+	}
 
 	mp := allocm(pp, fn, id)
 	mp.nextp.set(pp)
@@ -7080,7 +7123,7 @@ var (
 //
 // This is based on forcegchelper.
 func defaultGOMAXPROCSUpdateEnable() {
-	if debug.updatemaxprocs == 0 {
+	if debug.updatemaxprocs == 0 || !haveSysmon {
 		// Unconditionally increment the metric when updates are disabled.
 		//
 		// It would be more descriptive if we did a dry run of the

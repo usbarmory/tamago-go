@@ -955,6 +955,9 @@ func TestLockOSThreadNesting(t *testing.T) {
 	if runtime.GOARCH == "wasm" {
 		t.Skip("no threads on wasm yet")
 	}
+	if runtime.GOOS == "tamago" {
+		t.Skip("Ms are bound to P on tamago")
+	}
 
 	go func() {
 		e, i := runtime.LockOSCounts()

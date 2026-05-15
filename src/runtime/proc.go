@@ -187,9 +187,7 @@ func main() {
 	// Those can arrange for main.main to run in the main thread
 	// by calling runtime.LockOSThread during initialization
 	// to preserve the lock.
-	if GOOS != "tamago" {
-		lockOSThread()
-	}
+	lockOSThread()
 
 	if mp != &m0 {
 		throw("runtime.main not on m0")
@@ -2026,11 +2024,6 @@ func mexit(osStack bool) {
 		sched.nmfreed++
 		checkdead()
 		unlock(&sched.lock)
-
-		if goos_overlay.Exit != nil {
-			goos_overlay.Exit(0)
-		}
-
 		mPark()
 		throw("locked m0 woke up")
 	}
@@ -3001,7 +2994,7 @@ func newm1(mp *m) {
 // The calling thread must itself be in a known-good state.
 func startTemplateThread() {
 	if GOARCH == "wasm" || // no threads on wasm yet
-	   GOOS == "tamago" { // no OS under tamago
+	   GOOS == "tamago" { // Ms are bound to P on tamago
 		return
 	}
 
@@ -5703,8 +5696,9 @@ func Breakpoint() {
 //
 //go:nosplit
 func dolockOSThread() {
-	if GOARCH == "wasm" {
-		return // no threads on wasm yet
+	if GOARCH == "wasm" || // no threads on wasm yet
+	   GOOS == "tamago" { // Ms are bound to P on tamago
+		return
 	}
 	gp := getg()
 	gp.m.lockedg.set(gp)
@@ -5755,8 +5749,9 @@ func lockOSThread() {
 //
 //go:nosplit
 func dounlockOSThread() {
-	if GOARCH == "wasm" {
-		return // no threads on wasm yet
+	if GOARCH == "wasm" || // no threads on wasm yet
+	   GOOS == "tamago" { // Ms are bound to P on tamago
+		return
 	}
 	gp := getg()
 	if gp.m.lockedInt != 0 || gp.m.lockedExt != 0 {
@@ -5792,7 +5787,7 @@ func UnlockOSThread() {
 //go:nosplit
 func unlockOSThread() {
 	if GOOS == "tamago" {
-		return // no OS under tamago
+		return // Ms are bound to P on tamago
 	}
 	gp := getg()
 	if gp.m.lockedInt == 0 {

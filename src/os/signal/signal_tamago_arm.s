@@ -5,7 +5,7 @@
 #include "textflag.h"
 
 // func Relay(sig syscall.Signal)
-TEXT ·Relay(SB),NOSPLIT|NOFRAME,$0-0
+TEXT ·Relay(SB),NOSPLIT|NOFRAME,$0-4
 	MOVW	sig+0(FP), R0
 	MOVW	R0, ·sig(SB)
 	MOVW	·loopG(SB), R0

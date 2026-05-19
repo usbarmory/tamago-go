@@ -2923,7 +2923,9 @@ func newm(fn func(), pp *p, id int64) {
 		}
 
 		lock(&sched.lock)
-		sched.mnext--
+		if id > 0 {
+			sched.mnext--
+		}
 		pidleput(pp, 0)
 		unlock(&sched.lock)
 

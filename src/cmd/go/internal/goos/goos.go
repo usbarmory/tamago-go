@@ -60,7 +60,7 @@ func ResolveImport(loaderstate *modload.State, imp string) (newPath, dir string,
 		dir = filepath.Join(dir, "goos")
 	} else {
 		// fallback to Linux userspace goos defined in GOROOT/src/runtime/goos
-		if os.Getenv("GOHOSTOS") == "linux" && (cfg.Goarch == "amd64" || cfg.Goarch == "arm" || cfg.Goarch == "arm64" || cfg.Goarch == "riscv64") {
+		if os.Getenv("GOHOSTOS") == "linux" && (cfg.Goarch == "amd64" || cfg.Goarch == "arm" || cfg.Goarch == "arm64" || cfg.Goarch == "loong64" || cfg.Goarch == "riscv64") {
 			dir = filepath.Join(cfg.GOROOT, "src/runtime/goos")
 		} else {
 			base.Fatalf("go: GOOS %s unsupported without external GOOSPKG on %s/%s", cfg.Goos, os.Getenv("GOHOSTOS"), cfg.Goarch)

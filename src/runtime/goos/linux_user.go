@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build tamago && (amd64 || arm || arm64 || riscv64)
+//go:build tamago && (amd64 || arm || arm64 || loong64 || riscv64)
 
 // Package goos provides support for using `GOOS=tamago` in Linux user
 // space.
@@ -34,7 +34,7 @@ const (
 
 	ArenaBaseOffset     = 0
 	HeapAddrBits        = (8-bits)*3 + bits*5 // 32-bit:32 64-bit:40
-	LogHeapArenaBytes   = (2+20)
+	LogHeapArenaBytes   = (2 + 20)
 	LogPallocChunkPages = 9
 	MinPhysPageSize     = 4096
 	StackSystem         = 0

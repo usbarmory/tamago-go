@@ -1,0 +1,14 @@
+// Copyright 2025 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+#include "textflag.h"
+
+// entry point provided to the linked application
+TEXT _rt0_loong64_tamago(SB),NOSPLIT|NOFRAME,$0
+	// CPUInit must be provided externally by the linked application for
+	// CPU initialization, it must call _rt0_tamago_start at completion
+	JMP	runtime∕goos·CPUInit(SB)
+
+TEXT _rt0_tamago_start(SB),NOSPLIT|NOFRAME,$0
+	JMP	runtime·rt0_loong64_tamago(SB)

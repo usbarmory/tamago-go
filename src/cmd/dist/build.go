@@ -1816,6 +1816,7 @@ var cgoEnabled = map[string]bool{
 	"tamago/amd64":    false,
 	"tamago/arm":      false,
 	"tamago/arm64":    false,
+	"tamago/loong64":  false,
 	"tamago/riscv64":  false,
 	"windows/386":     true,
 	"windows/amd64":   true,

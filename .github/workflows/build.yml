@@ -3,11 +3,11 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4.1.7
+    - uses: actions/checkout@v6
     - name: Prerequisites
       run: |
         sudo apt-get update

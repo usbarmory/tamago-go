@@ -25,6 +25,46 @@ TEXT ·armcas(SB),NOSPLIT,$0-13
 	MOVW	ptr+0(FP), R1
 	MOVW	old+4(FP), R2
 	MOVW	new+8(FP), R3
+#ifndef GOARM_6
+	// LDREX/STREX are ARMv6+ instructions; on ARMv5 cores such as the
+	// ARM926EJ-S they are UNDEFINED and trap. ARMv5 instead provides the
+	// SWP instruction, an atomic read-write that we use to take a
+	// global spinlock around the compare-and-swap.
+	//
+	// Interrupts are also masked: on a real single-core target this stops
+	// a goroutine from being preempted while holding the lock (which would
+	// otherwise deadlock a uniprocessor). Under QEMU user-mode the CPSR
+	// mask is a privileged no-op, but there SWP alone provides the
+	// cross-thread atomicity required by the multi-threaded test harness.
+	MOVW	$armcas_lock<>(SB), R5
+	WORD	$0xe10f4000	// MRS R4, CPSR (save)
+	ORR	$0xc0, R4, R0	// mask IRQ+FIQ
+	WORD	$0xe121f000	// MSR CPSR_c, R0
+	MOVW	$1, R6
+caslockv5:
+	SWPW	R6, (R5), R0
+	CMP	$0, R0
+	BNE	caslockv5
+
+	MOVW	(R1), R0
+	CMP	R0, R2
+	BNE	casrestv5
+	MOVW	R3, (R1)
+
+	MOVW	$0, R0
+	MOVW	R0, (R5)	// release lock
+	WORD	$0xe121f004	// MSR CPSR_c, R4 (restore)
+	MOVW	$1, R0
+	MOVB	R0, ret+12(FP)
+	RET
+casrestv5:
+	MOVW	$0, R0
+	MOVW	R0, (R5)	// release lock
+	WORD	$0xe121f004	// MSR CPSR_c, R4 (restore)
+	MOVW	$0, R0
+	MOVB	R0, ret+12(FP)
+	RET
+#else
 casl:
 	LDREX	(R1), R0
 	CMP	R0, R2
@@ -54,6 +94,12 @@ casfail:
 	MOVW	$0, R0
 	MOVB	R0, ret+12(FP)
 	RET
+#endif
+
+#ifndef GOARM_6
+// Global spinlock guarding the ARMv5 compare-and-swap above.
+GLOBL armcas_lock<>(SB), NOPTR, $4
+#endif
 
 // stubs
 

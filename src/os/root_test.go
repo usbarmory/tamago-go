@@ -2707,7 +2707,7 @@ func (desc testFileDesc) create(t *testing.T, dir, base, token string) (fi os.Fi
 		}
 	case testFileSymlink:
 		// Symlink. We create a symlink target named "s_"+base.
-		if runtime.GOOS == "plan9" {
+		if runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
 			t.Skip("symlinks not supported on " + runtime.GOOS)
 		}
 		linktarget := desc.target.ref.path(dir, "s_"+base)

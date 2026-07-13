@@ -133,11 +133,9 @@ func (fs *fsys) mtime(ip *inode) {
 // dirlookup looks for an entry in the directory dp with the given name.
 // It returns the directory entry and its index within the directory.
 func (fs *fsys) dirlookup(dp *inode, name string) (de *dirent, index int, err error) {
-	fs.atime(dp)
 	for i := range dp.dir {
 		de := &dp.dir[i]
 		if de.name == name {
-			fs.atime(de.inode)
 			return de, i, nil
 		}
 	}
@@ -342,6 +340,9 @@ func (f *fsysFile) stat(st *Stat_t) error {
 func (f *fsysFile) read(b []byte) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
+	if f.inode.Mode&S_IFMT == S_IFDIR {
+		return 0, EISDIR
+	}
 	n, err := f.preadLocked(b, f.offset)
 	f.offset += int64(n)
 	return n, err
@@ -401,6 +402,9 @@ func (f *fsysFile) Pwrite(b []byte, offset int64) (int, error) {
 func (f *fsysFile) pread(b []byte, offset int64) (int, error) {
 	f.fsys.mu.Lock()
 	defer f.fsys.mu.Unlock()
+	if f.inode.Mode&S_IFMT == S_IFDIR {
+		return 0, EISDIR
+	}
 	return f.preadLocked(b, offset)
 }
 

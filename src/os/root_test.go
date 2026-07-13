@@ -499,7 +499,7 @@ func TestRootChmod(t *testing.T) {
 func TestRootChtimes(t *testing.T) {
 	// Don't check atimes if the fs is mounted noatime,
 	// or on Plan 9 which does not permit changing atimes to arbitrary values.
-	checkAtimes := !hasNoatime() && runtime.GOOS != "plan9" && runtime.GOOS != "tamago"
+	checkAtimes := !hasNoatime() && runtime.GOOS != "plan9"
 	for _, test := range rootTestCases {
 		test.run(t, func(t *testing.T, target string, root *os.Root) {
 			if target != "" {
@@ -523,7 +523,7 @@ func TestRootChtimes(t *testing.T) {
 				mtime: time.Time{},
 			}} {
 				switch runtime.GOOS {
-				case "js", "plan9", "tamago":
+				case "js", "plan9":
 					times.atime = times.atime.Truncate(1 * time.Second)
 					times.mtime = times.mtime.Truncate(1 * time.Second)
 				case "illumos":
@@ -2634,7 +2634,7 @@ func (desc testFileDesc) lfinalKind() testFileKind {
 }
 
 func (desc testFileDesc) isError() bool {
-	if runtime.GOOS == "js" {
+	if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
 		return false
 	}
 	var isError func(desc testFileDesc, hasSuffix bool) bool
@@ -3225,12 +3225,12 @@ func TestRootMultiRename(t *testing.T) {
 			test.wantError(t, gotErr, os.ErrPathEscapes)
 		case test.source.lfinalKind() == testFileAbsent:
 			test.wantError(t, gotErr, errAny)
-		case test.source.slashSuffix() && test.source.lfinalKind() != testFileDir && runtime.GOOS != "js":
+		case test.source.slashSuffix() && test.source.lfinalKind() != testFileDir && runtime.GOOS != "js" && runtime.GOOS != "tamago":
 			test.wantError(t, gotErr, errAny)
 		case test.root != nil && test.target.lescapes():
 			test.wantError(t, gotErr, os.ErrPathEscapes)
-		case runtime.GOOS == "plan9":
-			// Plan9 rename behaves differently.
+		case runtime.GOOS == "plan9", runtime.GOOS == "tamago":
+			// Rename behaves differently.
 			// Just rely on consistency checks.
 		case test.target.lfinalKind() == testFileDir:
 			// POSIX rename() will replace an empty target directory,

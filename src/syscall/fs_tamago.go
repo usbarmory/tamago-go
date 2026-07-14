@@ -207,6 +207,7 @@ func (fs *fsys) namei(path string, parent bool) (ip *inode, elem string, err err
 		ip = fs.cwd
 	}
 
+	slash := path[len(path)-1] == '/'
 	for len(path) > 0 && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
@@ -226,6 +227,16 @@ func (fs *fsys) namei(path string, parent bool) (ip *inode, elem string, err err
 			return nil, "", ENAMETOOLONG
 		}
 		if parent && rest == "" {
+			if slash {
+				// If the final element exists, a trailing
+				// slash requires it to be a directory. If it
+				// does not exist, creating a directory (Mkdir)
+				// is allowed, while creating anything else is
+				// rejected in open.
+				if de, _, err := fs.dirlookup(ip, elem); err == nil && de.inode.Mode&S_IFMT != S_IFDIR {
+					return nil, "", ENOTDIR
+				}
+			}
 			// Stop one level early.
 			return ip, elem, nil
 		}
@@ -237,6 +248,9 @@ func (fs *fsys) namei(path string, parent bool) (ip *inode, elem string, err err
 		path = rest
 	}
 	if parent {
+		return nil, "", ENOTDIR
+	}
+	if slash && ip.Mode&S_IFMT != S_IFDIR {
 		return nil, "", ENOTDIR
 	}
 	return ip, "", nil
@@ -257,6 +271,11 @@ func (fs *fsys) open(name string, openmode int, mode uint32) (fileImpl, error) {
 	if err != nil {
 		if openmode&O_CREATE == 0 {
 			return nil, err
+		}
+		if mode&S_IFMT != S_IFDIR && name[len(name)-1] == '/' {
+			// A non-directory cannot be created through a name
+			// with a trailing slash.
+			return nil, EISDIR
 		}
 		ip = fs.newInode()
 		ip.Mode = mode
@@ -686,6 +705,23 @@ func Link(path, link string) error {
 	return nil
 }
 
+// subtreeContains reports whether the directory tree rooted at dir
+// contains the directory p, following p's .. chain up to the root.
+// The root is detected by a .. entry referencing itself (or a missing
+// .. entry). It expects fs.mu to be held.
+func (fs *fsys) subtreeContains(dir, p *inode) bool {
+	for {
+		if p == dir {
+			return true
+		}
+		de, _, err := fs.dirlookup(p, "..")
+		if err != nil || de.inode == p {
+			return false
+		}
+		p = de.inode
+	}
+}
+
 func Rename(from, to string) error {
 	fsinit()
 	fs.mu.Lock()
@@ -694,28 +730,71 @@ func Rename(from, to string) error {
 	if err != nil {
 		return err
 	}
-	fde, _, err := fs.dirlookup(fdp, felem)
-	if err != nil {
-		return err
-	}
 	tdp, telem, err := fs.namei(to, true)
 	if err != nil {
 		return err
 	}
+	if felem == "." || felem == ".." || telem == "." || telem == ".." {
+		return EINVAL
+	}
+	fde, _, err := fs.dirlookup(fdp, felem)
+	if err != nil {
+		return err
+	}
+	ip := fde.inode
 
-	overwritten := fs.dirlink(tdp, telem, fde.inode)
-	fde.inode.Nlink--
-
-	if !overwritten {
-		*fde = fdp.dir[len(fdp.dir)-2]
-		fdp.dir = append(fdp.dir[:len(fdp.dir)-2], fdp.dir[len(fdp.dir)-1:]...)
-	} else {
-		*fde = fdp.dir[len(fdp.dir)-1]
-		fdp.dir = fdp.dir[:len(fdp.dir)-1]
+	if ip.Mode&S_IFMT == S_IFDIR && fs.subtreeContains(ip, tdp) {
+		// a directory cannot be moved into itself or its own subtree
+		return EINVAL
 	}
 
+	if tde, _, err := fs.dirlookup(tdp, telem); err == nil {
+		if tde.inode == ip {
+			return nil
+		}
+		switch {
+		case ip.Mode&S_IFMT != S_IFDIR && tde.inode.Mode&S_IFMT == S_IFDIR:
+			return EISDIR
+		case ip.Mode&S_IFMT == S_IFDIR && tde.inode.Mode&S_IFMT != S_IFDIR:
+			return ENOTDIR
+		}
+		if tde.inode.Mode&S_IFMT == S_IFDIR {
+			if len(tde.inode.dir) > 2 {
+				// the directory has entries other than . and ..
+				return ENOTEMPTY
+			}
+			tde.inode.Nlink -= 2
+			tdp.Nlink--
+		} else {
+			tde.inode.Nlink--
+		}
+		tde.inode = ip
+	} else {
+		if to[len(to)-1] == '/' && ip.Mode&S_IFMT != S_IFDIR {
+			return ENOTDIR
+		}
+		tdp.dir = append(tdp.dir, dirent{telem, ip})
+		tdp.dirSize()
+	}
+
+	_, fi, err := fs.dirlookup(fdp, felem)
+	if err != nil {
+		return err
+	}
+	fdp.dir[fi] = fdp.dir[len(fdp.dir)-1]
+	fdp.dir = fdp.dir[:len(fdp.dir)-1]
 	fdp.dirSize()
 
+	if ip.Mode&S_IFMT == S_IFDIR && fdp != tdp {
+		if de, _, err := fs.dirlookup(ip, ".."); err == nil {
+			de.inode.Nlink--
+			de.inode = tdp
+			tdp.Nlink++
+		}
+	}
+
+	fs.mtime(fdp)
+	fs.mtime(tdp)
 	return nil
 }
 

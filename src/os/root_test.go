@@ -1538,7 +1538,7 @@ func TestRootConsistencyLink(t *testing.T) {
 }
 
 func testRootConsistencyMove(t *testing.T, rename bool) {
-	if runtime.GOOS == "plan9" || runtime.GOOS == "tamago" {
+	if runtime.GOOS == "plan9" {
 		// This test depends on moving files between directories.
 		t.Skip(runtime.GOOS + " does not support cross-directory renames")
 	}
@@ -2616,7 +2616,7 @@ func (desc testFileDesc) lfinalKind() testFileKind {
 }
 
 func (desc testFileDesc) isError() bool {
-	if runtime.GOOS == "js" || runtime.GOOS == "tamago" {
+	if runtime.GOOS == "js" {
 		return false
 	}
 	var isError func(desc testFileDesc, hasSuffix bool) bool
@@ -3161,12 +3161,12 @@ func TestRootMultiRename(t *testing.T) {
 			test.wantError(t, gotErr, os.ErrPathEscapes)
 		case test.source.lfinalKind() == testFileAbsent:
 			test.wantError(t, gotErr, errAny)
-		case test.source.slashSuffix() && test.source.lfinalKind() != testFileDir && runtime.GOOS != "js" && runtime.GOOS != "tamago":
+		case test.source.slashSuffix() && test.source.lfinalKind() != testFileDir && runtime.GOOS != "js":
 			test.wantError(t, gotErr, errAny)
 		case test.root != nil && test.target.lescapes():
 			test.wantError(t, gotErr, os.ErrPathEscapes)
-		case runtime.GOOS == "plan9", runtime.GOOS == "tamago":
-			// Rename behaves differently.
+		case runtime.GOOS == "plan9":
+			// Plan9 rename behaves differently.
 			// Just rely on consistency checks.
 		case test.target.lfinalKind() == testFileDir:
 			// POSIX rename() will replace an empty target directory,

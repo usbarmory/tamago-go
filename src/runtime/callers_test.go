@@ -511,6 +511,9 @@ func TestFPUnwindStackGrowthAfterRecovery(t *testing.T) {
 	if !runtime.FramePointerEnabled {
 		t.Skip("frame pointers not supported for this architecture")
 	}
+	if runtime.GOOS == "tamago" {
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
+	}
 	state := runtime.StackPoisonCopy()
 	defer state.Restore()
 	defer func() {

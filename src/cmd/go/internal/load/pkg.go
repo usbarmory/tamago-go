@@ -902,7 +902,7 @@ func loadPackageData(ld *modload.Loader, ctx context.Context, path, parentPath, 
 		if newPath, dir, ok := fips140.ResolveImport(path); ok {
 			r.path = newPath
 			r.dir = dir
-		} else if newPath, dir, ok := goos.ResolveImport(loaderstate, path); ok {
+		} else if newPath, dir, ok := goos.ResolveImport(ld, path); ok {
 			r.path = newPath
 			r.dir = dir
 		} else if cfg.ModulesEnabled {

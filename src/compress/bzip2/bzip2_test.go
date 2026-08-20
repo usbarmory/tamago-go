@@ -32,10 +32,6 @@ func mustDecodeHex(s string) []byte {
 }
 
 func mustLoadFile(f string) []byte {
-	entries, _ := os.ReadDir("/")
-	fmt.Printf("A: %+v\n", entries)
-
-
 	if strings.HasSuffix(f, ".base64") {
 		b, err := obscuretestdata.ReadFile(f)
 		if err != nil {

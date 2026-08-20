@@ -12,4 +12,11 @@ import (
 
 //go:embed testdata/*
 var testdata embed.FS
-func init() { os.CopyFS(".", testdata) }
+
+//go:embed test-file.crt
+var testfile []byte
+
+func init() {
+	os.CopyFS(".", testdata)
+	os.WriteFile("test-file.crt", testfile, 0600)
+}

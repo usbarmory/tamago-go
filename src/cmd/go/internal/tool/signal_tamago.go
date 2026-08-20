@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build !plan9 && !js && !tamago
+//go:build tamago
 
 package tool
 
@@ -11,4 +11,4 @@ import (
 	"syscall"
 )
 
-var signalsToForward = []os.Signal{syscall.SIGHUP, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM}
+var signalsToForward = []os.Signal{os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM}

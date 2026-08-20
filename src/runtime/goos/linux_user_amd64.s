@@ -11,6 +11,7 @@
 #define SYS_mmap		9
 #define SYS_clone		56
 #define SYS_exit		60
+#define SYS_arch_prctl		158
 #define SYS_clock_gettime	228
 #define SYS_exit_group		231
 #define SYS_getrandom		318
@@ -122,7 +123,7 @@ nog1:
 	// In child, set up new stack
 	MOVQ	R9, g
 	MOVQ	g, DI
-	CALL	runtime·settls(SB)
+	CALL	·settls<>(SB)
 	MOVQ	g, (TLS)
 
 	MOVQ	TLS, CX
@@ -139,3 +140,14 @@ nog2:
 	MOVL	$SYS_exit, AX
 	SYSCALL
 	JMP	-3(PC)	// keep exiting
+
+TEXT ·settls<>(SB),NOSPLIT,$0
+	ADDQ	$8, DI	// ELF wants to use -8(FS)
+	MOVQ	DI, SI
+	MOVQ	$0x1002, DI	// ARCH_SET_FS
+	MOVQ	$SYS_arch_prctl, AX
+	SYSCALL
+	CMPQ	AX, $0xfffffffffffff001
+	JLS	2(PC)
+	MOVL	$0xf1, 0xf1  // crash
+	RET

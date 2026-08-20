@@ -143,16 +143,9 @@ bad_cpu:
 	CALL	runtime·abort(SB)
 	RET
 
-// func GetG() (gp uint, pp uint)
-TEXT runtime·GetG(SB),NOSPLIT,$0-16
-	get_tls(CX)
-	MOVQ	g(CX), AX
-	MOVQ	AX, gp+0(FP)
-
-	MOVQ	(g_m)(AX), AX
-	MOVQ	(m_p)(AX), AX
-	MOVQ	AX, pp+8(FP)
-
+// func CallOnG0(func())
+TEXT runtime·CallOnG0(SB),NOSPLIT,$0
+	JMP	runtime·systemstack(SB)
 	RET
 
 // This is needed by asm_amd64.s
@@ -231,7 +224,7 @@ fail:
 	MOVQ	$1, BX
 	RET
 
-// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
 // The function arguments must be passed through the following registers
@@ -243,7 +236,7 @@ fail:
 // (rather than on the frame pointer):
 //
 //   * AX: success (0), failure (1)
-TEXT runtime·WakeG(SB),NOSPLIT,$0-0
+TEXT runtime·wakeG(SB),NOSPLIT,$0-0
 	CALL	runtime·findTimer(SB)
 
 	CMPQ	BX, $0
@@ -272,14 +265,6 @@ TEXT runtime·WakeG(SB),NOSPLIT,$0-0
 	RET
 fail:
 	MOVQ	$1, AX
-	RET
-
-// func Wake(gp uint) bool
-TEXT runtime·Wake(SB),$0-9
-	MOVQ	gp+0(FP), AX
-	CALL	runtime·WakeG(SB)
-	XORQ	$1, AX
-	MOVB	AX, ret+8(FP)
 	RET
 
 // func Asleep(gp uint) bool

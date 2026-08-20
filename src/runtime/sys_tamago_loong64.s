@@ -48,16 +48,6 @@ TEXT runtime·rt0_loong64_tamago(SB),NOSPLIT|NOFRAME,$0
 	WORD	$0 // crash if reached
 	RET
 
-// func GetG() (gp uint, pp uint)
-TEXT runtime·GetG(SB),NOSPLIT,$0-16
-	MOVV	g, gp+0(FP)
-
-	MOVV	(g_m)(g), R12
-	MOVV	(m_p)(R12), R12
-	MOVV	R12, pp+8(FP)
-
-	RET
-
 TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	BEQ	R12, R0, fail
 
@@ -96,7 +86,7 @@ fail:
 	MOVV	$1, R13
 	RET
 
-// WakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
+// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.
 //
 // The function arguments must be passed through the following registers
@@ -108,7 +98,7 @@ fail:
 // (rather than on the frame pointer):
 //
 //   * R12: success (0), failure (1)
-TEXT runtime·WakeG(SB),NOSPLIT,$0-0
+TEXT runtime·wakeG(SB),NOSPLIT,$0-0
 	JAL	runtime·findTimer(SB)
 
 	BNE	R13, R0, fail
@@ -136,12 +126,4 @@ TEXT runtime·WakeG(SB),NOSPLIT,$0-0
 	RET
 fail:
 	MOVV	$1, R12
-	RET
-
-// func Wake(gp uint) bool
-TEXT runtime·Wake(SB),$0-9
-	MOVV	gp+0(FP), R12
-	JAL	runtime·WakeG(SB)
-	XOR	$1, R12, R12
-	MOVB	R12, ret+8(FP)
 	RET

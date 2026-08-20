@@ -57,76 +57,10 @@ TEXT runtime·rt0_arm_tamago(SB),NOSPLIT|NOFRAME,$0
 TEXT runtime·publicationBarrier(SB),NOSPLIT|NOFRAME,$0-0
 	B	runtime·armPublicationBarrier(SB)
 
-// CallOnG0 calls a function (func(off int)) on g0 stack.
-//
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: fn argument (vector table offset)
-//   * R1: fn pointer
-//   * R2: size of stack area reserved for caller registers
-//   * R3: caller program counter
-TEXT runtime·CallOnG0(SB),NOSPLIT|NOFRAME,$0-0
-	MOVW	$runtime·g0(SB), R5
-	CMP	g, R5
-	B.EQ	noswitch
-
-	// restore SP
-	ADD	R2, R13, R5
-	MOVW	R5, (g_sched+gobuf_sp)(g)
-
-	// align stack pointer to fixed offset
-	MOVW	$56, R4
-	SUB	R2, R4, R4
-	SUB	R4, R13, R13
-
-	// save offset and LR
-	WORD	$0xe92d4010		// push {r4, lr}
-
-	// restore PC
-	MOVW	R3, (g_sched+gobuf_pc)(g)
-
-	// restore g
-	MOVW	R3, (g_sched+gobuf_lr)(g)
-	MOVW	g, (g_sched+gobuf_g)(g)
-
-	// switch to g0
-	MOVW	g_m(g), R6
-	MOVW	m_g0(R6), R2
-	MOVW	R2, g
-	MOVW	(g_sched+gobuf_sp)(R2), R3
-
-	// make it look like mstart called systemstack on g0, to stop traceback
-	SUB	$4, R3, R3
-	MOVW	$runtime·mstart(SB), R4
-	MOVW	R4, 0(R3)
-	MOVW	R3, R13
-
-	// call target function
-	MOVW	R0, argframe+0(FP)
-	BL	(R1)
-
-	// switch back to g
-	MOVW	g_m(g), R1
-	MOVW	m_curg(R1), R0
-	MOVW	R0, g
-
-	// restore stack pointer
-	MOVW	(g_sched+gobuf_sp)(g), R13
-	MOVW	$0, R3
-	MOVW	R3, (g_sched+gobuf_sp)(g)
-
-	// restore PC
-	SUB	$56, R13, R13		// saved caller registers
-	SUB	$8, R13, R13		// saved offset and LR
-	WORD	$0xe8bd0030		// pop {r4, r5}
-	ADD	R4, R13, R13		// remove fixed offset
-	MOVW	R5, R15
-
-noswitch:
-	// call target function
-	MOVW	R0, argframe+0(FP)
-	B	(R1)
+// func CallOnG0(func())
+TEXT runtime·CallOnG0(SB),NOSPLIT,$0
+	JMP	runtime·systemstack(SB)
+	RET
 
 TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	CMP	$0, R0

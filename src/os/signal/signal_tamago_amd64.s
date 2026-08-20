@@ -9,7 +9,7 @@ TEXT ·Relay(SB),NOSPLIT|NOFRAME,$0-8
 	MOVQ	sig+0(FP), AX
 	MOVQ	AX, ·sig(SB)
 	MOVQ	·loopG(SB), AX
-	JMP	runtime·WakeG(SB)
+	JMP	runtime·wakeG(SB)
 
 // func Waiting() bool
 TEXT ·Waiting(SB),NOSPLIT,$0-1

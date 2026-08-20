@@ -92,8 +92,8 @@ var depsRules = `
 	internal/trace/tracev2,
 	math/bits,
 	structs,
-	simd/archsimd
-	runtime/goos,
+	simd/archsimd,
+	runtime/goos
 	< internal/bytealg
 	< internal/stringslite
 	< internal/unsafeheader

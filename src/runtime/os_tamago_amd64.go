@@ -14,6 +14,9 @@ import (
 // defined in asm_amd64.s
 func cputicks() int64
 
+// CallOnG0 calls a function (func()) on g0 stack.
+func CallOnG0(func())
+
 // MemRegion returns the start and end addresses of the physical RAM assigned
 // to the Go runtime.
 func MemRegion() (start uint64, end uint64) {

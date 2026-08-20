@@ -37,13 +37,13 @@ import (
 const goos = "runtime/goos"
 
 // ResolveImport resolves the import path imp.
-func ResolveImport(loaderstate *modload.State, imp string) (newPath, dir string, ok bool) {
+func ResolveImport(moduleLoader *modload.Loader, imp string) (newPath, dir string, ok bool) {
 	if !str.HasPathPrefix(imp, goos) || cfg.Goos != "tamago" {
 		return "", "", false
 	}
 
 	if cfg.GOOSPKG != "" {
-		r, err := modload.ListModules(loaderstate, context.Background(), []string{cfg.GOOSPKG}, 0, "")
+		r, err := modload.ListModules(moduleLoader, context.Background(), []string{cfg.GOOSPKG}, 0, "")
 
 		if err != nil {
 			base.Fatalf("go: GOOSPKG=%q not found in module list: %v", cfg.GOOSPKG, err)

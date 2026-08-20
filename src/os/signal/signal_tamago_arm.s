@@ -9,7 +9,7 @@ TEXT ·Relay(SB),NOSPLIT|NOFRAME,$0-4
 	MOVW	sig+0(FP), R0
 	MOVW	R0, ·sig(SB)
 	MOVW	·loopG(SB), R0
-	B	runtime·WakeG(SB)
+	B	runtime·wakeG(SB)
 
 // func Waiting() bool
 TEXT ·Waiting(SB),NOSPLIT,$0-1

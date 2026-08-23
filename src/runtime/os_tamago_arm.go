@@ -6,29 +6,6 @@
 
 package runtime
 
-import "runtime/goos"
-
-// CallOnG0 calls a function (func()) on g0 stack.
-func CallOnG0(func())
-
-// MemRegion returns the start and end addresses of the physical RAM assigned
-// to the Go runtime.
-func MemRegion() (start uint32, end uint32) {
-	return uint32(goos.RamStart), uint32(goos.RamStart + goos.RamSize)
-}
-
-// TextRegion returns the start and end addresses of the physical RAM
-// containing the Go runtime executable instructions.
-func TextRegion() (start uint32, end uint32) {
-	return uint32(firstmoduledata.text), uint32(firstmoduledata.etext)
-}
-
-// DataRegion returns the start and end addresses of the physical RAM
-// containing the Go runtime global symbols.
-func DataRegion() (start uint32, end uint32) {
-	return uint32(firstmoduledata.data), uint32(firstmoduledata.enoptrbss)
-}
-
 func checkgoarm() {}
 
 //go:nosplit

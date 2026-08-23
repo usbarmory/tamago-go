@@ -47,14 +47,15 @@ var (
 
 	Bloc   = uintptr(RamStart)
 	Exit   = sys_exit_group
+
 	Idle   func(until int64)
 	ProcID func() uint64
 	Wake   func(uint64)
 
 	Hwinit0  = func() {}
 	InitRNG  = func() {}
-	Nanotime = sys_clock_gettime
 	Hwinit1  = func() {}
+	Nanotime = sys_clock_gettime
 )
 
 // defined in linux_user*.s

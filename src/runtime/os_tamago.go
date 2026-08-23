@@ -30,11 +30,8 @@ func nanotime1() int64 {
 	return goos.Nanotime()
 }
 
-// GetRandomData generates len(r) random bytes from the random source provided
-// externally by the linked application.
-func GetRandomData(r []byte) {
-	goos.GetRandomData(r)
-}
+// CallOnG0 calls a function (func()) on g0 stack.
+func CallOnG0(func())
 
 // wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
 // soon as possible.

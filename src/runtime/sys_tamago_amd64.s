@@ -266,11 +266,3 @@ TEXT runtime·wakeG(SB),NOSPLIT,$0-0
 fail:
 	MOVQ	$1, AX
 	RET
-
-// func Asleep(gp uint) bool
-TEXT runtime·Asleep(SB),$0-9
-	MOVQ	gp+0(FP), AX
-	CALL	runtime·findTimer(SB)
-	XORQ	$1, BX
-	MOVB	BX, ret+8(FP)
-	RET

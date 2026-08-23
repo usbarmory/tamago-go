@@ -15,7 +15,7 @@
 package syscall
 
 import (
-	"runtime"
+	"runtime/goos"
 	"sync"
 	"unsafe"
 )
@@ -922,7 +922,7 @@ func (f randomFile) close() error {
 }
 
 func (f randomFile) Pread(b []byte, offset int64) (int, error) {
-	runtime.GetRandomData(b)
+	goos.GetRandomData(b)
 	return len(b), nil
 }
 

@@ -173,7 +173,7 @@ pkg reflect, type Type interface, Fields() iter.Seq[StructField] #66631
 pkg reflect, type Type interface, Ins() iter.Seq[Type] #66631
 pkg reflect, type Type interface, Methods() iter.Seq[Method] #66631
 pkg reflect, type Type interface, Outs() iter.Seq[Type] #66631
-pkg runtime/goos, func CPUinit() #73608
+pkg runtime/goos, func CPUInit() #73608
 pkg runtime/goos, func GetRandomData([]uint8) #73608
 pkg runtime/goos, func Hwinit0() #73608
 pkg runtime/goos, func Hwinit1() #73608

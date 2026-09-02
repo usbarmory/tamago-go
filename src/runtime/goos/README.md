@@ -20,7 +20,7 @@ This package is a stub and is only used for documentation purposes, applications
 
 - [Constants](<#constants>)
 - [Variables](<#variables>)
-- [func CPUinit\(\)](<#CPUinit>)
+- [func CPUInit\(\)](<#CPUInit>)
 - [func GetRandomData\(b \[\]byte\)](<#GetRandomData>)
 - [func Hwinit0\(\)](<#Hwinit0>)
 - [func Hwinit1\(\)](<#Hwinit1>)
@@ -116,11 +116,11 @@ var (
 )
 ```
 
-<a name="CPUinit"></a>
-## func [CPUinit](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L81>)
+<a name="CPUInit"></a>
+## func [CPUInit](<https://github.com/usbarmory/tamago-go/blob/master/src/runtime/goos/stub.go#L81>)
 
 ```go
-func CPUinit()
+func CPUInit()
 ```
 
 CPUInit handles immediate startup CPU initialization as it represents the first instruction set executed.

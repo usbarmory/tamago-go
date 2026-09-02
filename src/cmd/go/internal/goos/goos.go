@@ -27,6 +27,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"cmd/go/internal/base"
 	"cmd/go/internal/cfg"
@@ -36,13 +37,17 @@ import (
 
 const goos = "runtime/goos"
 
-// ResolveImport resolves the import path imp.
-func ResolveImport(moduleLoader *modload.Loader, imp string) (newPath, dir string, ok bool) {
-	if !str.HasPathPrefix(imp, goos) || cfg.Goos != "tamago" {
-		return "", "", false
-	}
+var (
+	goosPkgOnce sync.Once
+	goosPkgDir  string
+)
 
-	if cfg.GOOSPKG != "" {
+// goosPkgSrcDir returns the source directory of the GOOSPKG module.
+func goosPkgSrcDir(moduleLoader *modload.Loader) string {
+	goosPkgOnce.Do(func() {
+		defer func(w bool) { modload.ExplicitWriteGoMod = w }(modload.ExplicitWriteGoMod)
+		modload.ExplicitWriteGoMod = true
+
 		r, err := modload.ListModules(moduleLoader, context.Background(), []string{cfg.GOOSPKG}, 0, "")
 
 		if err != nil {
@@ -50,14 +55,25 @@ func ResolveImport(moduleLoader *modload.Loader, imp string) (newPath, dir strin
 		}
 
 		if len(r) > 0 && r[0].Error == nil {
-			dir = r[0].Dir
+			goosPkgDir = r[0].Dir
 		}
 
-		if len(dir) == 0 {
+		if len(goosPkgDir) == 0 {
 			base.Fatalf("go: GOOSPKG=%q not found in module list", cfg.GOOSPKG)
 		}
+	})
 
-		dir = filepath.Join(dir, "goos")
+	return goosPkgDir
+}
+
+// ResolveImport resolves the import path imp.
+func ResolveImport(moduleLoader *modload.Loader, imp string) (newPath, dir string, ok bool) {
+	if !str.HasPathPrefix(imp, goos) || cfg.Goos != "tamago" {
+		return "", "", false
+	}
+
+	if cfg.GOOSPKG != "" {
+		dir = filepath.Join(goosPkgSrcDir(moduleLoader), "goos")
 	} else {
 		// fallback to Linux userspace goos defined in GOROOT/src/runtime/goos
 		if os.Getenv("GOHOSTOS") == "linux" && (cfg.Goarch == "amd64" || cfg.Goarch == "arm" || cfg.Goarch == "arm64" || cfg.Goarch == "loong64" || cfg.Goarch == "riscv64") {

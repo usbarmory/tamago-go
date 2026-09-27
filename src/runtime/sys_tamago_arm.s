@@ -88,10 +88,16 @@ TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	CMP	$0, R0
 	B.EQ	fail
 
-	// g->timer.ts.heap[len-1]
-	ADD	R2, R0, R0
+	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in R2
+	ADD	R0, R2, R1
+	MOVW	R0, R2
+	MOVW	R1, R0
 	B	check
 prev:
+	// stop after g->timer.ts.heap[0]
+	CMP	R2, R0
+	B.LS	fail
+
 	SUB	$(timerWhen__size), R0
 	CMP	$0, R0
 	B.EQ	fail

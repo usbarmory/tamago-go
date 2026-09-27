@@ -45,9 +45,9 @@ var (
 	RamSize        uint = 0x20000000 // 512MB
 	RamStackOffset uint = 0x100
 
-	Bloc   = uintptr(RamStart)
-	Exit   = sys_exit_group
-
+	Bloc    = uintptr(RamStart)
+	BlocMax = uintptr(RamStart+RamSize)
+	Exit    = sys_exit_group
 	Idle   func(until int64)
 	ProcID func() uint64
 	Wake   func(uint64)

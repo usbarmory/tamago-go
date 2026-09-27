@@ -193,6 +193,7 @@ pkg runtime/goos, const MinPhysPageSize ideal-int #73608
 pkg runtime/goos, const StackSystem = 0 #73608
 pkg runtime/goos, const StackSystem ideal-int #73608
 pkg runtime/goos, var Bloc uintptr #73608
+pkg runtime/goos, var BlocMax uintptr #73608
 pkg runtime/goos, var Exit func(int32) #73608
 pkg runtime/goos, var Idle func(int64) #73608
 pkg runtime/goos, var ProcID func() uint64 #73608

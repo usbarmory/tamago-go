@@ -69,10 +69,15 @@ TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	MOV	(timers_heap)(T0), T0
 	BEQ	T0, ZERO, fail
 
-	// g->timer.ts.heap[len-1]
-	ADD	T2, T0, T0
+	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in T2
+	ADD	T0, T2, T1
+	MOV	T0, T2
+	MOV	T1, T0
 	JMP	check
 prev:
+	// stop after g->timer.ts.heap[0]
+	BGEU	T2, T0, fail
+
 	SUB	$(timerWhen__size), T0
 	BEQ	T0, ZERO, fail
 check:

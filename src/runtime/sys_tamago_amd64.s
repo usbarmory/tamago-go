@@ -199,20 +199,19 @@ TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
 	CMPQ	AX, $0
 	JE	fail
 
-	// g->timer.ts.heap[len-1]
+	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in CX
+	XCHGQ	AX, CX
 	ADDQ	CX, AX
 	JMP	check
 prev:
+	// stop after g->timer.ts.heap[0]
+	CMPQ	AX, CX
+	JLS	fail
+
 	SUBQ	$(timerWhen__size), AX
 	CMPQ	AX, $0
 	JE	fail
 check:
-	// sanity check
-	MOVQ	·firstmoduledata(SB), BX
-	MOVQ	$(moduledata_etext)(BX), BX
-	CMPQ	AX, BX
-	JLT	fail
-
 	// find heap entry matching g.timer
 	MOVQ	(timerWhen_timer)(AX), BX
 	CMPQ	BX, DX

@@ -6,15 +6,4 @@
 
 // func Relay(sig syscall.Signal)
 TEXT ·Relay(SB),NOSPLIT|NOFRAME,$0-8
-	MOV	sig+0(FP), A0
-	MOV	A0, ·sig(SB)
-	MOV	·loopG(SB), T0
-	JMP	runtime·wakeG(SB)
-
-// func Waiting() bool
-TEXT ·Waiting(SB),NOSPLIT,$0-1
-	MOV	·loopG(SB), T0
-	CALL	runtime·findTimer(SB)
-	XOR	$1, T1
-	MOV	T1, ret+0(FP)
-	RET
+	JMP	runtime·sigRelay(SB)

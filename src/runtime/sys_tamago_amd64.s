@@ -173,95 +173,19 @@ application:
 	MOVL	$0xf1, 0xf1  // crash
 	RET
 
-TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
-	CMPQ	AX, $0
-	JE	fail
-
-	MOVQ	(g_timer)(AX), DX
-	CMPQ	DX, $0
-	JE	fail
-
-	MOVQ	(timer_ts)(DX), AX
-	CMPQ	AX, $0
-	JE	fail
-
-	// len(g->timer.ts.heap)
-	MOVQ	(timers_heap+8)(AX), CX
-	CMPQ	CX, $0
-	JE	fail
-
-	// offset to last element
-	SUBQ	$1, CX
-	MOVQ	$(timerWhen__size), BX
-	IMULQ	BX, CX
-
-	MOVQ	(timers_heap)(AX), AX
-	CMPQ	AX, $0
-	JE	fail
-
-	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in CX
-	XCHGQ	AX, CX
-	ADDQ	CX, AX
-	JMP	check
-prev:
-	// stop after g->timer.ts.heap[0]
-	CMPQ	AX, CX
-	JLS	fail
-
-	SUBQ	$(timerWhen__size), AX
-	CMPQ	AX, $0
-	JE	fail
-check:
-	// find heap entry matching g.timer
-	MOVQ	(timerWhen_timer)(AX), BX
-	CMPQ	BX, DX
-	JNE	prev
-
-	MOVQ	$0, BX
-	RET
-fail:
-	MOVQ	$1, BX
-	RET
-
-// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// sigRelay sets the argument signal as pending (see sigqueue_tamago.go).
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * AX: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * AX: success (0), failure (1)
-TEXT runtime·wakeG(SB),NOSPLIT,$0-0
-	CALL	runtime·findTimer(SB)
+// The function is meant to be invoked, through os/signal.Relay, within
+// interrupt/exception handlers and must therefore not allocate, lock or use
+// the runtime.
+TEXT runtime·sigRelay(SB),NOSPLIT|NOFRAME,$0-4
+	MOVL	sig+0(FP), AX
+	CMPL	AX, $(const_numSig)
+	JAE	done
 
-	CMPQ	BX, $0
-	JNE	fail
-
-	// g->timer.ts.heap[off].when = 1
-	MOVQ	$1, BX
-	MOVQ	BX, (timerWhen_when)(AX)
-
-	// g->timer.when = 1
-	MOVQ	$1, BX
-	MOVQ	BX, (timer_when)(DX)
-
-	// g->timer.astate &= timerModified
-	// g->timer.state  &= timerModified
-	MOVQ	(timer_astate)(DX), CX
-	ORQ	$const_timerModified<<8|const_timerModified, CX
-	MOVQ	CX, (timer_astate)(DX)
-
-	// g->timer.ts.minWhenModified = 1
-	MOVQ	(timer_ts)(DX), AX
-	MOVQ	$1, BX
-	MOVQ	BX, (timers_minWhenModified)(AX)
-
-	MOVQ	$0, AX
-	RET
-fail:
-	MOVQ	$1, AX
+	// sigPending[sig/32] |= 1 << (sig%32)
+	MOVQ	$runtime·sigPending(SB), BX
+	LOCK
+	BTSL	AX, (BX)
+done:
 	RET

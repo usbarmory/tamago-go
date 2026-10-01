@@ -3472,6 +3472,20 @@ top:
 		runSafePointFn()
 	}
 
+	// tamago only:
+	// wake the signal receiver if a signal is pending
+	if GOOS == "tamago" {
+		if gp := sigReady(); gp != nil {
+			trace := traceAcquire()
+			casgstatus(gp, _Gwaiting, _Grunnable)
+			if trace.ok() {
+				trace.GoUnpark(gp, 0)
+				traceRelease(trace)
+			}
+			return gp, false, false
+		}
+	}
+
 	// now and pollUntil are saved for work stealing later,
 	// which may steal timers. It's important that between now
 	// and then, nothing blocks, so these numbers remain mostly

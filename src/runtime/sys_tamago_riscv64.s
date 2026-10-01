@@ -48,87 +48,24 @@ TEXT runtime·rt0_riscv64_tamago(SB),NOSPLIT|NOFRAME,$0
 	WORD $0 // crash if reached
 	RET
 
-TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
-	BEQ	T0, ZERO, fail
-
-	MOV	(g_timer)(T0), T3
-	BEQ	T3, ZERO, fail
-
-	MOV	(timer_ts)(T3), T0
-	BEQ	T0, ZERO, fail
-
-	// len(g->timer.ts.heap)
-	MOV	(timers_heap+8)(T0), T2
-	BEQ	T2, ZERO, fail
-
-	// offset to last element
-	SUB	$1, T2, T2
-	MOV	$(timerWhen__size), T1
-	MUL	T1, T2, T2
-
-	MOV	(timers_heap)(T0), T0
-	BEQ	T0, ZERO, fail
-
-	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in T2
-	ADD	T0, T2, T1
-	MOV	T0, T2
-	MOV	T1, T0
-	JMP	check
-prev:
-	// stop after g->timer.ts.heap[0]
-	BGEU	T2, T0, fail
-
-	SUB	$(timerWhen__size), T0
-	BEQ	T0, ZERO, fail
-check:
-	// find heap entry matching g.timer
-	MOV	(timerWhen_timer)(T0), T1
-	BNE	T3, T1, prev
-
-	MOV	$0, T1
-	RET
-fail:
-	MOV	$1, T1
-	RET
-
-// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// sigRelay sets the argument signal as pending (see sigqueue_tamago.go).
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * T0: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * T0: success (0), failure (1)
-TEXT runtime·wakeG(SB),NOSPLIT,$0-0
-	CALL	runtime·findTimer(SB)
+// The function is meant to be invoked, through os/signal.Relay, within
+// interrupt/exception handlers and must therefore not allocate, lock or use
+// the runtime.
+TEXT runtime·sigRelay(SB),NOSPLIT|NOFRAME,$0-4
+	MOVWU	sig+0(FP), T0
+	MOV	$(const_numSig), T1
+	BGEU	T0, T1, done
 
-	BNE	T1, ZERO, fail
-
-	// g->timer.ts.heap[off] = 1
+	// sigPending[sig/32] |= 1 << (sig%32)
+	SRL	$5, T0, T1
+	SLL	$2, T1, T1
+	MOV	$runtime·sigPending(SB), T2
+	ADD	T1, T2, T2
+	AND	$31, T0, T0
 	MOV	$1, T1
-	MOV	T1, (timerWhen_when)(T0)
-
-	// g->timer.when = 1
-	MOV	$1, T1
-	MOV	T1, (timer_when)(T3)
-
-	// g->timer.astate &= timerModified
-	// g->timer.state  &= timerModified
-	MOV	(timer_astate)(T3), T2
-	OR	$const_timerModified<<8|const_timerModified, T2, T2
-	MOV	T2, (timer_astate)(T3)
-
-	// g->timer.ts.minWhenModified = 1
-	MOV	(timer_ts)(T3), T0
-	MOV	$1, T1
-	MOV	T1, (timers_minWhenModified)(T0)
-
-	MOV	$0, T0
-	RET
-fail:
-	MOV	$1, T0
+	SLL	T0, T1, T1
+	AMOORW	T1, (T2), ZERO
+done:
 	RET

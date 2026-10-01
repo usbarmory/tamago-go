@@ -47,98 +47,29 @@ TEXT runtime·rt0_arm64_tamago(SB),NOSPLIT|NOFRAME,$0
 	BL	runtime·mstart(SB)
 	UNDEF
 
-TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
-	CMP	$0, R0
-	BEQ	fail
-
-	MOVD	(g_timer)(R0), R3
-	CMP	$0, R3
-	BEQ	fail
-
-	MOVD	(timer_ts)(R3), R0
-	CMP	$0, R0
-	BEQ	fail
-
-	// len(g->timer.ts.heap)
-	MOVD	(timers_heap+8)(R0), R2
-	CMP	$0, R2
-	BEQ	fail
-
-	// offset to last element
-	SUB	$1, R2, R2
-	MOVD	$(timerWhen__size), R1
-	MUL	R1, R2, R2
-
-	MOVD	(timers_heap)(R0), R0
-	CMP	$0, R0
-	BEQ	fail
-
-	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in R2
-	ADD	R0, R2, R1
-	MOVD	R0, R2
-	MOVD	R1, R0
-	B	check
-prev:
-	// stop after g->timer.ts.heap[0]
-	CMP	R2, R0
-	BLS	fail
-
-	SUB	$(timerWhen__size), R0
-	CMP	$0, R0
-	BEQ	fail
-check:
-	// find heap entry matching g.timer
-	MOVD	(timerWhen_timer)(R0), R1
-	CMP	R3, R1
-	BNE	prev
-
-	MOVD	$0, R1
-	RET
-fail:
-	MOVD	$1, R1
-	RET
-
-// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// sigRelay sets the argument signal as pending (see sigqueue_tamago.go).
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * R0: success (0), failure (1)
-TEXT runtime·wakeG(SB),NOSPLIT,$0-0
-	CALL	runtime·findTimer(SB)
+// The function is meant to be invoked, through os/signal.Relay, within
+// interrupt/exception handlers and must therefore not allocate, lock or use
+// the runtime.
+TEXT runtime·sigRelay(SB),NOSPLIT|NOFRAME,$0-4
+	MOVWU	sig+0(FP), R0
+	CMP	$(const_numSig), R0
+	BHS	done
 
-	CMP	$0, R1
-	BNE	fail
-
-	// g->timer.ts.heap[off] = 1
-	MOVD	$1, R1
-	MOVD	R1, (timerWhen_when)(R0)
-
-	// g->timer.when = 1
-	MOVD	$1, R1
-	MOVD	R1, (timer_when)(R3)
-
-	// g->timer.astate &= timerModified
-	// g->timer.state  &= timerModified
-	MOVD	(timer_astate)(R3), R2
-	ORR	$const_timerModified<<8|const_timerModified, R2, R2
-	MOVD	R2, (timer_astate)(R3)
-
-	// g->timer.ts.minWhenModified = 1
-	MOVD	(timer_ts)(R3), R0
-	MOVD	$1, R1
-	MOVD	R1, (timers_minWhenModified)(R0)
-
-	MOVD	$0, R0
-	RET
-fail:
-	MOVD	$1, R0
+	// sigPending[sig/32] |= 1 << (sig%32)
+	LSR	$5, R0, R1
+	AND	$31, R0, R0
+	MOVD	$1, R2
+	LSLW	R0, R2, R2
+	MOVD	$runtime·sigPending(SB), R3
+	ADD	R1<<2, R3, R3
+loop:
+	LDAXRW	(R3), R1
+	ORRW	R2, R1, R1
+	STLXRW	R1, (R3), R0
+	CBNZ	R0, loop
+done:
 	RET
 
 // never called (cgo not supported)

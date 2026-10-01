@@ -14,6 +14,10 @@ import (
 //
 //go:yeswritebarrierrec
 func beforeIdle(now, pollUntil int64) (gp *g, otherReady bool) {
+	if gp = sigReady(); gp != nil {
+		return gp, false
+	}
+
 	if goos.Idle != nil {
 		goos.Idle(pollUntil)
 	}

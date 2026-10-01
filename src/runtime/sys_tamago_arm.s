@@ -62,104 +62,45 @@ TEXT runtime·CallOnG0(SB),NOSPLIT,$0
 	JMP	runtime·systemstack(SB)
 	RET
 
-TEXT runtime·findTimer(SB),NOSPLIT|NOFRAME,$0-0
-	CMP	$0, R0
-	B.EQ	fail
-
-	MOVW	(g_timer)(R0), R3
-	CMP	$0, R3
-	B.EQ	fail
-
-	MOVW	(timer_ts)(R3), R0
-	CMP	$0, R0
-	B.EQ	fail
-
-	// len(g->timer.ts.heap)
-	MOVW	(timers_heap+4)(R0), R2
-	CMP	$0, R2
-	B.EQ	fail
-
-	// offset to last element
-	SUB	$1, R2, R2
-	MOVW	$(timerWhen__size), R1
-	MUL	R1, R2, R2
-
-	MOVW	(timers_heap)(R0), R0
-	CMP	$0, R0
-	B.EQ	fail
-
-	// g->timer.ts.heap[len-1], keep g->timer.ts.heap[0] in R2
-	ADD	R0, R2, R1
-	MOVW	R0, R2
-	MOVW	R1, R0
-	B	check
-prev:
-	// stop after g->timer.ts.heap[0]
-	CMP	R2, R0
-	B.LS	fail
-
-	SUB	$(timerWhen__size), R0
-	CMP	$0, R0
-	B.EQ	fail
-check:
-	// find heap entry matching g.timer
-	MOVW	(timerWhen_timer)(R0), R1
-	CMP	R3, R1
-	B.NE	prev
-
-	MOVW	$0, R1
-	RET
-fail:
-	MOVW	$1, R1
-	RET
-
-// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
+// sigRelay sets the argument signal as pending (see sigqueue_tamago.go).
 //
-// The function arguments must be passed through the following registers
-// (rather than on the frame pointer):
-//
-//   * R0: G pointer
-//
-// The function return values are passed through the following registers:
-// (rather than on the frame pointer):
-//
-//   * R0: success (0), failure (1)
-TEXT runtime·wakeG(SB),NOSPLIT,$0-0
-	CALL	runtime·findTimer(SB)
+// The function is meant to be invoked, through os/signal.Relay, within
+// interrupt/exception handlers and must therefore not allocate, lock or use
+// the runtime.
+TEXT runtime·sigRelay(SB),NOSPLIT|NOFRAME,$0-4
+	MOVW	sig+0(FP), R0
+	CMP	$(const_numSig), R0
+	B.HS	done
 
-	CMP	$0, R1
-	B.NE	fail
-
-	// g->timer.ts.heap[off] = 1
-	MOVW	$1, R1
-	MOVW	R1, (timerWhen_when+0)(R0)
-	MOVW	$0, R1
-	MOVW	R1, (timerWhen_when+4)(R0)
-
-	// g->timer.when = 1
-	MOVW	$1, R1
-	MOVW	R1, (timer_when+0)(R3)
-	MOVW	$0, R1
-	MOVW	R1, (timer_when+4)(R3)
-
-	// g->timer.astate &= timerModified
-	// g->timer.state  &= timerModified
-	MOVW	(timer_astate)(R3), R2
-	ORR	$const_timerModified<<8|const_timerModified, R2, R2
-	MOVW	R2, (timer_astate)(R3)
-
-	// g->timer.ts.minWhenModified = 1
-	MOVW	(timer_ts)(R3), R0
-	MOVW	$1, R1
-	MOVW	R1, (timers_minWhenModified+0)(R0)
-	MOVW	$0, R1
-	MOVW	R1, (timers_minWhenModified+4)(R0)
-
-	MOVW	$0, R0
-	RET
-fail:
-	MOVW	$1, R0
+	// sigPending[sig/32] |= 1 << (sig%32)
+	MOVW	R0>>5, R1
+	AND	$31, R0, R0
+	MOVW	$1, R2
+	MOVW	R2<<R0, R2
+	MOVW	$runtime·sigPending(SB), R3
+	ADD	R1<<2, R3, R3
+#ifndef GOARM_6
+	// ARMv5 (uniprocessor): mask interrupts as done by runtime atomics
+	// (see internal/runtime/atomic·armcas).
+	WORD	$0xe10f4000	// MRS R4, CPSR (save)
+	ORR	$0xc0, R4, R5	// mask IRQ+FIQ
+	WORD	$0xe121f005	// MSR CPSR_c, R5
+	MOVW	(R3), R1
+	ORR	R2, R1, R1
+	MOVW	R1, (R3)
+	WORD	$0xe121f004	// MSR CPSR_c, R4 (restore)
+#else
+loop:
+	LDREX	(R3), R1
+	ORR	R2, R1, R1
+	STREX	R1, (R3), R0
+	CMP	$0, R0
+	B.NE	loop
+#ifdef GOARM_7
+	DMB	MB_ISH
+#endif
+#endif
+done:
 	RET
 
 // never called (cgo not supported)

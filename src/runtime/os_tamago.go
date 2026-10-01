@@ -33,19 +33,6 @@ func nanotime1() int64 {
 // CallOnG0 calls a function (func()) on g0 stack.
 func CallOnG0(func())
 
-// wakeG modifies a goroutine cached timer for time.Sleep (g.timer) to fire as
-// soon as possible.
-//
-// The function is meant to be invoked within Go assembly and its arguments
-// must be passed through registers rather than on the frame pointer, see
-// definition in sys_tamago_$GOARCH.s for details.
-func wakeG()
-
-//go:linkname getgp os/signal.getgp
-func getgp() (gp uintptr) {
-	return uintptr(unsafe.Pointer(getg()))
-}
-
 // stubs for unused/unimplemented functionality
 type sigset struct{}
 type gsignalStack struct{}

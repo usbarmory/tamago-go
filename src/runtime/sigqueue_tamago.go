@@ -42,17 +42,6 @@ var (
 // sigRelay sets signal in sigPending, defined in sys_tamago_$GOARCH.s
 func sigRelay(sig uint32)
 
-//go:nosplit
-func sigAnyPending() bool {
-	for i := range sigPending {
-		if atomic.Load(&sigPending[i]) != 0 {
-			return true
-		}
-	}
-
-	return false
-}
-
 // signal_recv returns the next pending signal, blocking until one is
 // available.
 //
@@ -80,6 +69,17 @@ func signal_recv() uint32 {
 			gopark(sigParkCommit, nil, waitReasonIOWait, traceBlockGeneric, 1)
 		}
 	}
+}
+
+//go:nosplit
+func sigAnyPending() bool {
+	for i := range sigPending {
+		if atomic.Load(&sigPending[i]) != 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func sigParkCommit(gp *g, _ unsafe.Pointer) bool {

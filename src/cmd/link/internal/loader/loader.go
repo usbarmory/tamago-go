@@ -2518,8 +2518,7 @@ var blockedLinknames = map[string][]string{
 	"runtime.rt0_arm_tamago":     {""}, // used by external runtime/goos.CPUInit overlay
 	"runtime.rt0_loong64_tamago": {""}, // used by external runtime/goos.CPUInit overlay
 	"runtime.rt0_riscv64_tamago": {""}, // used by external runtime/goos.CPUInit overlay
-	"runtime.findTimer":          {"os/signal"},
-	"runtime.wakeG":              {"os/signal"},
+	"runtime.sigRelay":           {"os/signal"},
 }
 
 // check if a linkname reference to symbol s from refpkg is allowed

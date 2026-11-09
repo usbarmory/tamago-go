@@ -72,7 +72,7 @@ func GOMAXPROCS(n int) int {
 		n = 1 // WebAssembly has no threads yet, so only one CPU is possible.
 	}
 
-	if GOARCH == "tamago" && n > 1 {
+	if GOOS == "tamago" && n > 1 {
 		numCPUStartup = int32(n) // One P per CPU, Ms are never dropped.
 	}
 

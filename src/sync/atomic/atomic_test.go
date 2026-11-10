@@ -2730,7 +2730,7 @@ func TestStoreLoadSeqCst64(t *testing.T) {
 	if runtime.NumCPU() == 1 {
 		t.Skipf("Skipping test on %v processor machine", runtime.NumCPU())
 	}
-	if runtime.GOOS == "tamago" && runtime.GOARCH == "amd64" {
+	if runtime.GOOS == "tamago" && runtime.GOARCH == "arm64" {
 		// QEMU on arm64 is lacking correct ordering implementation
 		t.Skipf("Skipping test on %s/%s as we might be running under QEMU", runtime.GOOS, runtime.GOARCH)
 	}

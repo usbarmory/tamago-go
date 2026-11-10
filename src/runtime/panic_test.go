@@ -190,6 +190,10 @@ func testWrapperPanicOpen(i wrapperTestI) wrapperTestI {
 }
 
 func TestWrapperPanicUnwind(t *testing.T) {
+	if runtime.GOOS == "tamago" {
+		t.Skip(runtime.GOOS + " does not yet handle signals under testing")
+	}
+
 	t.Run("OpenCoded", func(t *testing.T) {
 		defer func() {
 			r := recover()
